@@ -23,12 +23,15 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can read all profiles" on public.profiles;
 create policy "Users can read all profiles"
   on public.profiles for select using (true);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update using (auth.uid() = id);
 
+drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles for insert with check (auth.uid() = id);
 
@@ -47,6 +50,7 @@ create table if not exists public.challenges (
 
 alter table public.challenges enable row level security;
 
+drop policy if exists "Anyone can read challenges" on public.challenges;
 create policy "Anyone can read challenges"
   on public.challenges for select using (true);
 
@@ -72,12 +76,15 @@ create table if not exists public.attempts (
 
 alter table public.attempts enable row level security;
 
+drop policy if exists "Users can read all attempts" on public.attempts;
 create policy "Users can read all attempts"
   on public.attempts for select using (true);
 
+drop policy if exists "Users can insert own attempts" on public.attempts;
 create policy "Users can insert own attempts"
   on public.attempts for insert with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own attempts" on public.attempts;
 create policy "Users can update own attempts"
   on public.attempts for update using (auth.uid() = user_id);
 
@@ -94,13 +101,16 @@ create table if not exists public.friendships (
 
 alter table public.friendships enable row level security;
 
+drop policy if exists "Users can see their own friendships" on public.friendships;
 create policy "Users can see their own friendships"
   on public.friendships for select
   using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
+drop policy if exists "Users can send friend requests" on public.friendships;
 create policy "Users can send friend requests"
   on public.friendships for insert with check (auth.uid() = requester_id);
 
+drop policy if exists "Addressee can accept requests" on public.friendships;
 create policy "Addressee can accept requests"
   on public.friendships for update using (auth.uid() = addressee_id);
 
