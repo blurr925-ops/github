@@ -1,97 +1,213 @@
-import React, { useState } from 'react';
-
-const FRIENDS = [
-  { id: 1, name: 'Alex Chen',    handle: '@alex_c',    avatar: '🎯', status: 'done',    score: 'Nailed', streak: 14, mutual: 3 },
-  { id: 2, name: 'Maya Patel',   handle: '@mayap',     avatar: '🎨', status: 'done',    score: 'Almost', streak: 7,  mutual: 5 },
-  { id: 3, name: 'Jordan Kim',   handle: '@jkim',      avatar: '🎵', status: 'pending', score: null,     streak: 21, mutual: 2 },
-  { id: 4, name: 'Sam Torres',   handle: '@samtorres', avatar: '🏄', status: 'pending', score: null,     streak: 3,  mutual: 8 },
-  { id: 5, name: 'Riley Zhao',   handle: '@rileyZ',    avatar: '🌟', status: 'done',    score: 'Nailed', streak: 45, mutual: 1 },
-  { id: 6, name: 'Casey Park',   handle: '@caseyp',    avatar: '🔥', status: 'pending', score: null,     streak: 9,  mutual: 4 },
-];
-
-const SUGGESTIONS = [
-  { id: 10, name: 'Devon Walsh',  handle: '@devonw',   avatar: '🎸', mutual: 12, followers: '2.3k' },
-  { id: 11, name: 'Quinn Osei',   handle: '@quinno',   avatar: '🏆', mutual: 7,  followers: '891' },
-  { id: 12, name: 'Nico Ferrer',  handle: '@nicofer',  avatar: '🎪', mutual: 15, followers: '4.1k' },
-  { id: 13, name: 'Jade Nguyen',  handle: '@jadeN',    avatar: '🌊', mutual: 3,  followers: '672' },
-];
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../supabase';
 
 const STATUS_COLORS = { nailed: '#06FFA5', almost: '#FFD23F', failed: '#FF6B35' };
 
-export default function Friends({ colors: c }) {
-  const [screen,    setScreen]    = useState('list'); // list | add | invite | qr
+export default function Friends({ colors: c, user }) {
+  const [screen,    setScreen]    = useState('list');
   const [search,    setSearch]    = useState('');
-  const [added,     setAdded]     = useState({});
+  const [friends,   setFriends]   = useState([]);   // accepted friends + today's attempt
+  const [requests,  setRequests]  = useState([]);   // incoming pending requests
+  const [results,   setResults]   = useState([]);   // user-search results
+  const [sent,      setSent]      = useState({});   // { userId: true } — request sent this session
+  const [loading,   setLoading]   = useState(true);
   const [challenge, setChallenge] = useState(null);
 
   const s = styles(c);
 
-  const filtered = FRIENDS.filter(f =>
-    f.name.toLowerCase().includes(search.toLowerCase()) ||
-    f.handle.toLowerCase().includes(search.toLowerCase())
-  );
+  // ─── Load accepted friends + their today attempt ─────────────────────────
+  const loadFriends = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+
+    const { data: rows } = await supabase
+      .from('friendships')
+      .select(`
+        id,
+        requester_id,
+        addressee_id,
+        requester:profiles!friendships_requester_id_fkey(id, display_name, handle, avatar_emoji, streak),
+        addressee:profiles!friendships_addressee_id_fkey(id, display_name, handle, avatar_emoji, streak)
+      `)
+      .eq('status', 'accepted')
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+
+    if (!rows) { setLoading(false); return; }
+
+    const friendProfiles = rows.map(r =>
+      r.requester_id === user.id ? r.addressee : r.requester
+    );
+
+    if (friendProfiles.length === 0) { setFriends([]); setLoading(false); return; }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: todayChallenge } = await supabase
+      .from('challenges')
+      .select('id')
+      .eq('date', today)
+      .single();
+
+    let attemptsByUser = {};
+    if (todayChallenge) {
+      const friendIds = friendProfiles.map(f => f.id);
+      const { data: attempts } = await supabase
+        .from('attempts')
+        .select('user_id, result, duration_ms')
+        .eq('challenge_id', todayChallenge.id)
+        .in('user_id', friendIds);
+      if (attempts) attempts.forEach(a => { attemptsByUser[a.user_id] = a; });
+    }
+
+    setFriends(friendProfiles.map(f => ({ ...f, attempt: attemptsByUser[f.id] || null })));
+    setLoading(false);
+  }, [user]);
+
+  // ─── Load incoming pending requests ──────────────────────────────────────
+  const loadRequests = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('friendships')
+      .select(`
+        id,
+        requester:profiles!friendships_requester_id_fkey(id, display_name, handle, avatar_emoji, streak)
+      `)
+      .eq('addressee_id', user.id)
+      .eq('status', 'pending');
+    setRequests(data || []);
+  }, [user]);
+
+  useEffect(() => { loadFriends(); loadRequests(); }, [loadFriends, loadRequests]);
+
+  // ─── Search users ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (screen !== 'add' || search.trim().length < 2) { setResults([]); return; }
+    const q = search.trim();
+    const timer = setTimeout(async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, display_name, handle, avatar_emoji, streak, total_points')
+        .or(`handle.ilike.%${q}%,display_name.ilike.%${q}%`)
+        .neq('id', user?.id)
+        .limit(10);
+      setResults(data || []);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, screen, user]);
+
+  // ─── Send friend request ──────────────────────────────────────────────────
+  const sendRequest = async (toUserId) => {
+    if (!user) return;
+    await supabase.from('friendships').insert({
+      requester_id: user.id,
+      addressee_id: toUserId,
+      status: 'pending',
+    });
+    setSent(prev => ({ ...prev, [toUserId]: true }));
+  };
+
+  const acceptRequest = async (friendshipId) => {
+    await supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId);
+    await loadRequests();
+    await loadFriends();
+  };
+
+  const done    = friends.filter(f => f.attempt);
+  const waiting = friends.filter(f => !f.attempt);
+  const filteredDone    = done.filter(f => matchSearch(f, search));
+  const filteredWaiting = waiting.filter(f => matchSearch(f, search));
 
   // ─── FRIEND LIST ──────────────────────────────────────────────────────────
   if (screen === 'list') {
-    const done    = filtered.filter(f => f.status === 'done');
-    const waiting = filtered.filter(f => f.status === 'pending');
-
     return (
       <div style={s.scroll}>
         <div style={s.wrap}>
-          {/* Header row */}
           <div style={s.topRow}>
             <div>
               <div style={s.pageTitle}>Friends</div>
-              <div style={s.pageSub}>{FRIENDS.length} buds · {done.length} done today</div>
+              <div style={s.pageSub}>
+                {loading ? 'Loading…' : `${friends.length} buds · ${done.length} done today`}
+              </div>
             </div>
-            <button style={s.addBtn} onClick={() => setScreen('add')}>+ Add</button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {requests.length > 0 && (
+                <button style={s.reqBadgeBtn} onClick={() => setScreen('requests')}>
+                  {requests.length} request{requests.length > 1 ? 's' : ''}
+                </button>
+              )}
+              <button style={s.addBtn} onClick={() => setScreen('add')}>+ Add</button>
+            </div>
           </div>
 
-          {/* Search */}
           <div style={s.searchWrap}>
             <span style={s.searchIcon}>🔍</span>
             <input
               style={s.searchInput}
-              placeholder="Search friends…"
+              placeholder="Filter friends…"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
 
-          {/* Done section */}
-          {done.length > 0 && (
-            <Section title="✅ Completed Today" count={done.length} c={c}>
-              {done.map((f, i) => (
-                <FriendRow key={f.id} f={f} c={c} delay={i * 0.05}
-                  onChallenge={() => setChallenge(f)} />
+          {!loading && friends.length === 0 && (
+            <div style={s.emptyBox}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>👥</div>
+              <div style={s.emptyTitle}>No friends yet</div>
+              <div style={s.emptySub}>Tap + Add to find people you know</div>
+            </div>
+          )}
+
+          {filteredDone.length > 0 && (
+            <Section title="✅ Completed Today" count={filteredDone.length} c={c}>
+              {filteredDone.map((f, i) => (
+                <FriendRow key={f.id} f={f} c={c} delay={i * 0.05} onPoke={() => setChallenge(f)} />
               ))}
             </Section>
           )}
 
-          {/* Waiting section */}
-          {waiting.length > 0 && (
-            <Section title="⏳ Haven't Done It Yet" count={waiting.length} c={c}>
-              {waiting.map((f, i) => (
-                <FriendRow key={f.id} f={f} c={c} delay={i * 0.05}
-                  onChallenge={() => setChallenge(f)} />
+          {filteredWaiting.length > 0 && (
+            <Section title="⏳ Haven't Done It Yet" count={filteredWaiting.length} c={c}>
+              {filteredWaiting.map((f, i) => (
+                <FriendRow key={f.id} f={f} c={c} delay={i * 0.05} onPoke={() => setChallenge(f)} />
               ))}
             </Section>
           )}
 
-          {/* Invite nudge */}
           <div style={s.inviteNudge}>
             <div style={s.nudgeText}>Bring more friends into the challenge</div>
             <button style={s.nudgeBtn} onClick={() => setScreen('invite')}>
-              🎁 Invite & Earn a Streak Shield
+              🎁 Invite &amp; Earn a Streak Shield
             </button>
           </div>
         </div>
 
-        {/* Challenge modal */}
         {challenge && (
           <ChallengeModal friend={challenge} c={c} onClose={() => setChallenge(null)} />
         )}
+      </div>
+    );
+  }
+
+  // ─── PENDING REQUESTS ─────────────────────────────────────────────────────
+  if (screen === 'requests') {
+    return (
+      <div style={s.scroll}>
+        <div style={s.wrap}>
+          <div style={s.backRow}>
+            <button style={s.backBtn} onClick={() => setScreen('list')}>← Back</button>
+            <div style={s.pageTitle}>Requests</div>
+            <div style={{ width: 60 }} />
+          </div>
+
+          {requests.length === 0 ? (
+            <div style={s.emptyBox}>
+              <div style={{ fontSize: 36 }}>✅</div>
+              <div style={s.emptyTitle}>All caught up!</div>
+            </div>
+          ) : requests.map((r, i) => (
+            <RequestRow key={r.id} r={r} c={c} delay={i * 0.06}
+              onAccept={() => acceptRequest(r.id)} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -102,12 +218,11 @@ export default function Friends({ colors: c }) {
       <div style={s.scroll}>
         <div style={s.wrap}>
           <div style={s.backRow}>
-            <button style={s.backBtn} onClick={() => setScreen('list')}>← Back</button>
+            <button style={s.backBtn} onClick={() => { setScreen('list'); setSearch(''); }}>← Back</button>
             <div style={s.pageTitle}>Add Friends</div>
             <div style={{ width: 60 }} />
           </div>
 
-          {/* Search */}
           <div style={s.searchWrap}>
             <span style={s.searchIcon}>🔍</span>
             <input
@@ -115,28 +230,29 @@ export default function Friends({ colors: c }) {
               placeholder="Search by name or @handle…"
               value={search}
               onChange={e => setSearch(e.target.value)}
+              autoFocus
             />
           </div>
 
-          {/* Quick actions */}
           <div style={s.quickRow}>
-            <QuickAction icon="📱" label="Sync Contacts" c={c} />
-            <QuickAction icon="📷" label="QR Code"       c={c} onClick={() => setScreen('qr')} />
-            <QuickAction icon="💌" label="Share Link"    c={c} />
+            <QuickAction icon="📷" label="QR Code"    c={c} onClick={() => setScreen('qr')} />
+            <QuickAction icon="💌" label="Share Link" c={c} onClick={() => setScreen('invite')} />
           </div>
 
-          {/* Suggestions */}
-          <div style={s.sectionLabel}>People you might know</div>
-          {SUGGESTIONS.map((p, i) => (
-            <SuggestionRow
-              key={p.id} p={p} c={c}
-              added={!!added[p.id]}
-              onAdd={() => setAdded(a => ({ ...a, [p.id]: true }))}
-              delay={i * 0.06}
-            />
-          ))}
+          {search.trim().length < 2 ? (
+            <div style={s.searchHint}>Type at least 2 characters to search</div>
+          ) : results.length === 0 ? (
+            <div style={s.searchHint}>No users found for "{search}"</div>
+          ) : (
+            <>
+              <div style={s.sectionLabel}>Search results</div>
+              {results.map((p, i) => (
+                <SuggestionRow key={p.id} p={p} c={c} sent={!!sent[p.id]}
+                  onAdd={() => sendRequest(p.id)} delay={i * 0.06} />
+              ))}
+            </>
+          )}
 
-          {/* Share options */}
           <div style={s.sectionLabel}>Invite via</div>
           <div style={s.shareGrid}>
             {[
@@ -144,9 +260,7 @@ export default function Friends({ colors: c }) {
               { icon: '💬', name: 'iMessage',  color: '#34C759' },
               { icon: '📸', name: 'Instagram', color: c.pink    },
               { icon: '✉️', name: 'Email',     color: c.coral   },
-            ].map(s2 => (
-              <ShareOption key={s2.name} {...s2} c={c} />
-            ))}
+            ].map(opt => <ShareOption key={opt.name} {...opt} c={c} />)}
           </div>
         </div>
       </div>
@@ -155,6 +269,7 @@ export default function Friends({ colors: c }) {
 
   // ─── INVITE SCREEN ────────────────────────────────────────────────────────
   if (screen === 'invite') {
+    const code = user?.invite_code || '…';
     return (
       <div style={s.scroll}>
         <div style={s.wrap}>
@@ -165,30 +280,21 @@ export default function Friends({ colors: c }) {
             <h2 style={s.inviteTitle}>Invite a Friend,<br/>Earn a Streak Shield</h2>
             <p style={s.inviteSub}>
               Your friend joins Spark and completes their first challenge —
-              you both get a <span style={{ color: c.gold, fontWeight: 700 }}>Streak Shield</span> that protects your streak for 1 day.
+              you both get a <span style={{ color: c.gold, fontWeight: 700 }}>Streak Shield</span> that
+              protects your streak for 1 day.
             </p>
           </div>
 
           <div style={s.inviteCode}>
             <div style={s.inviteCodeLabel}>Your invite code</div>
-            <div style={s.inviteCodeVal}>SPARK-ZK42</div>
-            <button style={s.copyBtn}>📋 Copy</button>
+            <div style={s.inviteCodeVal}>{code}</div>
+            <button style={s.copyBtn} onClick={() => navigator.clipboard?.writeText(code)}>
+              📋 Copy
+            </button>
           </div>
 
           <div style={s.inviteStats}>
-            <InviteStat val="3" label="Friends invited" c={c} />
-            <InviteStat val="2" label="Shields earned"  c={c} color={c.gold} />
-            <InviteStat val="1" label="Active shield"   c={c} color={c.green} />
-          </div>
-
-          <div style={s.shareGridLarge}>
-            {[
-              { icon: '🟢', name: 'WhatsApp',  msg: "I'm challenging you on Spark! Complete the daily 60-sec skill challenge with me 🔥 Join with my code: SPARK-ZK42" },
-              { icon: '💬', name: 'iMessage',  msg: "Yo join Spark and do today's challenge with me ⚡ Code: SPARK-ZK42" },
-              { icon: '📸', name: 'Instagram', msg: "Dming you my Spark invite link…" },
-            ].map(i => (
-              <InviteShareBtn key={i.name} {...i} c={c} />
-            ))}
+            <InviteStat val={user?.shields ?? 0} label="Shields earned" c={c} color={c.gold} />
           </div>
         </div>
       </div>
@@ -207,7 +313,7 @@ export default function Friends({ colors: c }) {
           </div>
           <div style={s.qrBox}>
             <QRPlaceholder c={c} />
-            <div style={s.qrHandle}>@zara_k · SPARK-ZK42</div>
+            <div style={s.qrHandle}>@{user?.handle} · {user?.invite_code}</div>
           </div>
           <button style={s.saveQrBtn}>💾 Save to Photos</button>
         </div>
@@ -216,6 +322,14 @@ export default function Friends({ colors: c }) {
   }
 
   return null;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function matchSearch(f, search) {
+  if (!search) return true;
+  const q = search.toLowerCase();
+  return f.display_name.toLowerCase().includes(q) || f.handle.toLowerCase().includes(q);
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -227,15 +341,16 @@ function Section({ title, count, c, children }) {
         <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' }}>{title}</div>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{count}</div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {children}
-      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>{children}</div>
     </div>
   );
 }
 
-function FriendRow({ f, c, onChallenge, delay }) {
-  const scoreColor = f.score ? (STATUS_COLORS[f.score.toLowerCase()] || c.coral) : null;
+function FriendRow({ f, c, onPoke, delay }) {
+  const result     = f.attempt?.result;
+  const scoreColor = result ? (STATUS_COLORS[result] || c.coral) : null;
+  const label      = result ? (result.charAt(0).toUpperCase() + result.slice(1)) : null;
+
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
@@ -245,38 +360,65 @@ function FriendRow({ f, c, onChallenge, delay }) {
       animation: `slideUp 0.35s ease-out ${delay}s both`,
     }}>
       <div style={{
-        width: 44, height: 44, borderRadius: '50%', fontSize: 20,
+        width: 44, height: 44, borderRadius: '50%', fontSize: 22,
         background: `linear-gradient(135deg, ${c.purple}30, ${c.pink}20)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>{f.avatar}</div>
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>{f.avatar_emoji}</div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {f.name}
+          {f.display_name}
         </div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{f.handle} · 🔥 {f.streak}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>@{f.handle} · 🔥 {f.streak}</div>
       </div>
 
-      {f.status === 'done' ? (
+      {result ? (
         <div style={{
           padding: '4px 10px', borderRadius: 20,
           background: `${scoreColor}20`, border: `1px solid ${scoreColor}40`,
           fontSize: 12, fontWeight: 700, color: scoreColor,
-        }}>{f.score}</div>
+        }}>{label}</div>
       ) : (
         <button style={{
           padding: '6px 12px', borderRadius: 20,
           background: `linear-gradient(135deg, ${c.coral}, ${c.pink})`,
           border: 'none', fontSize: 11, fontWeight: 700, color: '#fff',
           cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-        }} onClick={onChallenge}>⚡ Poke</button>
+        }} onClick={onPoke}>⚡ Poke</button>
       )}
     </div>
   );
 }
 
-function SuggestionRow({ p, c, added, onAdd, delay }) {
+function RequestRow({ r, c, onAccept, delay }) {
+  const f = r.requester;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      background: `${c.purple}10`, border: `1px solid ${c.purple}30`,
+      borderRadius: 14, padding: '10px 14px',
+      animation: `slideUp 0.35s ease-out ${delay}s both`,
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: '50%', fontSize: 22,
+        background: `linear-gradient(135deg, ${c.purple}30, ${c.pink}20)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>{f.avatar_emoji}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{f.display_name}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>@{f.handle} · 🔥 {f.streak}</div>
+      </div>
+      <button style={{
+        padding: '7px 14px', borderRadius: 20, cursor: 'pointer',
+        background: `linear-gradient(135deg, ${c.green}, ${c.purple})`,
+        border: 'none', fontSize: 12, fontWeight: 700, color: '#fff',
+        fontFamily: "'DM Sans', sans-serif",
+      }} onClick={onAccept}>Accept</button>
+    </div>
+  );
+}
+
+function SuggestionRow({ p, c, sent, onAdd, delay }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
@@ -288,27 +430,24 @@ function SuggestionRow({ p, c, added, onAdd, delay }) {
       <div style={{
         width: 44, height: 44, borderRadius: '50%', fontSize: 22,
         background: `linear-gradient(135deg, ${c.purple}30, ${c.green}20)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>{p.avatar}</div>
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>{p.avatar_emoji}</div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{p.name}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{p.display_name}</div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-          {p.handle} · {p.mutual} mutual · {p.followers} followers
+          @{p.handle} · 🔥 {p.streak} · {(p.total_points || 0).toLocaleString()} pts
         </div>
       </div>
 
       <button style={{
         padding: '7px 16px', borderRadius: 20, cursor: 'pointer',
-        background: added ? 'rgba(6,255,165,0.15)' : `linear-gradient(135deg, ${c.coral}, ${c.pink})`,
-        border: added ? `1px solid ${c.green}` : 'none',
-        fontSize: 12, fontWeight: 700,
-        color: added ? c.green : '#fff',
-        fontFamily: "'DM Sans', sans-serif",
-        transition: 'all 0.2s',
-      }} onClick={onAdd}>
-        {added ? '✓ Added' : '+ Add'}
+        background: sent ? 'rgba(6,255,165,0.15)' : `linear-gradient(135deg, ${c.coral}, ${c.pink})`,
+        border: sent ? `1px solid ${c.green}` : 'none',
+        fontSize: 12, fontWeight: 700, color: sent ? c.green : '#fff',
+        fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s',
+      }} onClick={!sent ? onAdd : undefined}>
+        {sent ? '✓ Sent' : '+ Add'}
       </button>
     </div>
   );
@@ -329,7 +468,7 @@ function QuickAction({ icon, label, c, onClick }) {
   );
 }
 
-function ShareOption({ icon, name, color, c }) {
+function ShareOption({ icon, name, color }) {
   return (
     <button style={{
       flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
@@ -338,57 +477,31 @@ function ShareOption({ icon, name, color, c }) {
       fontFamily: "'DM Sans', sans-serif",
     }}>
       <span style={{ fontSize: 22 }}>{icon}</span>
-      <span style={{ fontSize: 10, fontWeight: 600, color: color }}>{name}</span>
+      <span style={{ fontSize: 10, fontWeight: 600, color }}>{name}</span>
     </button>
   );
 }
 
-function InviteStat({ val, label, c, color }) {
+function InviteStat({ val, label, color }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <div style={{
-        fontFamily: "'Space Mono', monospace",
-        fontSize: 28, fontWeight: 700, color: color || '#fff',
-      }}>{val}</div>
+      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 28, fontWeight: 700, color: color || '#fff' }}>
+        {val}
+      </div>
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>{label}</div>
     </div>
   );
 }
 
-function InviteShareBtn({ icon, name, msg, c }) {
-  return (
-    <button style={{
-      width: '100%', padding: '14px 16px',
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.09)',
-      borderRadius: 14, display: 'flex', alignItems: 'center', gap: 12,
-      cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-    }}>
-      <span style={{ fontSize: 22 }}>{icon}</span>
-      <div style={{ textAlign: 'left' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{name}</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{msg.slice(0, 50)}…</div>
-      </div>
-      <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>›</span>
-    </button>
-  );
-}
-
-function QRPlaceholder({ c }) {
-  // Build a simple decorative "QR-like" grid
-  const cells = Array.from({ length: 100 }, (_, i) => Math.random() > 0.5);
+function QRPlaceholder() {
+  const cells = Array.from({ length: 100 }, (_, i) => (i * 7 + 3) % 11 > 5);
   return (
     <div style={{
       width: 200, height: 200, display: 'grid', gridTemplateColumns: 'repeat(10,1fr)',
-      gap: 2, padding: 10,
-      background: '#fff', borderRadius: 16,
-      margin: '0 auto',
+      gap: 2, padding: 10, background: '#fff', borderRadius: 16, margin: '0 auto',
     }}>
       {cells.map((filled, i) => (
-        <div key={i} style={{
-          background: filled ? '#050508' : '#fff',
-          borderRadius: 1,
-        }} />
+        <div key={i} style={{ background: filled ? '#050508' : '#fff', borderRadius: 1 }} />
       ))}
     </div>
   );
@@ -408,9 +521,9 @@ function ChallengeModal({ friend, c, onClose }) {
         animation: 'slideUp 0.3s ease-out',
       }} onClick={e => e.stopPropagation()}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: 44 }}>{friend.avatar}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{friend.name}</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{friend.handle}</div>
+          <div style={{ fontSize: 44 }}>{friend.avatar_emoji}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>{friend.display_name}</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>@{friend.handle}</div>
         </div>
         <button style={{
           width: '100%', padding: '15px',
@@ -441,6 +554,12 @@ function styles(c) {
       fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer',
       fontFamily: "'DM Sans', sans-serif",
     },
+    reqBadgeBtn: {
+      background: `${c.purple}30`, border: `1px solid ${c.purple}60`,
+      borderRadius: 20, padding: '7px 14px',
+      fontSize: 12, fontWeight: 700, color: c.purple, cursor: 'pointer',
+      fontFamily: "'DM Sans', sans-serif",
+    },
     searchWrap: {
       display: 'flex', alignItems: 'center', gap: 10,
       background: 'rgba(255,255,255,0.05)',
@@ -452,19 +571,25 @@ function styles(c) {
       flex: 1, background: 'none', border: 'none', outline: 'none',
       color: '#fff', fontSize: 14, fontFamily: "'DM Sans', sans-serif",
     },
+    searchHint: { fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '12px 0' },
     quickRow: { display: 'flex', gap: 10 },
     sectionLabel: {
       fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
       letterSpacing: 1, textTransform: 'uppercase', padding: '4px 2px',
     },
     shareGrid: { display: 'flex', gap: 8 },
-    shareGridLarge: { display: 'flex', flexDirection: 'column', gap: 10 },
     backRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     backBtn: {
       background: 'none', border: 'none', color: c.coral,
       fontSize: 14, fontWeight: 600, cursor: 'pointer',
       fontFamily: "'DM Sans', sans-serif", padding: 0,
     },
+    emptyBox: {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+      padding: '40px 20px', textAlign: 'center',
+    },
+    emptyTitle: { fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.6)' },
+    emptySub:  { fontSize: 13, color: 'rgba(255,255,255,0.3)' },
     inviteNudge: {
       background: `linear-gradient(135deg, ${c.gold}15, ${c.coral}10)`,
       border: `1px solid ${c.gold}30`,
@@ -484,14 +609,14 @@ function styles(c) {
     inviteSub: { margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300 },
     inviteCode: {
       background: 'rgba(255,255,255,0.05)', border: `1px solid ${c.gold}30`,
-      borderRadius: 16, padding: '20px', display: 'flex',
-      flexDirection: 'column', alignItems: 'center', gap: 10,
+      borderRadius: 16, padding: '20px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
     },
     inviteCodeLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase' },
     inviteCodeVal: {
       fontFamily: "'Space Mono', monospace",
-      fontSize: 28, fontWeight: 700, color: c.gold,
-      letterSpacing: 4, textShadow: `0 0 20px ${c.gold}60`,
+      fontSize: 24, fontWeight: 700, color: c.gold,
+      letterSpacing: 3, textShadow: `0 0 20px ${c.gold}60`,
     },
     copyBtn: {
       background: `${c.gold}20`, border: `1px solid ${c.gold}40`,
