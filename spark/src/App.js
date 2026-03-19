@@ -56,7 +56,7 @@ export default function App() {
         </span>
         <div style={s.headerRight}>
           <button style={s.iconBtn}>🔔</button>
-          <div style={s.avatar}>ZK</div>
+          <div style={s.avatar}>👤</div>
         </div>
       </header>
 

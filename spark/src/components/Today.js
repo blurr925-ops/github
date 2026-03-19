@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// Sample pro clip – replace with a real drumming clip URL
+const PRO_VIDEO_URL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+
 const CHALLENGE = {
   title: 'Finger Drumming',
   subtitle: 'Trap Hi-Hat Pattern',
@@ -46,8 +49,12 @@ export default function Today({ colors: c }) {
   const [showShare,   setShowShare]   = useState(false);
   const [confetti,    setConfetti]    = useState([]);
 
-  const recTimer  = useRef(null);
-  const lockTimer = useRef(null);
+  const recTimer   = useRef(null);
+  const lockTimer  = useRef(null);
+  const cameraRef  = useRef(null);
+  const streamRef  = useRef(null);
+  const proVideoRef = useRef(null);
+  const [proPlaying, setProPlaying] = useState(false);
 
   // Lock countdown
   useEffect(() => {
@@ -98,6 +105,29 @@ export default function Today({ colors: c }) {
       });
     }, 1000);
     return () => clearInterval(recTimer.current);
+  }, [phase]);
+
+  // Camera access
+  useEffect(() => {
+    if (phase !== 'recording') {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      return;
+    }
+    navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+      .then(stream => {
+        streamRef.current = stream;
+        if (cameraRef.current) cameraRef.current.srcObject = stream;
+      })
+      .catch(() => {}); // Graceful fallback if camera denied
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+    };
   }, [phase]);
 
   const endRecording = useCallback((how) => {
@@ -201,17 +231,26 @@ export default function Today({ colors: c }) {
           <div style={s.proSection}>
             <div style={s.sectionHeader}>
               <span style={s.sectionTitle}>⚡ Watch the Pro</span>
-              <span style={s.sectionSub}>12 sec clip</span>
+              <span style={s.sectionSub}>@drumgod</span>
             </div>
-            <div style={s.proClip}>
-              <div style={s.proClipInner}>
-                <div style={s.proAvatar}>🎬</div>
+            <div style={s.proClip}
+              onClick={() => {
+                if (!proVideoRef.current) return;
+                if (proPlaying) { proVideoRef.current.pause(); setProPlaying(false); }
+                else { proVideoRef.current.play(); setProPlaying(true); }
+              }}
+            >
+              <video
+                ref={proVideoRef}
+                src={PRO_VIDEO_URL}
+                style={s.proVideo}
+                playsInline
+                loop
+                onEnded={() => setProPlaying(false)}
+              />
+              {!proPlaying && (
                 <div style={s.playBtn}>▶</div>
-                <div style={s.proBar}>
-                  <div style={s.proBarFill} />
-                </div>
-                <div style={s.proLabel}>@drumgod · 12s</div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -258,12 +297,18 @@ export default function Today({ colors: c }) {
 
     return (
       <div style={s.recordingScreen}>
-        {/* Camera placeholder */}
+        {/* Live camera feed */}
         <div style={s.cameraView}>
           <div style={s.cameraFeed}>
+            <video
+              ref={cameraRef}
+              autoPlay
+              playsInline
+              muted
+              style={s.cameraVideo}
+            />
             <div style={s.scanline} />
             <div style={s.recDot} />
-            <div style={s.cameraHint}>Camera Preview</div>
           </div>
         </div>
 
@@ -351,7 +396,7 @@ export default function Today({ colors: c }) {
                 <div style={{ ...s.shareSlotVid, background: `linear-gradient(135deg, ${c.purple}40, ${c.pink}30)` }}>
                   😎<br/>You
                 </div>
-                <div style={s.shareSlotName}>@zara_k</div>
+                <div style={s.shareSlotName}>@you</div>
               </div>
             </div>
             <div style={s.shareFooter}>
@@ -544,35 +589,21 @@ function styles(c) {
     sectionSub: { fontSize: 12, color: 'rgba(255,255,255,0.35)' },
     proClip: {
       borderRadius: 16, overflow: 'hidden',
-      background: 'rgba(255,255,255,0.04)',
+      background: '#000',
       border: '1px solid rgba(255,255,255,0.08)',
+      position: 'relative', height: 200, cursor: 'pointer',
     },
-    proClipInner: {
-      height: 120, display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      position: 'relative', gap: 8,
+    proVideo: {
+      width: '100%', height: '100%', objectFit: 'cover', display: 'block',
     },
-    proAvatar: { fontSize: 32 },
     playBtn: {
-      position: 'absolute',
-      width: 44, height: 44, borderRadius: '50%',
+      position: 'absolute', top: '50%', left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: 52, height: 52, borderRadius: '50%',
       background: `linear-gradient(135deg, ${c.coral}, ${c.pink})`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 18, color: '#fff', boxShadow: `0 0 20px ${c.coral}60`,
-      cursor: 'pointer', animation: 'pulseSlow 2s ease-in-out infinite',
-    },
-    proBar: {
-      position: 'absolute', bottom: 12, left: 12, right: 12,
-      height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 2,
-    },
-    proBarFill: {
-      width: '35%', height: '100%', borderRadius: 2,
-      background: `linear-gradient(90deg, ${c.coral}, ${c.pink})`,
-    },
-    proLabel: {
-      position: 'absolute', top: 10, right: 12,
-      fontSize: 11, color: 'rgba(255,255,255,0.4)',
-      fontFamily: "'Space Mono', monospace",
+      fontSize: 20, color: '#fff', boxShadow: `0 0 24px ${c.coral}80`,
+      pointerEvents: 'none',
     },
 
     descCard: {
@@ -651,7 +682,10 @@ function styles(c) {
       animation: 'blink 1s step-start infinite',
       boxShadow: '0 0 8px #ff0000',
     },
-    cameraHint: { fontSize: 14, color: 'rgba(255,255,255,0.2)', fontWeight: 500 },
+    cameraVideo: {
+      position: 'absolute', inset: 0,
+      width: '100%', height: '100%', objectFit: 'cover',
+    },
     timerOverlay: {
       position: 'absolute', top: '50%', left: '50%',
       transform: 'translate(-50%, -50%)',
