@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { supabase } from '../supabase';
 
 // Sample pro clip – replace with a real drumming clip URL
 const PRO_VIDEO_URL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
 
-const CHALLENGE = {
+// Fallback challenge shown when the DB has no entry for today
+const CHALLENGE_FALLBACK = {
+  id: null,
   title: 'Finger Drumming',
   subtitle: 'Trap Hi-Hat Pattern',
-  category: 'Music',
+  skill: 'Music',
   emoji: '🥁',
   difficulty: 'Medium',
   description: 'Match the 4-bar hi-hat pattern: open-closed-open-closed on every 8th note.',
-  proTip: 'Keep your wrist loose. Relax your elbow and let gravity do the work.',
+  pro_tip: 'Keep your wrist loose. Relax your elbow and let gravity do the work.',
   participants: 14832,
   nailed: 31,
   tag: '#FingerDrumming',
@@ -41,15 +44,19 @@ export default function Today({ colors: c, user }) {
   const myAvatar = user ? user.avatar : '😎';
   const isUnlocked = getSecondsUntil9am() === 0;
 
-  const [phase, setPhase] = useState(isUnlocked ? 'challenge' : 'locked');
+  const [phase,     setPhase]     = useState(isUnlocked ? 'challenge' : 'locked');
   // locked | challenge | countdown | recording | result
 
-  const [lockSecs,    setLockSecs]    = useState(getSecondsUntil9am());
-  const [countNum,    setCountNum]    = useState(3);
-  const [recSecs,     setRecSecs]     = useState(TOTAL_SECS);
-  const [result,      setResult]      = useState(null); // 'nailed'|'almost'|'failed'
-  const [showShare,   setShowShare]   = useState(false);
-  const [confetti,    setConfetti]    = useState([]);
+  const [lockSecs,  setLockSecs]  = useState(getSecondsUntil9am());
+  const [countNum,  setCountNum]  = useState(3);
+  const [recSecs,   setRecSecs]   = useState(TOTAL_SECS);
+  const [result,    setResult]    = useState(null); // 'nailed'|'almost'|'failed'
+  const [showShare, setShowShare] = useState(false);
+  const [confetti,  setConfetti]  = useState([]);
+
+  // DB challenge + attempt tracking
+  const [challenge,        setChallenge]        = useState(CHALLENGE_FALLBACK);
+  const [attemptSavedMs,   setAttemptSavedMs]   = useState(null); // duration_ms at submit
 
   const recTimer   = useRef(null);
   const lockTimer  = useRef(null);
@@ -132,6 +139,41 @@ export default function Today({ colors: c, user }) {
     };
   }, [phase]);
 
+  // ── Load today's challenge from DB ────────────────────────────────────────
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    supabase.from('challenges').select('*').eq('challenge_date', today).maybeSingle()
+      .then(({ data }) => {
+        if (data) setChallenge({ ...data, emoji: data.emoji || '🥁', participants: data.participants || 0, nailed: data.nailed_pct || 31 });
+      });
+  }, []);
+
+  // ── Check if user already attempted today (skip to result) ────────────────
+  useEffect(() => {
+    if (!user?.id || !challenge?.id) return;
+    supabase.from('attempts')
+      .select('result, duration_ms')
+      .eq('user_id', user.id)
+      .eq('challenge_id', challenge.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) { setResult(data.result); setPhase('result'); }
+      });
+  }, [user?.id, challenge?.id]);
+
+  // ── Save attempt to DB when result is set ─────────────────────────────────
+  useEffect(() => {
+    if (!result || !user?.id || !challenge?.id) return;
+    const points = { nailed: 100, almost: 50, failed: 10 }[result] ?? 10;
+    supabase.from('attempts').upsert({
+      user_id:      user.id,
+      challenge_id: challenge.id,
+      result,
+      points,
+      duration_ms:  attemptSavedMs,
+    }, { onConflict: 'user_id,challenge_id' }).then();
+  }, [result, user?.id, challenge?.id]);
+
   const endRecording = useCallback((how) => {
     clearInterval(recTimer.current);
     // Simulate result based on remaining time
@@ -140,6 +182,7 @@ export default function Today({ colors: c, user }) {
     if (how === 'auto') r = 'failed';
     else if (leftover < 10) r = 'almost';
     else r = 'nailed';
+    setAttemptSavedMs((TOTAL_SECS - leftover) * 1000);
     setResult(r);
 
     // spawn confetti if nailed
@@ -177,8 +220,8 @@ export default function Today({ colors: c, user }) {
           {/* Sneak peek blurred */}
           <div style={s.sneakWrap}>
             <div style={s.sneakBlur}>
-              <div style={s.sneakEmoji}>{CHALLENGE.emoji}</div>
-              <div style={s.sneakTitle}>{CHALLENGE.title}</div>
+              <div style={s.sneakEmoji}>{challenge.emoji}</div>
+              <div style={s.sneakTitle}>{challenge.title}</div>
             </div>
             <div style={s.lockOverlay}>
               <div style={s.lockIcon}>🔒</div>
@@ -216,16 +259,16 @@ export default function Today({ colors: c, user }) {
           {/* Hero card */}
           <div style={s.heroCard}>
             <div style={s.heroGradient} />
-            <div style={s.heroBadge}>{CHALLENGE.category}</div>
-            <div style={s.heroEmoji}>{CHALLENGE.emoji}</div>
-            <h1 style={s.heroTitle}>{CHALLENGE.title}</h1>
-            <p style={s.heroSubtitle}>{CHALLENGE.subtitle}</p>
+            <div style={s.heroBadge}>{challenge.skill || challenge.category}</div>
+            <div style={s.heroEmoji}>{challenge.emoji}</div>
+            <h1 style={s.heroTitle}>{challenge.title}</h1>
+            <p style={s.heroSubtitle}>{challenge.subtitle}</p>
             <div style={s.heroStats}>
-              <Stat label="Attempting" val={CHALLENGE.participants.toLocaleString()} c={c} />
+              <Stat label="Attempting" val={(challenge.participants || 0).toLocaleString()} c={c} />
               <div style={s.statDivider} />
-              <Stat label="Nailed it" val={`${CHALLENGE.nailed}%`} c={c} color={c.green} />
+              <Stat label="Nailed it" val={`${challenge.nailed || 0}%`} c={c} color={c.green} />
               <div style={s.statDivider} />
-              <Stat label="Difficulty" val={CHALLENGE.difficulty} c={c} color={c.gold} />
+              <Stat label="Difficulty" val={challenge.difficulty} c={c} color={c.gold} />
             </div>
           </div>
 
@@ -258,10 +301,10 @@ export default function Today({ colors: c, user }) {
 
           {/* Description */}
           <div style={s.descCard}>
-            <p style={s.descText}>{CHALLENGE.description}</p>
+            <p style={s.descText}>{challenge.description}</p>
             <div style={s.proTipRow}>
               <span style={s.proTipIcon}>💡</span>
-              <span style={s.proTipText}>{CHALLENGE.proTip}</span>
+              <span style={s.proTipText}>{challenge.pro_tip || challenge.proTip}</span>
             </div>
           </div>
 
@@ -271,7 +314,7 @@ export default function Today({ colors: c, user }) {
             <span>Start 60-Second Challenge</span>
           </button>
 
-          <div style={s.tag}>{CHALLENGE.tag}</div>
+          <div style={s.tag}>{challenge.tag}</div>
         </div>
       </div>
     );
@@ -342,7 +385,7 @@ export default function Today({ colors: c, user }) {
 
         {/* Controls */}
         <div style={s.recControls}>
-          <div style={s.recChallengeName}>{CHALLENGE.emoji} {CHALLENGE.title}</div>
+          <div style={s.recChallengeName}>{challenge.emoji} {challenge.title}</div>
           <button style={{ ...s.stopBtn, boxShadow: `0 0 30px ${c.coral}60` }}
             onClick={handleStopRecording}>
             <div style={s.stopIcon} />
@@ -386,7 +429,7 @@ export default function Today({ colors: c, user }) {
           <div style={s.shareCard}>
             <div style={s.shareCardHeader}>
               <span style={s.shareCardTitle}>⚡ Side-by-Side</span>
-              <span style={s.shareCardTag}>{CHALLENGE.tag}</span>
+              <span style={s.shareCardTag}>{challenge.tag}</span>
             </div>
             <div style={s.shareVs}>
               <div style={s.shareSlot}>
