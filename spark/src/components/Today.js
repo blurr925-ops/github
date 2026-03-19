@@ -36,7 +36,9 @@ function formatCountdown(secs) {
   return { h: pad(h), m: pad(m), s: pad(s) };
 }
 
-export default function Today({ colors: c }) {
+export default function Today({ colors: c, user }) {
+  const myHandle = user ? `@${user.handle}` : '@you';
+  const myAvatar = user ? user.avatar : '😎';
   const isUnlocked = getSecondsUntil9am() === 0;
 
   const [phase, setPhase] = useState(isUnlocked ? 'challenge' : 'locked');
@@ -394,9 +396,9 @@ export default function Today({ colors: c }) {
               <div style={s.vsLabel}>VS</div>
               <div style={s.shareSlot}>
                 <div style={{ ...s.shareSlotVid, background: `linear-gradient(135deg, ${c.purple}40, ${c.pink}30)` }}>
-                  😎<br/>You
+                  {myAvatar}<br/>You
                 </div>
-                <div style={s.shareSlotName}>@you</div>
+                <div style={s.shareSlotName}>{myHandle}</div>
               </div>
             </div>
             <div style={s.shareFooter}>

@@ -3,6 +3,9 @@ import Today from './components/Today';
 import Friends from './components/Friends';
 import Groups from './components/Groups';
 import Ranks from './components/Ranks';
+import Signup from './components/Signup';
+
+const STORAGE_KEY = 'spark_user';
 
 const COLORS = {
   bg: '#050508',
@@ -23,8 +26,20 @@ const TABS = [
 ];
 
 export default function App() {
+  const [user, setUser]           = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; }
+    catch { return null; }
+  });
   const [activeTab, setActiveTab] = useState('today');
   const [prevTab, setPrevTab]     = useState(null);
+
+  const handleSignupComplete = (userData) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  // Show signup flow for new users
+  if (!user) return <Signup onComplete={handleSignupComplete} />;
 
   const handleTabChange = (id) => {
     if (id === activeTab) return;
@@ -33,7 +48,7 @@ export default function App() {
   };
 
   const tabContent = {
-    today:   <Today   colors={COLORS} />,
+    today:   <Today   colors={COLORS} user={user} />,
     friends: <Friends colors={COLORS} />,
     groups:  <Groups  colors={COLORS} />,
     ranks:   <Ranks   colors={COLORS} />,
@@ -56,7 +71,7 @@ export default function App() {
         </span>
         <div style={s.headerRight}>
           <button style={s.iconBtn}>🔔</button>
-          <div style={s.avatar}>👤</div>
+          <div style={s.avatar}>{user.avatar}</div>
         </div>
       </header>
 
@@ -152,8 +167,7 @@ function styles(c) {
       width: 34, height: 34, borderRadius: '50%',
       background: `linear-gradient(135deg, ${c.coral}, ${c.pink})`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 12, fontWeight: 700, color: '#fff',
-      fontFamily: "'Space Mono', monospace",
+      fontSize: 18,
       boxShadow: `0 0 12px rgba(255,107,53,0.5)`,
     },
     main: {
