@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-nunito: 'Nunito', sans-serif;
+  --color-tennis: #CCFF00;
+  --color-tennis-dark: #a8d600;
+  --color-navy: #1a1a2e;
+  --color-navy-light: #252542;
+  --color-navy-lighter: #2d2d50;
+  --color-sky: #87CEEB;
+  --color-fresh-green: #4ade80;
+  --color-orange-bright: #fb923c;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  background-color: #1a1a2e;
+  color: #f3f4f6;
+  overscroll-behavior: none;
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
