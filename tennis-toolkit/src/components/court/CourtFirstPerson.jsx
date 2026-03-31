@@ -75,6 +75,7 @@ export default function CourtFirstPerson({
   tapPosition,
   swipeLine,
   opponentPosition,
+  dimmed = false,
 }) {
   const handleClick = useCallback(
     (e) => {
@@ -320,6 +321,11 @@ export default function CourtFirstPerson({
         <rect x={WIDTH / 2 - 8} y={HEIGHT - 50} width="16" height="35" rx="4" fill="white" />
         <circle cx={WIDTH / 2} cy={HEIGHT - 58} r="10" fill="white" />
       </g>
+
+      {/* Dimming overlay for ready phase */}
+      {dimmed && (
+        <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(0,0,0,0.3)" />
+      )}
     </svg>
   );
 }
