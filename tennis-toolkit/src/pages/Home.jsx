@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Target, ClipboardList, Trophy, Camera, ChevronRight } from 'lucide-react';
 import Card from '../components/common/Card';
 import { useStorage } from '../hooks/useStorage';
-import { patterns } from '../data/patterns';
+import { rallies } from '../data/patterns';
 
 export default function Home() {
   const [profile] = useStorage('profile', { name: '', avatar: '🎾' });
@@ -12,7 +12,7 @@ export default function Home() {
 
   const playerName = profile.name || 'Player';
   const patternsCompleted = completedPatterns.length;
-  const totalPatterns = patterns.length;
+  const totalPatterns = rallies.length;
   const activeGoals = goals.filter((g) => g.status !== 'achieved').length;
   const achievedGoals = goals.filter((g) => g.status === 'achieved').length;
   const lastMatch = matches.length > 0 ? matches[matches.length - 1] : null;

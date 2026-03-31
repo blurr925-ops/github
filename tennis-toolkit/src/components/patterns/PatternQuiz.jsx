@@ -1,51 +1,61 @@
-import { useState, useCallback, useRef } from 'react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { ArrowLeft, RotateCcw, Trophy } from 'lucide-react';
 import CourtFirstPerson from '../court/CourtFirstPerson';
 import { isInZone } from '../../utils/courtGeometry';
 
-export default function PatternQuiz({ pattern, onComplete, onBack }) {
-  const [result, setResult] = useState(null); // 'correct' | 'wrong' | null
+export default function RallyQuiz({ rally, onComplete, onBack }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [result, setResult] = useState(null); // 'correct' | 'wrong' | 'won'
   const [tapPosition, setTapPosition] = useState(null);
-  const [swipeLine, setSwipeLine] = useState(null);
-  const [attempts, setAttempts] = useState(0);
-  const swipeStartRef = useRef(null);
+
+  const step = rally.steps[stepIndex];
+  const isLastStep = stepIndex === rally.steps.length - 1;
+  const stepNumber = stepIndex + 1;
+  const totalSteps = rally.steps.length;
 
   const handleTap = useCallback(
     (point) => {
-      if (result === 'correct') return;
+      if (result) return;
 
       setTapPosition(point);
-      setAttempts((a) => a + 1);
 
-      // Show the swipe line from ball to target
-      setSwipeLine({
-        start: pattern.ballPosition,
-        end: point,
-      });
-
-      if (isInZone(point, pattern.correctZone)) {
-        setResult('correct');
+      if (isInZone(point, step.correctZone)) {
+        if (isLastStep) {
+          setResult('won');
+        } else {
+          setResult('correct');
+        }
       } else {
         setResult('wrong');
       }
     },
-    [pattern.correctZone, pattern.ballPosition, result]
+    [step, result, isLastStep]
   );
 
-  const handleRetry = useCallback(() => {
+  const handleNextStep = useCallback(() => {
+    setStepIndex((i) => i + 1);
     setResult(null);
     setTapPosition(null);
-    setSwipeLine(null);
   }, []);
 
-  const handleContinue = useCallback(() => {
+  const handleRestart = useCallback(() => {
+    setStepIndex(0);
+    setResult(null);
+    setTapPosition(null);
+  }, []);
+
+  const handleFinish = useCallback(() => {
     onComplete(true);
+  }, [onComplete]);
+
+  const handleLose = useCallback(() => {
+    onComplete(false);
   }, [onComplete]);
 
   return (
     <div className="min-h-screen bg-navy pb-8">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-4">
+      <div className="flex items-center gap-3 px-4 py-3">
         <button
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-navy-light active:bg-navy-lighter transition-colors"
@@ -53,77 +63,140 @@ export default function PatternQuiz({ pattern, onComplete, onBack }) {
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <h2 className="text-white font-bold text-lg truncate">
-          {pattern.name}
-        </h2>
+        <div className="flex-1">
+          <h2 className="text-white font-bold text-base truncate">{rally.name}</h2>
+        </div>
+        {/* Step indicator */}
+        <div className="flex gap-1.5">
+          {rally.steps.map((_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full transition-all ${
+                i < stepIndex
+                  ? 'bg-green-400'
+                  : i === stepIndex
+                  ? result === 'wrong'
+                    ? 'bg-red-400'
+                    : result === 'won'
+                    ? 'bg-green-400'
+                    : 'bg-tennis'
+                  : 'bg-navy-lighter'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Rally score bar */}
+      <div className="px-4 mb-2">
+        <div className="flex items-center justify-between text-xs font-bold">
+          <span className="text-gray-400">Shot {stepNumber} of {totalSteps}</span>
+          {result !== 'wrong' && (
+            <span className="text-tennis">
+              {stepIndex > 0 ? `${stepIndex} shot${stepIndex !== 1 ? 's' : ''} played` : 'Your serve'}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Scenario description */}
       <div className="px-4 mb-3">
-        <div className="bg-navy-light rounded-2xl p-4">
-          <p className="text-white text-base leading-relaxed">
-            {pattern.description}
+        <div className="bg-navy-light rounded-2xl p-3.5">
+          <p className="text-white text-[15px] leading-relaxed font-medium">
+            {step.description}
           </p>
           {result === null && (
-            <p className="text-tennis text-sm mt-2 font-semibold">
-              👆 Tap the court where you would hit the ball!
+            <p className="text-tennis text-sm mt-1.5 font-bold">
+              👆 Tap where you hit!
             </p>
           )}
         </div>
       </div>
 
-      {/* First-person court diagram */}
+      {/* Court */}
       <div className="px-4 mb-3">
         <CourtFirstPerson
-          ballPosition={pattern.ballPosition}
-          targetZone={pattern.correctZone}
-          showTarget={result === 'correct'}
-          onTap={result === 'correct' ? null : handleTap}
-          result={result}
+          ballPosition={step.ballPosition}
+          targetZone={step.correctZone}
+          showTarget={result === 'correct' || result === 'won'}
+          onTap={result ? null : handleTap}
+          result={result === 'wrong' ? 'wrong' : result ? 'correct' : null}
           tapPosition={tapPosition}
-          swipeLine={result ? swipeLine : null}
+          swipeLine={
+            result
+              ? { start: step.ballPosition, end: result === 'wrong' ? tapPosition : { x: step.correctZone.x, y: step.correctZone.y } }
+              : null
+          }
         />
       </div>
 
-      {/* Feedback area */}
+      {/* Feedback */}
       <div className="px-4">
+        {/* Correct - advance to next step */}
         {result === 'correct' && (
-          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center">
-            <p className="text-green-400 text-2xl font-extrabold mb-2">
-              Great job! 🎾
+          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 text-center">
+            <p className="text-green-400 text-lg font-extrabold mb-1">
+              {step.correctLabel} ✓
             </p>
-            <p className="text-gray-300 text-sm leading-relaxed mb-4">
-              {pattern.explanation}
+            <p className="text-gray-300 text-sm mb-3">
+              {step.explanation}
             </p>
-            {attempts > 1 && (
-              <p className="text-gray-500 text-xs mb-3">
-                Solved in {attempts} {attempts === 1 ? 'attempt' : 'attempts'}
-              </p>
-            )}
             <button
-              onClick={handleContinue}
-              className="w-full bg-tennis text-navy font-bold py-3 px-6 rounded-full text-base active:scale-[0.98] transition-transform min-h-[48px]"
+              onClick={handleNextStep}
+              className="w-full bg-tennis text-navy font-bold py-3 rounded-full text-base active:scale-[0.98] transition-transform min-h-[48px]"
+            >
+              Next Shot →
+            </button>
+          </div>
+        )}
+
+        {/* Point won! */}
+        {result === 'won' && (
+          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-5 text-center">
+            <div className="text-4xl mb-2">🏆</div>
+            <p className="text-green-400 text-xl font-extrabold mb-1">
+              Point Won!
+            </p>
+            <p className="text-white font-bold text-sm mb-1">
+              {step.correctLabel}
+            </p>
+            <p className="text-gray-300 text-sm mb-4">
+              {step.explanation}
+            </p>
+            <button
+              onClick={handleFinish}
+              className="w-full bg-tennis text-navy font-bold py-3 rounded-full text-base active:scale-[0.98] transition-transform min-h-[48px]"
             >
               Continue
             </button>
           </div>
         )}
 
+        {/* Wrong - point over */}
         {result === 'wrong' && (
-          <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5 text-center">
-            <p className="text-orange-400 text-xl font-extrabold mb-2">
-              Not quite! 🤔
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-center">
+            <div className="text-3xl mb-1">😤</div>
+            <p className="text-red-400 text-lg font-extrabold mb-1">
+              Point Lost!
             </p>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
-              {pattern.hint}
+              {step.wrongExplanation}
             </p>
-            <button
-              onClick={handleRetry}
-              className="w-full bg-navy-lighter text-white font-semibold py-3 px-6 rounded-full text-base flex items-center justify-center gap-2 active:scale-[0.98] transition-transform min-h-[48px]"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Try Again
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRestart}
+                className="flex-1 bg-navy-lighter text-white font-bold py-3 rounded-full text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform min-h-[48px]"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Replay
+              </button>
+              <button
+                onClick={handleLose}
+                className="flex-1 bg-navy-lighter text-gray-400 font-bold py-3 rounded-full text-sm active:scale-[0.98] transition-transform min-h-[48px]"
+              >
+                Back
+              </button>
+            </div>
           </div>
         )}
       </div>
