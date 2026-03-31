@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Star, Plus, Trophy, Target, Check } from 'lucide-react';
 import { useStorage } from '../hooks/useStorage';
 import { generateId } from '../utils/storage';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
+import Confetti from '../components/common/Confetti';
 import { goalCategories } from '../data/defaultTags';
 
 const tabs = [
@@ -33,6 +34,8 @@ export default function Goals() {
   const [activeTab, setActiveTab] = useState('short');
   const [showForm, setShowForm] = useState(false);
   const [celebrating, setCelebrating] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const handleConfettiDone = useCallback(() => setShowConfetti(false), []);
 
   // Form state
   const [formText, setFormText] = useState('');
@@ -79,6 +82,7 @@ export default function Goals() {
         const nextStatus = statusFlow[(currentIdx + 1) % statusFlow.length];
         if (nextStatus === 'achieved') {
           setCelebrating(goalId);
+          setShowConfetti(true);
           setTimeout(() => setCelebrating(null), 1200);
         }
         return { ...g, status: nextStatus };
@@ -95,6 +99,7 @@ export default function Goals() {
 
   return (
     <div className="min-h-screen bg-navy p-4 pb-24">
+      <Confetti active={showConfetti} onComplete={handleConfettiDone} />
       {/* Header */}
       <div className="text-center mb-4">
         <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-2">

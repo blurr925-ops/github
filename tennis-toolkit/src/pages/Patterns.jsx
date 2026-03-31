@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ArrowLeft, Trophy } from 'lucide-react';
 import { patterns } from '../data/patterns';
 import { useStorage } from '../hooks/useStorage';
 import PatternCard from '../components/patterns/PatternCard';
 import PatternQuiz from '../components/patterns/PatternQuiz';
+import Confetti from '../components/common/Confetti';
 
 export default function Patterns() {
-  const [completedIds, setCompletedIds] = useStorage('patterns-completed', []);
+  const [completedIds, setCompletedIds] = useStorage('completedPatterns', []);
   const [activePattern, setActivePattern] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const masteredCount = completedIds.length;
 
@@ -18,9 +20,12 @@ export default function Patterns() {
   const handleComplete = (correct) => {
     if (correct && activePattern && !completedIds.includes(activePattern.id)) {
       setCompletedIds((prev) => [...prev, activePattern.id]);
+      setShowConfetti(true);
     }
     setActivePattern(null);
   };
+
+  const handleConfettiDone = useCallback(() => setShowConfetti(false), []);
 
   const handleBack = () => {
     setActivePattern(null);
@@ -39,6 +44,7 @@ export default function Patterns() {
 
   return (
     <div className="min-h-screen bg-navy pb-24">
+      <Confetti active={showConfetti} onComplete={handleConfettiDone} />
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
         <h1 className="text-white text-2xl font-bold mb-1">
