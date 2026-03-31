@@ -8,6 +8,7 @@ import Confetti from '../components/common/Confetti';
 
 export default function Patterns() {
   const [completedIds, setCompletedIds] = useStorage('completedPatterns', []);
+  const [stats, setStats] = useStorage('patternStats', { attempts: 0, wins: 0, currentStreak: 0, bestStreak: 0 });
   const [activeRally, setActiveRally] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -22,6 +23,15 @@ export default function Patterns() {
       setCompletedIds((prev) => [...prev, activeRally.id]);
       setShowConfetti(true);
     }
+    setStats((prev) => {
+      const newStreak = won ? prev.currentStreak + 1 : 0;
+      return {
+        attempts: prev.attempts + 1,
+        wins: prev.wins + (won ? 1 : 0),
+        currentStreak: newStreak,
+        bestStreak: Math.max(prev.bestStreak, newStreak),
+      };
+    });
     setActiveRally(null);
   };
 
@@ -75,6 +85,32 @@ export default function Patterns() {
           </div>
         </div>
       </div>
+
+      {/* Stats */}
+      {stats.attempts > 0 && (
+        <div className="px-4 mb-5">
+          <div className="bg-navy-light rounded-2xl p-4 flex items-center gap-3">
+            <div className="flex-1 text-center">
+              <p className="text-white text-lg font-bold">
+                {Math.round((stats.wins / stats.attempts) * 100)}%
+              </p>
+              <p className="text-gray-400 text-xs">Win Rate</p>
+            </div>
+            <div className="flex-1 text-center">
+              <p className="text-white text-lg font-bold">
+                🔥 {stats.currentStreak}
+              </p>
+              <p className="text-gray-400 text-xs">Current Streak</p>
+            </div>
+            <div className="flex-1 text-center">
+              <p className="text-white text-lg font-bold">
+                🏆 {stats.bestStreak}
+              </p>
+              <p className="text-gray-400 text-xs">Best Streak</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rally list */}
       <div className="px-4 space-y-3">

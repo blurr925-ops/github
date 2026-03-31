@@ -74,6 +74,7 @@ export default function CourtFirstPerson({
   result,
   tapPosition,
   swipeLine,
+  opponentPosition,
 }) {
   const handleClick = useCallback(
     (e) => {
@@ -100,6 +101,10 @@ export default function CourtFirstPerson({
   // Swipe line coords
   const swipeStart = swipeLine?.start ? toSvgCoords(swipeLine.start.x, swipeLine.start.y) : null;
   const swipeEnd = swipeLine?.end ? toSvgCoords(swipeLine.end.x, swipeLine.end.y) : null;
+
+  // Opponent position
+  const opponent = opponentPosition ? toSvgCoords(opponentPosition.x, opponentPosition.y) : null;
+  const oppScale = opponentPosition ? perspectiveScale(opponentPosition.y) : 1;
 
   // Court outline points (trapezoid)
   const courtPath = `M ${COURT.nearLeft} ${COURT.nearY} L ${COURT.farLeft} ${COURT.farY} L ${COURT.farRight} ${COURT.farY} L ${COURT.nearRight} ${COURT.nearY} Z`;
@@ -189,6 +194,28 @@ export default function CourtFirstPerson({
       {/* Net posts */}
       <rect x={COURT.netNearLeft - 12} y={COURT.netY - 8} width="5" height="16" rx="2" fill="white" opacity="0.8" />
       <rect x={COURT.netNearRight + 7} y={COURT.netY - 8} width="5" height="16" rx="2" fill="white" opacity="0.8" />
+
+      {/* Opponent figure */}
+      {opponent && (
+        <g opacity="0.6">
+          {/* Body (rectangle) */}
+          <rect
+            x={opponent.x - 5 * oppScale}
+            y={opponent.y - 2 * oppScale}
+            width={10 * oppScale}
+            height={18 * oppScale}
+            rx={3 * oppScale}
+            fill="#f97316"
+          />
+          {/* Head (circle) */}
+          <circle
+            cx={opponent.x}
+            cy={opponent.y - 2 * oppScale - 7 * oppScale}
+            r={7 * oppScale}
+            fill="#f97316"
+          />
+        </g>
+      )}
 
       {/* Target zone */}
       {showTarget && zone && (

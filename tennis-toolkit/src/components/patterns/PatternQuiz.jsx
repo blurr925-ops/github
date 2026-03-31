@@ -127,6 +127,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
               ? { start: step.ballPosition, end: result === 'wrong' ? tapPosition : { x: step.correctZone.x, y: step.correctZone.y } }
               : null
           }
+          opponentPosition={step.opponentPosition}
         />
       </div>
 
