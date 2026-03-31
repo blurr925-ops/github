@@ -66,7 +66,8 @@ export default function CourtBirdEye({
 
   const zoneSvgX = targetZone ? toSvgX(targetZone.x) : 0;
   const zoneSvgY = targetZone ? toSvgY(targetZone.y) : 0;
-  const zoneSvgR = targetZone ? targetZone.radius * COURT_W : 0;
+  const zoneSvgRx = targetZone ? targetZone.radius * COURT_W : 0;
+  const zoneSvgRy = targetZone ? targetZone.radius * COURT_W * 2 : 0; // scale for 1:2 aspect
 
   const tapSvgX = tapPosition ? toSvgX(tapPosition.x) : 0;
   const tapSvgY = tapPosition ? toSvgY(tapPosition.y) : 0;
@@ -151,10 +152,11 @@ export default function CourtBirdEye({
 
       {/* Target zone */}
       {showTarget && targetZone && (
-        <circle
+        <ellipse
           cx={zoneSvgX}
           cy={zoneSvgY}
-          r={zoneSvgR}
+          rx={zoneSvgRx}
+          ry={zoneSvgRy}
           fill="rgba(34, 197, 94, 0.25)"
           stroke="#22c55e"
           strokeWidth="2"
@@ -166,10 +168,11 @@ export default function CourtBirdEye({
       {/* Correct result - green highlight with checkmark */}
       {result === 'correct' && targetZone && (
         <g>
-          <circle
+          <ellipse
             cx={zoneSvgX}
             cy={zoneSvgY}
-            r={zoneSvgR}
+            rx={zoneSvgRx}
+            ry={zoneSvgRy}
             fill="rgba(34, 197, 94, 0.35)"
             stroke="#22c55e"
             strokeWidth="3"

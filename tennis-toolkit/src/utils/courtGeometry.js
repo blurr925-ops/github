@@ -1,30 +1,24 @@
 // Court dimensions in normalized coordinates (0-1)
-// Based on standard tennis court proportions
 export const COURT = {
-  // Outer bounds
   width: 1,
   height: 1,
-
-  // Singles sidelines (relative to court width)
   singlesLeft: 0.15,
   singlesRight: 0.85,
-
-  // Net position (relative to court height)
   netY: 0.5,
-
-  // Service boxes
   serviceLineNear: 0.65,
   serviceLineFar: 0.35,
   centerServiceLine: 0.5,
-
-  // Baselines
   baselineNear: 0.85,
   baselineFar: 0.15,
 };
 
+// Check if a tap point is inside a target zone
+// Uses simple circular check - radius is in the same
+// normalized coordinate space as x
 export function isInZone(point, zone) {
   const dx = point.x - zone.x;
   const dy = point.y - zone.y;
+  // Use the larger radius to be forgiving for young players
   return Math.sqrt(dx * dx + dy * dy) <= zone.radius;
 }
 
