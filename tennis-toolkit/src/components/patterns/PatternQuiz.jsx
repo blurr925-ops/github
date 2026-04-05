@@ -8,7 +8,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [tapPosition, setTapPosition] = useState(null);
-  const [phase, setPhase] = useState('ready');
+  const [phase, setPhase] = useState('brief');
   const [readyCount, setReadyCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(1);
   const [ballAnim, setBallAnim] = useState(0);
@@ -109,7 +109,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
 
   const handleRestart = useCallback(() => {
     setStepIndex(0); setResult(null); setTapPosition(null);
-    setPhase('ready'); setReadyCount(3); setTimeLeft(1);
+    setPhase('brief'); setReadyCount(3); setTimeLeft(1);
     setBallAnim(0); setCombo(0); setFlashText(null); setRacketSwing(false);
   }, []);
 
@@ -144,7 +144,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
               : null
           }
           opponentPosition={step.opponentPosition}
-          dimmed={phase === 'ready'}
+          dimmed={phase === 'ready' || phase === 'brief'}
           racketSwing={racketSwing}
         />
         </div>
@@ -189,14 +189,12 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         </div>
       )}
 
-      {/* Scenario text — bottom area, game notification style */}
+      {/* Shot counter — bottom area, shows which shot you're on */}
       {(phase === 'play' || phase === 'incoming') && (
-        <div className="absolute bottom-24 left-4 right-4 z-10"
-          style={{ animation: 'slideUp 0.3s ease-out' }}
-        >
-          <div className="bg-black/50 backdrop-blur-sm rounded-lg px-4 py-3 border-l-4 border-tennis">
-            <p className="text-white text-sm font-semibold leading-snug">{step.description}</p>
-          </div>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <span className="text-white/30 text-xs font-bold tracking-wider uppercase">
+            Shot {stepIndex + 1} of {rally.steps.length}
+          </span>
         </div>
       )}
 
@@ -235,6 +233,32 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         <div className="absolute inset-0 pointer-events-none z-10"
           style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.3) 0%, transparent 60%)', animation: 'flashOut 0.5s ease-out forwards' }}
         />
+      )}
+
+      {/* Pre-game brief */}
+      {phase === 'brief' && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/80">
+          <div className="mx-6 max-w-sm w-full text-center" style={{ animation: 'slideUp 0.4s ease-out' }}>
+            <div className="bg-navy-light rounded-2xl p-6 border border-white/10">
+              <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 ${
+                rally.difficulty === 'green' ? 'bg-green-500/20 text-green-400' :
+                rally.difficulty === 'orange' ? 'bg-orange-500/20 text-orange-400' :
+                'bg-red-500/20 text-red-400'
+              }`}>
+                {rally.difficulty.toUpperCase()} BALL
+              </div>
+              <h2 className="text-white text-2xl font-black mb-3">{rally.name}</h2>
+              <p className="text-gray-300 text-sm leading-relaxed mb-2">{rally.description}</p>
+              <p className="text-gray-500 text-xs mb-6">{rally.steps.length} shots to win the point</p>
+              <button
+                onClick={() => setPhase('ready')}
+                className="w-full bg-tennis text-navy font-black py-3.5 rounded-full text-base active:scale-95 transition-transform min-h-[48px]"
+              >
+                PLAY POINT
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Ready countdown */}
