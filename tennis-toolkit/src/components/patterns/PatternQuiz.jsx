@@ -15,6 +15,8 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   const [shotAnim, setShotAnim] = useState(0);
   const [oppMoveAnim, setOppMoveAnim] = useState(0);
   const [prevOpponentPos, setPrevOpponentPos] = useState(null);
+  const [winnerAnim, setWinnerAnim] = useState(0);
+  const [winnerTarget, setWinnerTarget] = useState(null);
   const [combo, setCombo] = useState(0);
   const [flashText, setFlashText] = useState(null);
   const [racketSwing, setRacketSwing] = useState(false);
@@ -97,10 +99,20 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   // Shot landed — brief pause then decide what happens
   useEffect(() => {
     if (phase !== 'shotLanded') return;
-    const delay = result === 'correct' ? 400 : 300;
+    const delay = result === 'correct' ? 400 : 200;
     const t = setTimeout(() => {
-      if (result === 'wrong' || result === 'won') {
+      if (result === 'won') {
         setPhase('feedback');
+      } else if (result === 'wrong') {
+        // Opponent gets the ball and hits a winner
+        setPrevOpponentPos(step.opponentPosition);
+        // Winner goes to opposite side from where player is standing
+        const playerSide = tapPosition ? tapPosition.x : 0.5;
+        setWinnerTarget({
+          x: playerSide > 0.5 ? 0.15 : 0.85,
+          y: 0.85,
+        });
+        setPhase('opponentWinner');
       } else {
         // Correct, not last — opponent runs to ball
         setPrevOpponentPos(step.opponentPosition);
@@ -108,7 +120,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
       }
     }, delay);
     return () => clearTimeout(t);
-  }, [phase, result, step]);
+  }, [phase, result, step, tapPosition]);
 
   // Opponent moves to return ball, then hits it back
   useEffect(() => {
@@ -139,6 +151,27 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     animRef.current = requestAnimationFrame(tick);
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [phase, stepIndex, rally.steps]);
+
+  // Opponent winner — opponent moves to ball, then smashes a winner past player
+  useEffect(() => {
+    if (phase !== 'opponentWinner') return;
+    setWinnerAnim(0);
+    const totalDur = 900; // 400ms move + 500ms winner shot
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min(1, (now - start) / totalDur);
+      setWinnerAnim(p);
+      if (p < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      } else {
+        setPhase('feedback');
+        setWinnerAnim(0);
+        setWinnerTarget(null);
+      }
+    }
+    animRef.current = requestAnimationFrame(tick);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [phase]);
 
   // Flash text auto-clear
   useEffect(() => {
@@ -175,9 +208,9 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   const handleRestart = useCallback(() => {
     setStepIndex(0); setResult(null); setTapPosition(null);
     setPhase('brief'); setReadyCount(3); setTimeLeft(1);
-    setBallAnim(0); setShotAnim(0); setOppMoveAnim(0);
+    setBallAnim(0); setShotAnim(0); setOppMoveAnim(0); setWinnerAnim(0);
     setCombo(0); setFlashText(null); setRacketSwing(false);
-    setPrevOpponentPos(null); pendingFlash.current = null;
+    setPrevOpponentPos(null); setWinnerTarget(null); pendingFlash.current = null;
   }, []);
 
   // Ball position based on current phase
@@ -200,10 +233,24 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     if (phase === 'opponentMove' && tapPosition) {
       return tapPosition;
     }
+    if (phase === 'opponentWinner' && tapPosition && winnerTarget) {
+      const movePart = 0.45; // first 45% = opponent moves to ball
+      if (winnerAnim < movePart) {
+        // Ball stays at tap position while opponent runs to it
+        return tapPosition;
+      }
+      // Ball flies from opponent (near tap position on far side) to winner target
+      const shotProgress = Math.min(1, (winnerAnim - movePart) / (1 - movePart));
+      const eased = 1 - Math.pow(1 - shotProgress, 3);
+      return {
+        x: tapPosition.x + (winnerTarget.x - tapPosition.x) * eased,
+        y: (tapPosition.y < 0.5 ? tapPosition.y : 0.2) + (winnerTarget.y - (tapPosition.y < 0.5 ? tapPosition.y : 0.2)) * eased,
+      };
+    }
     return step?.ballPosition || null;
   };
 
-  // Opponent position — smooth slide during opponentMove phase
+  // Opponent position — smooth slide during opponentMove and opponentWinner phases
   const getOpponentPos = () => {
     if (phase === 'opponentMove' && prevOpponentPos) {
       const nextStep = rally.steps[stepIndex + 1];
@@ -213,6 +260,18 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
           y: prevOpponentPos.y + (nextStep.opponentPosition.y - prevOpponentPos.y) * oppMoveAnim,
         };
       }
+    }
+    if (phase === 'opponentWinner' && prevOpponentPos && tapPosition) {
+      // Opponent slides toward where the ball landed
+      const movePart = 0.45;
+      const moveProgress = Math.min(1, winnerAnim / movePart);
+      const eased = 1 - Math.pow(1 - moveProgress, 2);
+      const targetX = Math.max(0.15, Math.min(0.85, tapPosition.x));
+      const targetY = Math.max(0.1, Math.min(0.3, tapPosition.y < 0.5 ? tapPosition.y + 0.05 : 0.2));
+      return {
+        x: prevOpponentPos.x + (targetX - prevOpponentPos.x) * eased,
+        y: prevOpponentPos.y + (targetY - prevOpponentPos.y) * eased,
+      };
     }
     return step?.opponentPosition;
   };
