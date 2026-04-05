@@ -19,7 +19,7 @@ export default defineConfig({
         background_color: '#1a1a2e',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: '/github/',
         icons: [
           {
             src: 'favicon.svg',
