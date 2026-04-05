@@ -110,7 +110,7 @@ export default function CourtFirstPerson({
       className="w-full h-full touch-none select-none"
       onClick={handleClick}
       style={{ cursor: onTap ? 'crosshair' : 'default' }}
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="xMidYMid meet"
     >
       <defs>
         <filter id="glow"><feGaussianBlur stdDeviation="6" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
