@@ -1,25 +1,25 @@
 import { useCallback } from 'react';
 
 const WIDTH = 360;
-const HEIGHT = 640;
+const HEIGHT = 700;
 
-// First-person perspective court - immersive full-screen view
+// Ultra-low viewpoint — like you're crouching on the baseline
 const COURT = {
-  nearLeft: 0,
-  nearRight: 360,
-  nearY: 580,
-  farLeft: 110,
-  farRight: 250,
-  farY: 180,
-  netNearLeft: 30,
-  netNearRight: 330,
-  netY: 350,
-  serviceNearLeft: 15,
-  serviceNearRight: 345,
-  serviceNearY: 470,
-  serviceFarLeft: 80,
-  serviceFarRight: 280,
-  serviceFarY: 260,
+  nearLeft: -40,
+  nearRight: 400,
+  nearY: 650,
+  farLeft: 120,
+  farRight: 240,
+  farY: 200,
+  netNearLeft: 20,
+  netNearRight: 340,
+  netY: 380,
+  serviceNearLeft: -10,
+  serviceNearRight: 370,
+  serviceNearY: 520,
+  serviceFarLeft: 85,
+  serviceFarRight: 275,
+  serviceFarY: 285,
 };
 
 function interpX(leftNear, leftFar, rightNear, rightFar, depth, normalizedX) {
@@ -33,13 +33,10 @@ function interpY(depth) {
 }
 
 function toSvgCoords(normX, normY) {
-  const svgY = interpY(normY);
-  const svgX = interpX(
-    COURT.nearLeft, COURT.farLeft,
-    COURT.nearRight, COURT.farRight,
-    normY, normX
-  );
-  return { x: svgX, y: svgY };
+  return {
+    x: interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, normY, normX),
+    y: interpY(normY),
+  };
 }
 
 function toNormCoords(svgX, svgY) {
@@ -51,7 +48,7 @@ function toNormCoords(svgX, svgY) {
 }
 
 function perspectiveScale(normY) {
-  return 0.3 + 0.7 * normY;
+  return 0.25 + 0.75 * normY;
 }
 
 export default function CourtFirstPerson({
@@ -64,335 +61,202 @@ export default function CourtFirstPerson({
   swipeLine,
   opponentPosition,
   dimmed = false,
+  racketSwing = false,
 }) {
   const handleClick = useCallback(
     (e) => {
       if (!onTap) return;
       const svg = e.currentTarget;
       const rect = svg.getBoundingClientRect();
-      const scaleX = WIDTH / rect.width;
-      const scaleY = HEIGHT / rect.height;
-      const svgX = (e.clientX - rect.left) * scaleX;
-      const svgY = (e.clientY - rect.top) * scaleY;
-      const norm = toNormCoords(svgX, svgY);
-      onTap(norm);
+      const svgX = (e.clientX - rect.left) * (WIDTH / rect.width);
+      const svgY = (e.clientY - rect.top) * (HEIGHT / rect.height);
+      onTap(toNormCoords(svgX, svgY));
     },
     [onTap]
   );
 
   const ball = ballPosition ? toSvgCoords(ballPosition.x, ballPosition.y) : null;
-  const ballScale = ballPosition ? perspectiveScale(ballPosition.y) : 1;
+  const ballSc = ballPosition ? perspectiveScale(ballPosition.y) : 1;
   const zone = targetZone ? toSvgCoords(targetZone.x, targetZone.y) : null;
-  const zoneScale = targetZone ? perspectiveScale(targetZone.y) : 1;
-  const zoneR = targetZone ? targetZone.radius * 200 * zoneScale : 0;
+  const zoneSc = targetZone ? perspectiveScale(targetZone.y) : 1;
+  const zoneR = targetZone ? targetZone.radius * 180 * zoneSc : 0;
   const tap = tapPosition ? toSvgCoords(tapPosition.x, tapPosition.y) : null;
-
-  const swipeStart = swipeLine?.start ? toSvgCoords(swipeLine.start.x, swipeLine.start.y) : null;
-  const swipeEnd = swipeLine?.end ? toSvgCoords(swipeLine.end.x, swipeLine.end.y) : null;
-
-  const opponent = opponentPosition ? toSvgCoords(opponentPosition.x, opponentPosition.y) : null;
-  const oppScale = opponentPosition ? perspectiveScale(opponentPosition.y) : 1;
+  const swA = swipeLine?.start ? toSvgCoords(swipeLine.start.x, swipeLine.start.y) : null;
+  const swB = swipeLine?.end ? toSvgCoords(swipeLine.end.x, swipeLine.end.y) : null;
+  const opp = opponentPosition ? toSvgCoords(opponentPosition.x, opponentPosition.y) : null;
+  const oppSc = opponentPosition ? perspectiveScale(opponentPosition.y) : 1;
 
   const courtPath = `M ${COURT.nearLeft} ${COURT.nearY} L ${COURT.farLeft} ${COURT.farY} L ${COURT.farRight} ${COURT.farY} L ${COURT.nearRight} ${COURT.nearY} Z`;
 
-  const centerNear = (COURT.serviceNearLeft + COURT.serviceNearRight) / 2;
-  const centerFar = (COURT.serviceFarLeft + COURT.serviceFarRight) / 2;
+  const cNear = (COURT.serviceNearLeft + COURT.serviceNearRight) / 2;
+  const cFar = (COURT.serviceFarLeft + COURT.serviceFarRight) / 2;
 
-  // Singles sidelines
-  const singlesInset = 0.07;
-  const sNearLeft = COURT.nearLeft + (COURT.nearRight - COURT.nearLeft) * singlesInset;
-  const sNearRight = COURT.nearRight - (COURT.nearRight - COURT.nearLeft) * singlesInset;
-  const sFarLeft = COURT.farLeft + (COURT.farRight - COURT.farLeft) * singlesInset;
-  const sFarRight = COURT.farRight - (COURT.farRight - COURT.farLeft) * singlesInset;
+  const si = 0.07;
+  const sNL = COURT.nearLeft + (COURT.nearRight - COURT.nearLeft) * si;
+  const sNR = COURT.nearRight - (COURT.nearRight - COURT.nearLeft) * si;
+  const sFL = COURT.farLeft + (COURT.farRight - COURT.farLeft) * si;
+  const sFR = COURT.farRight - (COURT.farRight - COURT.farLeft) * si;
+
+  const racketStyle = racketSwing
+    ? { transition: 'transform 0.12s ease-out', transform: 'rotate(-30deg) translateX(-20px) translateY(-25px)' }
+    : { transition: 'transform 0.3s ease-out', transform: 'rotate(0deg)' };
 
   return (
     <svg
       viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-      className="w-full rounded-2xl overflow-hidden touch-none select-none"
+      className="w-full h-full touch-none select-none"
       onClick={handleClick}
       style={{ cursor: onTap ? 'crosshair' : 'default' }}
+      preserveAspectRatio="xMidYMid slice"
     >
       <defs>
-        <filter id="fpGreenGlow">
-          <feGaussianBlur stdDeviation="8" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <filter id="fpBallShadow">
-          <feDropShadow dx="1" dy="3" stdDeviation="3" floodOpacity="0.6" />
-        </filter>
-        <filter id="fpBallGlow">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2563eb" />
-          <stop offset="40%" stopColor="#60a5fa" />
-          <stop offset="100%" stopColor="#93c5fd" />
+        <filter id="glow"><feGaussianBlur stdDeviation="6" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        <filter id="ballGlow"><feGaussianBlur stdDeviation="5" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        <filter id="shadow"><feDropShadow dx="1" dy="3" stdDeviation="3" floodOpacity="0.6" /></filter>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1e3a5f" />
+          <stop offset="30%" stopColor="#2563eb" />
+          <stop offset="70%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#7dd3fc" />
         </linearGradient>
-        <linearGradient id="courtGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#166534" />
-          <stop offset="100%" stopColor="#15803d" />
-        </linearGradient>
-        <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="court" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#14532d" />
-          <stop offset="100%" stopColor="#1a5c2a" />
+          <stop offset="100%" stopColor="#166534" />
         </linearGradient>
-        <radialGradient id="ballGrad" cx="0.35" cy="0.35" r="0.65">
-          <stop offset="0%" stopColor="#e6ff33" />
+        <radialGradient id="ballG" cx="0.35" cy="0.3" r="0.7">
+          <stop offset="0%" stopColor="#f0ff44" />
           <stop offset="100%" stopColor="#a3cc00" />
         </radialGradient>
       </defs>
 
       {/* Sky */}
-      <rect x="0" y="0" width={WIDTH} height={COURT.farY + 10} fill="url(#skyGrad)" />
+      <rect x="0" y="0" width={WIDTH} height={COURT.farY + 20} fill="url(#sky)" />
 
-      {/* Clouds */}
-      <ellipse cx="60" cy="60" rx="50" ry="18" fill="white" opacity="0.25" />
-      <ellipse cx="90" cy="55" rx="40" ry="15" fill="white" opacity="0.2" />
-      <ellipse cx="280" cy="90" rx="45" ry="16" fill="white" opacity="0.2" />
-      <ellipse cx="310" cy="85" rx="35" ry="12" fill="white" opacity="0.15" />
-      <ellipse cx="180" cy="40" rx="35" ry="12" fill="white" opacity="0.15" />
-
-      {/* Distant trees / backdrop */}
-      <rect x="0" y={COURT.farY - 25} width={WIDTH} height="35" fill="#0d4a1f" rx="0" />
-      {[30, 70, 120, 165, 210, 260, 310, 340].map((x, i) => (
-        <ellipse key={i} cx={x} cy={COURT.farY - 18} rx={14 + (i % 3) * 4} ry={18 + (i % 2) * 6} fill={i % 2 === 0 ? '#166534' : '#14532d'} />
+      {/* Stadium backdrop */}
+      <rect x="0" y={COURT.farY - 45} width={WIDTH} height="55" fill="#0f2440" />
+      {/* Stadium lights */}
+      {[60, 180, 300].map((cx) => (
+        <g key={cx}>
+          <rect x={cx - 2} y={COURT.farY - 60} width="4" height="22" fill="#374151" />
+          <circle cx={cx} cy={COURT.farY - 63} r="7" fill="#fef08a" opacity="0.7" />
+          <circle cx={cx} cy={COURT.farY - 63} r="14" fill="#fef08a" opacity="0.1" />
+        </g>
+      ))}
+      {/* Crowd */}
+      {Array.from({ length: 24 }).map((_, i) => (
+        <circle key={i} cx={15 * i + 7} cy={COURT.farY - 25 + (i % 3) * 5} r={3 + (i % 2)} fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc'][i % 6]} opacity="0.3" />
       ))}
 
-      {/* Ground around court */}
-      <rect x="0" y={COURT.farY} width={WIDTH} height={HEIGHT - COURT.farY} fill="url(#groundGrad)" />
+      {/* Ground */}
+      <rect x="0" y={COURT.farY} width={WIDTH} height={HEIGHT - COURT.farY} fill="#0a3d1a" />
 
       {/* Court surface */}
-      <path d={courtPath} fill="url(#courtGrad)" />
-      {/* Court surface texture lines */}
-      {[0.2, 0.4, 0.6, 0.8].map((t) => {
-        const y = COURT.farY + (COURT.nearY - COURT.farY) * t;
-        const leftX = COURT.farLeft + (COURT.nearLeft - COURT.farLeft) * t;
-        const rightX = COURT.farRight + (COURT.nearRight - COURT.farRight) * t;
-        return <line key={t} x1={leftX} y1={y} x2={rightX} y2={y} stroke="#1a7a3a" strokeWidth="0.5" opacity="0.3" />;
-      })}
+      <path d={courtPath} fill="url(#court)" />
 
       {/* Court lines */}
       <line x1={COURT.farLeft} y1={COURT.farY} x2={COURT.farRight} y2={COURT.farY} stroke="white" strokeWidth="2.5" />
-      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.nearRight} y2={COURT.nearY} stroke="white" strokeWidth="3" />
-
-      {/* Doubles sidelines */}
+      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.nearRight} y2={COURT.nearY} stroke="white" strokeWidth="3.5" />
       <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.farLeft} y2={COURT.farY} stroke="white" strokeWidth="2" />
       <line x1={COURT.nearRight} y1={COURT.nearY} x2={COURT.farRight} y2={COURT.farY} stroke="white" strokeWidth="2" />
-
-      {/* Singles sidelines */}
-      <line x1={sNearLeft} y1={COURT.nearY} x2={sFarLeft} y2={COURT.farY} stroke="white" strokeWidth="1.5" opacity="0.8" />
-      <line x1={sNearRight} y1={COURT.nearY} x2={sFarRight} y2={COURT.farY} stroke="white" strokeWidth="1.5" opacity="0.8" />
-
-      {/* Service lines */}
+      <line x1={sNL} y1={COURT.nearY} x2={sFL} y2={COURT.farY} stroke="white" strokeWidth="1.5" opacity="0.7" />
+      <line x1={sNR} y1={COURT.nearY} x2={sFR} y2={COURT.farY} stroke="white" strokeWidth="1.5" opacity="0.7" />
       <line x1={COURT.serviceFarLeft} y1={COURT.serviceFarY} x2={COURT.serviceFarRight} y2={COURT.serviceFarY} stroke="white" strokeWidth="2" />
       <line x1={COURT.serviceNearLeft} y1={COURT.serviceNearY} x2={COURT.serviceNearRight} y2={COURT.serviceNearY} stroke="white" strokeWidth="2" />
-
-      {/* Center service line */}
-      <line x1={centerFar} y1={COURT.serviceFarY} x2={centerNear} y2={COURT.serviceNearY} stroke="white" strokeWidth="1.5" opacity="0.8" />
-
-      {/* Center mark */}
-      <line x1={centerNear} y1={COURT.nearY} x2={centerNear} y2={COURT.nearY - 15} stroke="white" strokeWidth="2" />
+      <line x1={cFar} y1={COURT.serviceFarY} x2={cNear} y2={COURT.serviceNearY} stroke="white" strokeWidth="1.5" opacity="0.7" />
+      <line x1={cNear} y1={COURT.nearY} x2={cNear} y2={COURT.nearY - 18} stroke="white" strokeWidth="2" />
 
       {/* Net */}
-      <line x1={COURT.netNearLeft - 10} y1={COURT.netY} x2={COURT.netNearRight + 10} y2={COURT.netY} stroke="#e5e7eb" strokeWidth="4" />
-      <line x1={COURT.netNearLeft - 10} y1={COURT.netY} x2={COURT.netNearRight + 10} y2={COURT.netY} stroke="rgba(255,255,255,0.15)" strokeWidth="12" />
-      {/* Net mesh lines */}
-      {[-8, -4, 0, 4, 8].map((dy) => (
-        <line key={dy} x1={COURT.netNearLeft} y1={COURT.netY + dy} x2={COURT.netNearRight} y2={COURT.netY + dy} stroke="white" strokeWidth="0.3" opacity="0.15" />
+      <line x1={COURT.netNearLeft - 12} y1={COURT.netY} x2={COURT.netNearRight + 12} y2={COURT.netY} stroke="#e5e7eb" strokeWidth="5" />
+      <line x1={COURT.netNearLeft - 12} y1={COURT.netY} x2={COURT.netNearRight + 12} y2={COURT.netY} stroke="rgba(255,255,255,0.12)" strokeWidth="16" />
+      {[-7, -3.5, 0, 3.5, 7].map((dy) => (
+        <line key={dy} x1={COURT.netNearLeft} y1={COURT.netY + dy} x2={COURT.netNearRight} y2={COURT.netY + dy} stroke="white" strokeWidth="0.3" opacity="0.1" />
       ))}
-      {/* Net posts */}
-      <rect x={COURT.netNearLeft - 14} y={COURT.netY - 14} width="6" height="28" rx="3" fill="#d1d5db" />
-      <rect x={COURT.netNearRight + 8} y={COURT.netY - 14} width="6" height="28" rx="3" fill="#d1d5db" />
-      {/* Post caps */}
-      <circle cx={COURT.netNearLeft - 11} cy={COURT.netY - 14} r="4" fill="#e5e7eb" />
-      <circle cx={COURT.netNearRight + 11} cy={COURT.netY - 14} r="4" fill="#e5e7eb" />
+      <rect x={COURT.netNearLeft - 17} y={COURT.netY - 18} width="7" height="36" rx="3.5" fill="#d1d5db" />
+      <rect x={COURT.netNearRight + 10} y={COURT.netY - 18} width="7" height="36" rx="3.5" fill="#d1d5db" />
+      <circle cx={COURT.netNearLeft - 13.5} cy={COURT.netY - 18} r="5" fill="#e5e7eb" />
+      <circle cx={COURT.netNearRight + 13.5} cy={COURT.netY - 18} r="5" fill="#e5e7eb" />
 
-      {/* Opponent figure - more detailed */}
-      {opponent && (
-        <g opacity="0.85">
-          {/* Shadow */}
-          <ellipse
-            cx={opponent.x}
-            cy={opponent.y + 16 * oppScale}
-            rx={10 * oppScale}
-            ry={3 * oppScale}
-            fill="rgba(0,0,0,0.3)"
-          />
-          {/* Legs */}
-          <line x1={opponent.x - 3 * oppScale} y1={opponent.y + 10 * oppScale} x2={opponent.x - 5 * oppScale} y2={opponent.y + 16 * oppScale} stroke="#f97316" strokeWidth={3 * oppScale} strokeLinecap="round" />
-          <line x1={opponent.x + 3 * oppScale} y1={opponent.y + 10 * oppScale} x2={opponent.x + 5 * oppScale} y2={opponent.y + 16 * oppScale} stroke="#f97316" strokeWidth={3 * oppScale} strokeLinecap="round" />
-          {/* Body */}
-          <rect
-            x={opponent.x - 7 * oppScale}
-            y={opponent.y - 4 * oppScale}
-            width={14 * oppScale}
-            height={16 * oppScale}
-            rx={4 * oppScale}
-            fill="#f97316"
-          />
-          {/* Arm with racket */}
-          <line x1={opponent.x + 6 * oppScale} y1={opponent.y + 2 * oppScale} x2={opponent.x + 16 * oppScale} y2={opponent.y - 4 * oppScale} stroke="#f97316" strokeWidth={2.5 * oppScale} strokeLinecap="round" />
-          <ellipse cx={opponent.x + 18 * oppScale} cy={opponent.y - 6 * oppScale} rx={4 * oppScale} ry={6 * oppScale} fill="none" stroke="#94a3b8" strokeWidth={1.5 * oppScale} />
-          {/* Head */}
-          <circle
-            cx={opponent.x}
-            cy={opponent.y - 4 * oppScale - 8 * oppScale}
-            r={8 * oppScale}
-            fill="#fb923c"
-          />
-          {/* Cap visor */}
-          <ellipse
-            cx={opponent.x}
-            cy={opponent.y - 12 * oppScale - 3 * oppScale}
-            rx={9 * oppScale}
-            ry={3 * oppScale}
-            fill="#ea580c"
-          />
+      {/* Opponent */}
+      {opp && (
+        <g opacity="0.9">
+          <ellipse cx={opp.x} cy={opp.y + 20 * oppSc} rx={10 * oppSc} ry={3 * oppSc} fill="rgba(0,0,0,0.3)" />
+          <ellipse cx={opp.x - 5 * oppSc} cy={opp.y + 18 * oppSc} rx={4 * oppSc} ry={2 * oppSc} fill="#f8fafc" />
+          <ellipse cx={opp.x + 5 * oppSc} cy={opp.y + 18 * oppSc} rx={4 * oppSc} ry={2 * oppSc} fill="#f8fafc" />
+          <line x1={opp.x - 4 * oppSc} y1={opp.y + 11 * oppSc} x2={opp.x - 5 * oppSc} y2={opp.y + 17 * oppSc} stroke="#1e293b" strokeWidth={3.5 * oppSc} strokeLinecap="round" />
+          <line x1={opp.x + 4 * oppSc} y1={opp.y + 11 * oppSc} x2={opp.x + 5 * oppSc} y2={opp.y + 17 * oppSc} stroke="#1e293b" strokeWidth={3.5 * oppSc} strokeLinecap="round" />
+          <rect x={opp.x - 9 * oppSc} y={opp.y - 5 * oppSc} width={18 * oppSc} height={18 * oppSc} rx={4 * oppSc} fill="#ef4444" />
+          <line x1={opp.x - 9 * oppSc} y1={opp.y + 1 * oppSc} x2={opp.x - 15 * oppSc} y2={opp.y + 8 * oppSc} stroke="#fbbf24" strokeWidth={3 * oppSc} strokeLinecap="round" />
+          <line x1={opp.x + 9 * oppSc} y1={opp.y + 1 * oppSc} x2={opp.x + 20 * oppSc} y2={opp.y - 7 * oppSc} stroke="#fbbf24" strokeWidth={3 * oppSc} strokeLinecap="round" />
+          <line x1={opp.x + 20 * oppSc} y1={opp.y - 7 * oppSc} x2={opp.x + 26 * oppSc} y2={opp.y - 16 * oppSc} stroke="#78716c" strokeWidth={2 * oppSc} />
+          <ellipse cx={opp.x + 28 * oppSc} cy={opp.y - 20 * oppSc} rx={5 * oppSc} ry={7 * oppSc} fill="none" stroke="#a8a29e" strokeWidth={1.5 * oppSc} transform={`rotate(-20, ${opp.x + 28 * oppSc}, ${opp.y - 20 * oppSc})`} />
+          <circle cx={opp.x} cy={opp.y - 5 * oppSc - 10 * oppSc} r={10 * oppSc} fill="#fbbf24" />
+          <ellipse cx={opp.x} cy={opp.y - 15 * oppSc - 6 * oppSc} rx={11 * oppSc} ry={3.5 * oppSc} fill="#dc2626" />
         </g>
       )}
 
       {/* Target zone */}
       {showTarget && zone && (
-        <ellipse
-          cx={zone.x}
-          cy={zone.y}
-          rx={zoneR}
-          ry={zoneR * 0.45}
-          fill="rgba(34, 197, 94, 0.25)"
-          stroke="#22c55e"
-          strokeWidth="3"
-          strokeDasharray="8 4"
-          filter="url(#fpGreenGlow)"
-        />
+        <ellipse cx={zone.x} cy={zone.y} rx={zoneR} ry={zoneR * 0.4} fill="rgba(34,197,94,0.25)" stroke="#22c55e" strokeWidth="3" strokeDasharray="8 4" filter="url(#glow)" />
       )}
 
-      {/* Correct result */}
+      {/* Correct */}
       {result === 'correct' && zone && (
         <g>
-          <ellipse
-            cx={zone.x}
-            cy={zone.y}
-            rx={zoneR}
-            ry={zoneR * 0.45}
-            fill="rgba(34, 197, 94, 0.35)"
-            stroke="#22c55e"
-            strokeWidth="3"
-            filter="url(#fpGreenGlow)"
-          />
-          <text x={zone.x} y={zone.y + 8} textAnchor="middle" fontSize="28" fill="white" fontWeight="bold">
-            ✓
-          </text>
+          <ellipse cx={zone.x} cy={zone.y} rx={zoneR} ry={zoneR * 0.4} fill="rgba(34,197,94,0.35)" stroke="#22c55e" strokeWidth="3" filter="url(#glow)" />
         </g>
       )}
 
-      {/* Wrong result */}
+      {/* Wrong */}
       {result === 'wrong' && tap && (
         <g>
-          <circle cx={tap.x} cy={tap.y} r="20" fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth="3" />
-          <text x={tap.x} y={tap.y + 6} textAnchor="middle" fontSize="22" fill="white" fontWeight="bold">
-            ✕
-          </text>
+          <circle cx={tap.x} cy={tap.y} r="24" fill="rgba(239,68,68,0.4)" stroke="#ef4444" strokeWidth="3" />
+          <text x={tap.x} y={tap.y + 7} textAnchor="middle" fontSize="24" fill="white" fontWeight="bold">✕</text>
         </g>
       )}
 
-      {/* Shot trajectory arrow */}
+      {/* Shot trajectory */}
       {result === 'correct' && ball && zone && (
-        <line
-          x1={ball.x}
-          y1={ball.y}
-          x2={zone.x}
-          y2={zone.y}
-          stroke="#CCFF00"
-          strokeWidth="3"
-          strokeDasharray="10 5"
-          opacity="0.9"
-          markerEnd="url(#arrowhead)"
-        />
-      )}
-      <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#CCFF00" />
-        </marker>
-      </defs>
-
-      {/* Swipe line */}
-      {swipeLine && swipeStart && swipeEnd && (
-        <line
-          x1={swipeStart.x}
-          y1={swipeStart.y}
-          x2={swipeEnd.x}
-          y2={swipeEnd.y}
-          stroke={result === 'wrong' ? '#ef4444' : '#CCFF00'}
-          strokeWidth="3"
-          strokeLinecap="round"
-          opacity="0.7"
-          strokeDasharray={result === 'wrong' ? '6 4' : 'none'}
-        />
+        <line x1={ball.x} y1={ball.y} x2={zone.x} y2={zone.y} stroke="#CCFF00" strokeWidth="4" strokeDasharray="10 5" opacity="0.9" />
       )}
 
-      {/* Ball shadow on court */}
-      {ball && (
-        <ellipse
-          cx={ball.x}
-          cy={ball.y + 8 * ballScale}
-          rx={8 * ballScale}
-          ry={3 * ballScale}
-          fill="rgba(0,0,0,0.25)"
-        />
+      {/* Wrong trajectory */}
+      {swA && swB && result === 'wrong' && (
+        <line x1={swA.x} y1={swA.y} x2={swB.x} y2={swB.y} stroke="#ef4444" strokeWidth="3" strokeDasharray="6 4" opacity="0.5" />
       )}
+
+      {/* Ball shadow */}
+      {ball && <ellipse cx={ball.x} cy={ball.y + 12 * ballSc} rx={10 * ballSc} ry={3 * ballSc} fill="rgba(0,0,0,0.3)" />}
 
       {/* Tennis ball */}
       {ball && (
-        <g filter="url(#fpBallGlow)">
-          <circle cx={ball.x} cy={ball.y} r={12 * ballScale} fill="url(#ballGrad)" filter="url(#fpBallShadow)" />
-          {/* Ball seam curves */}
-          <path
-            d={`M ${ball.x - 5 * ballScale} ${ball.y - 7 * ballScale} Q ${ball.x} ${ball.y} ${ball.x - 5 * ballScale} ${ball.y + 7 * ballScale}`}
-            stroke="#7a9e00"
-            strokeWidth={1.2 * ballScale}
-            fill="none"
-          />
-          <path
-            d={`M ${ball.x + 5 * ballScale} ${ball.y - 7 * ballScale} Q ${ball.x} ${ball.y} ${ball.x + 5 * ballScale} ${ball.y + 7 * ballScale}`}
-            stroke="#7a9e00"
-            strokeWidth={1.2 * ballScale}
-            fill="none"
-          />
+        <g filter="url(#ballGlow)">
+          <circle cx={ball.x} cy={ball.y} r={14 * ballSc} fill="url(#ballG)" filter="url(#shadow)" />
+          <path d={`M ${ball.x - 6 * ballSc} ${ball.y - 9 * ballSc} Q ${ball.x} ${ball.y} ${ball.x - 6 * ballSc} ${ball.y + 9 * ballSc}`} stroke="#7a9e00" strokeWidth={1.2 * ballSc} fill="none" />
+          <path d={`M ${ball.x + 6 * ballSc} ${ball.y - 9 * ballSc} Q ${ball.x} ${ball.y} ${ball.x + 6 * ballSc} ${ball.y + 9 * ballSc}`} stroke="#7a9e00" strokeWidth={1.2 * ballSc} fill="none" />
         </g>
       )}
 
-      {/* Player's racket at bottom - first person view */}
-      <g opacity="0.7">
-        {/* Racket handle */}
-        <line x1={WIDTH / 2 + 40} y1={HEIGHT} x2={WIDTH / 2 + 15} y2={HEIGHT - 60} stroke="#8B4513" strokeWidth="7" strokeLinecap="round" />
-        {/* Grip tape */}
-        <line x1={WIDTH / 2 + 38} y1={HEIGHT - 5} x2={WIDTH / 2 + 30} y2={HEIGHT - 25} stroke="#654321" strokeWidth="8" strokeLinecap="round" />
-        {/* Racket head */}
-        <ellipse cx={WIDTH / 2 + 8} cy={HEIGHT - 85} rx="28" ry="38" fill="none" stroke="#374151" strokeWidth="4" transform="rotate(-15, ${WIDTH / 2 + 8}, ${HEIGHT - 85})" />
-        <ellipse cx={WIDTH / 2 + 8} cy={HEIGHT - 85} rx="24" ry="34" fill="none" stroke="#6b7280" strokeWidth="1" transform="rotate(-15, ${WIDTH / 2 + 8}, ${HEIGHT - 85})" />
-        {/* String pattern - vertical */}
-        {[-16, -8, 0, 8, 16].map((dx) => (
-          <line key={`v${dx}`} x1={WIDTH / 2 + 8 + dx} y1={HEIGHT - 115} x2={WIDTH / 2 + 8 + dx} y2={HEIGHT - 55} stroke="#9ca3af" strokeWidth="0.5" opacity="0.5" transform={`rotate(-15, ${WIDTH / 2 + 8}, ${HEIGHT - 85})`} />
+      {/* YOUR RACKET + ARM — first person */}
+      <g style={racketStyle}>
+        <line x1="320" y1={HEIGHT + 40} x2="245" y2={HEIGHT - 75} stroke="#d4a574" strokeWidth="20" strokeLinecap="round" />
+        <rect x="232" y={HEIGHT - 86} width="26" height="11" rx="5" fill="#ef4444" />
+        <line x1="245" y1={HEIGHT - 80} x2="212" y2={HEIGHT - 130} stroke="#8B4513" strokeWidth="11" strokeLinecap="round" />
+        {[0, 9, 18, 27].map((d) => (
+          <line key={d} x1={243 - d * 0.8} y1={HEIGHT - 84 - d} x2={247 - d * 0.8} y2={HEIGHT - 84 - d} stroke="#a0764a" strokeWidth="2" opacity="0.5" />
         ))}
-        {/* String pattern - horizontal */}
-        {[-26, -16, -6, 4, 14, 24].map((dy) => (
-          <line key={`h${dy}`} x1={WIDTH / 2 - 16} y1={HEIGHT - 85 + dy} x2={WIDTH / 2 + 32} y2={HEIGHT - 85 + dy} stroke="#9ca3af" strokeWidth="0.5" opacity="0.5" transform={`rotate(-15, ${WIDTH / 2 + 8}, ${HEIGHT - 85})`} />
+        <ellipse cx="198" cy={HEIGHT - 168} rx="36" ry="48" fill="none" stroke="#1f2937" strokeWidth="5.5" transform={`rotate(-10, 198, ${HEIGHT - 168})`} />
+        <ellipse cx="198" cy={HEIGHT - 168} rx="32" ry="44" fill="rgba(0,0,0,0.03)" stroke="#374151" strokeWidth="1.5" transform={`rotate(-10, 198, ${HEIGHT - 168})`} />
+        {[-22, -13, -4, 5, 14, 22].map((dx) => (
+          <line key={`v${dx}`} x1={198 + dx} y1={HEIGHT - 210} x2={198 + dx} y2={HEIGHT - 126} stroke="#9ca3af" strokeWidth="0.6" opacity="0.35" transform={`rotate(-10, 198, ${HEIGHT - 168})`} />
         ))}
-        {/* Player's hand hint */}
-        <ellipse cx={WIDTH / 2 + 32} cy={HEIGHT - 18} rx="12" ry="8" fill="#d4a574" opacity="0.5" />
+        {[-36, -26, -16, -6, 4, 14, 24, 34].map((dy) => (
+          <line key={`h${dy}`} x1="164" y1={HEIGHT - 168 + dy} x2="232" y2={HEIGHT - 168 + dy} stroke="#9ca3af" strokeWidth="0.6" opacity="0.35" transform={`rotate(-10, 198, ${HEIGHT - 168})`} />
+        ))}
+        <ellipse cx="243" cy={HEIGHT - 77} rx="15" ry="11" fill="#d4a574" />
       </g>
 
-      {/* Dimming overlay */}
-      {dimmed && (
-        <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(0,0,0,0.4)" />
-      )}
+      {/* Dim overlay */}
+      {dimmed && <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(0,0,0,0.5)" />}
     </svg>
   );
 }
