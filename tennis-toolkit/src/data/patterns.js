@@ -38,14 +38,15 @@ export const rallies = [
         opponentPosition: { x: 0.5, y: 0.15 },
       },
       {
-        // Opponent played from x:0.25 (far left), hit a short ball to middle
-        // Opponent is still at x:0.25 — open court is on the RIGHT
+        // Opponent played from x:0.25 (far left), hit a short ball to your right
+        // Short ball on right → approach down the line to far right
+        // Opponent at x:0.25 — DTL and open court both on the RIGHT
         description: 'Your opponent hits a SHORT ball to the middle! They\'re stuck on the left. Attack!',
-        ballPosition: { x: 0.5, y: 0.5 },
+        ballPosition: { x: 0.6, y: 0.5 },
         correctZone: { x: 0.75, y: 0.2, radius: 0.25 },
-        correctLabel: 'Attack the open court!',
-        explanation: 'Short ball = attack the open side! Your opponent was stuck left, you went right!',
-        wrongExplanation: 'Your opponent is stuck on the LEFT. The open court is on the RIGHT — attack it there!',
+        correctLabel: 'Attack down the line!',
+        explanation: 'Short ball = attack down the line! You moved forward and hit it past them!',
+        wrongExplanation: 'Short ball on your right — attack DOWN THE LINE to the far right! Your opponent can\'t recover.',
         opponentPosition: { x: 0.25, y: 0.25 },
       },
     ],
@@ -68,14 +69,15 @@ export const rallies = [
         opponentPosition: { x: 0.5, y: 0.15 },
       },
       {
-        // Opponent played from x:0.75 (far right), hit a weak short ball
-        // Opponent is at x:0.75 — open court is on the LEFT
+        // Opponent played from x:0.75 (far right), hit a weak short ball to your left
+        // Short ball on left → attack down the line to far left
+        // Opponent at x:0.75 — DTL and open court both on the LEFT
         description: 'Your opponent is pulled wide RIGHT and hits a weak short ball. Open court is on the LEFT!',
-        ballPosition: { x: 0.45, y: 0.5 },
+        ballPosition: { x: 0.35, y: 0.5 },
         correctZone: { x: 0.25, y: 0.2, radius: 0.25 },
-        correctLabel: 'Attack the open court!',
-        explanation: 'You read the open court perfectly. Point won!',
-        wrongExplanation: 'Your opponent is stuck on the RIGHT side. The open court is on the LEFT — hit it there!',
+        correctLabel: 'Attack down the line!',
+        explanation: 'Short ball on your left — you attacked down the line! Point won!',
+        wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left! Your opponent is out of position on the right.',
         opponentPosition: { x: 0.75, y: 0.25 },
       },
     ],
@@ -98,14 +100,15 @@ export const rallies = [
         opponentPosition: { x: 0.5, y: 0.12 },
       },
       {
-        // Opponent played from x:0.7 (far right), under pressure, hits short
-        // Opponent is at x:0.7 — open court is on the LEFT
-        description: 'Your opponent scrambles and hits it SHORT! They\'re stuck on the right. Attack the open side!',
-        ballPosition: { x: 0.5, y: 0.48 },
+        // Opponent played from x:0.7 (far right), under pressure, hits short to your left
+        // Short ball on left → attack down the line to far left
+        // Opponent at x:0.7 — DTL and open court both on the LEFT
+        description: 'Your opponent scrambles and hits it SHORT! They\'re stuck on the right. Attack!',
+        ballPosition: { x: 0.38, y: 0.48 },
         correctZone: { x: 0.25, y: 0.18, radius: 0.25 },
-        correctLabel: 'Attack the open court!',
-        explanation: 'Return deep, wait for the weak reply, attack the open court. Textbook tennis!',
-        wrongExplanation: 'Your opponent is stuck on the RIGHT from chasing your return. The open court is on the LEFT — hit it there!',
+        correctLabel: 'Attack down the line!',
+        explanation: 'Return deep, wait for the weak reply, attack down the line. Textbook tennis!',
+        wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left! Your opponent is stuck on the right.',
         opponentPosition: { x: 0.7, y: 0.2 },
       },
     ],
@@ -222,14 +225,15 @@ export const rallies = [
         opponentPosition: { x: 0.45, y: 0.35 },
       },
       {
-        // Opponent chased the lob to far right (x:0.65) and hit a weak ball back
-        // Opponent is at x:0.7, deep — open court is on the LEFT
-        description: 'Your lob worked! They chased it back and hit a weak ball to the middle. They\'re stuck on the right!',
-        ballPosition: { x: 0.5, y: 0.55 },
+        // Opponent chased the lob to far right (x:0.7) and hit a weak short ball to your left
+        // Short ball on left → attack down the line to far left
+        // Opponent at x:0.7 — DTL and open court both on the LEFT
+        description: 'Your lob worked! They chased it back and hit a weak short ball. They\'re stuck on the right!',
+        ballPosition: { x: 0.35, y: 0.5 },
         correctZone: { x: 0.2, y: 0.18, radius: 0.25 },
-        correctLabel: 'Attack the open court!',
-        explanation: 'Defended, lobbed, then attacked the open court. Tennis IQ through the roof!',
-        wrongExplanation: 'Your opponent chased the lob to the RIGHT and is stuck there. The open court is on the LEFT — attack it!',
+        correctLabel: 'Attack down the line!',
+        explanation: 'Defended, lobbed, then attacked down the line. Tennis IQ through the roof!',
+        wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left! Your opponent is stuck on the right.',
         opponentPosition: { x: 0.7, y: 0.12 },
       },
     ],
@@ -287,13 +291,14 @@ export const rallies = [
     steps: [
       {
         // You served wide to the LEFT. Opponent is stretched far left (x:0.15)
-        // Ball comes back to middle — open court is on the RIGHT
+        // Ball comes back to your right — attack down the line to far right
+        // Opponent at x:0.15 — DTL and open court both on the RIGHT
         description: 'You served wide! Your opponent barely got it back. The right side is wide open!',
-        ballPosition: { x: 0.5, y: 0.65 },
+        ballPosition: { x: 0.6, y: 0.6 },
         correctZone: { x: 0.8, y: 0.22, radius: 0.25 },
-        correctLabel: 'Attack the open court!',
-        explanation: 'Great read! You spotted the open court and went for it!',
-        wrongExplanation: 'After a wide serve, your opponent is stretched far LEFT. The open court is on the RIGHT — attack it!',
+        correctLabel: 'Attack down the line!',
+        explanation: 'Great read! Serve wide, then attack down the line into the open court!',
+        wrongExplanation: 'Ball on your right after a wide serve — attack DOWN THE LINE to the far right! Your opponent is stranded on the left.',
         opponentPosition: { x: 0.15, y: 0.15 },
       },
       {
@@ -351,14 +356,15 @@ export const rallies = [
         opponentPosition: { x: 0.75, y: 0.15 },
       },
       {
-        // Opponent scrambled to x:0.25 (far left) to get the DTL, hits weak short ball
-        // Opponent is at x:0.25 — open court is on the RIGHT
+        // Opponent scrambled to x:0.25 (far left) to get the DTL, hits weak short ball to your right
+        // Short ball on right → attack down the line to far right
+        // Opponent at x:0.25 — DTL and open court both on the RIGHT
         description: 'Your opponent scrambles and hits a weak short ball. They\'re stuck on the left. End it!',
-        ballPosition: { x: 0.45, y: 0.5 },
+        ballPosition: { x: 0.6, y: 0.5 },
         correctZone: { x: 0.8, y: 0.18, radius: 0.25 },
-        correctLabel: 'Finish to the open court!',
-        explanation: 'WHAT A COMEBACK! Defended, changed direction, then attacked the open court. Champion tennis!',
-        wrongExplanation: 'Your opponent scrambled to the LEFT. The open court is on the RIGHT — finish the point there!',
+        correctLabel: 'Finish down the line!',
+        explanation: 'WHAT A COMEBACK! Defended, changed direction, then attacked down the line. Champion tennis!',
+        wrongExplanation: 'Short ball on your right — attack DOWN THE LINE to the far right! Your opponent is stuck on the left.',
         opponentPosition: { x: 0.25, y: 0.25 },
       },
     ],

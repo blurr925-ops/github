@@ -459,10 +459,10 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
             <p className="text-red-400 text-xl font-black mb-1">
-              {timeLeft <= 0 ? 'TOO SLOW' : 'OUT'}
+              {timeLeft <= 0 ? 'TOO SLOW' : 'POINT LOST'}
             </p>
             <p className="text-gray-400 text-xs leading-relaxed mb-4">
-              {timeLeft <= 0 ? `Time ran out! ${step.wrongExplanation}` : step.wrongExplanation}
+              {timeLeft <= 0 ? `Time ran out! ${step.wrongExplanation}` : `Your opponent punished that shot! ${step.wrongExplanation}`}
             </p>
             <div className="flex gap-2">
               <button onClick={handleRestart} className="flex-1 bg-white/10 text-white font-bold py-3 rounded-full text-sm active:scale-95 transition-transform min-h-[48px]">
