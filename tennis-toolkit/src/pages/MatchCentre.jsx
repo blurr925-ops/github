@@ -294,7 +294,103 @@ export default function MatchCentre() {
             {selectedMatchId ? (
               renderMatchDetail()
             ) : (
-              <MatchHistory matches={matches} onSelect={handleSelectMatch} />
+              <>
+                {(() => {
+                  const completed = matches.filter((m) => m.result === 'won' || m.result === 'lost');
+                  if (completed.length === 0) return null;
+
+                  const wins = completed.filter((m) => m.result === 'won').length;
+                  const losses = completed.length - wins;
+                  const winRate = Math.round((wins / completed.length) * 100);
+
+                  // Opponent breakdown
+                  const opponentRecord = {};
+                  completed.forEach((m) => {
+                    const name = m.opponentName || 'Unknown';
+                    if (!opponentRecord[name]) opponentRecord[name] = { wins: 0, losses: 0 };
+                    if (m.result === 'won') opponentRecord[name].wins += 1;
+                    else opponentRecord[name].losses += 1;
+                  });
+
+                  // Best win streak
+                  let bestStreak = 0;
+                  let current = 0;
+                  const sorted = [...completed].sort((a, b) => new Date(a.date) - new Date(b.date));
+                  sorted.forEach((m) => {
+                    if (m.result === 'won') {
+                      current += 1;
+                      if (current > bestStreak) bestStreak = current;
+                    } else {
+                      current = 0;
+                    }
+                  });
+
+                  const winPct = completed.length > 0 ? (wins / completed.length) * 100 : 0;
+
+                  return (
+                    <div className="bg-navy-light rounded-2xl p-5 mb-5 space-y-5">
+                      {/* Win Rate */}
+                      <div className="text-center">
+                        <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Win Rate</p>
+                        <p className="text-tennis text-4xl font-bold">{winRate}%</p>
+                      </div>
+
+                      {/* Overall Record Bar */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-gray-400 text-xs uppercase tracking-wider">Overall Record</p>
+                          <p className="text-white text-sm font-semibold">{wins}W - {losses}L</p>
+                        </div>
+                        <div className="flex h-3 rounded-full overflow-hidden bg-navy">
+                          {wins > 0 && (
+                            <div
+                              className="bg-green-500 transition-all"
+                              style={{ width: `${winPct}%` }}
+                            />
+                          )}
+                          {losses > 0 && (
+                            <div
+                              className="bg-red-500 transition-all"
+                              style={{ width: `${100 - winPct}%` }}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Best Streak */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-400 text-xs uppercase tracking-wider">Best Win Streak</p>
+                        <p className="text-tennis font-bold text-lg">{bestStreak} {bestStreak === 1 ? 'match' : 'matches'}</p>
+                      </div>
+
+                      {/* Opponent Breakdown */}
+                      {Object.keys(opponentRecord).length > 0 && (
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Opponent Breakdown</p>
+                          <div className="space-y-1.5">
+                            {Object.entries(opponentRecord)
+                              .sort(([, a], [, b]) => (b.wins + b.losses) - (a.wins + a.losses))
+                              .map(([name, rec]) => (
+                                <div
+                                  key={name}
+                                  className="flex items-center justify-between min-h-[44px] px-3 py-2 bg-navy rounded-xl"
+                                >
+                                  <span className="text-white text-sm">vs {name}</span>
+                                  <span className="text-gray-400 text-sm font-semibold">
+                                    <span className="text-green-400">{rec.wins}</span>
+                                    {' - '}
+                                    <span className="text-red-400">{rec.losses}</span>
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+                <MatchHistory matches={matches} onSelect={handleSelectMatch} />
+              </>
             )}
           </div>
         )}

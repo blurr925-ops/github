@@ -1,16 +1,46 @@
-import { useState, useCallback } from 'react';
-import { Trophy } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { Trophy, Lock } from 'lucide-react';
 import { rallies } from '../data/patterns';
 import { useStorage } from '../hooks/useStorage';
 import PatternCard from '../components/patterns/PatternCard';
 import RallyQuiz from '../components/patterns/PatternQuiz';
 import Confetti from '../components/common/Confetti';
 
+const DIFFICULTY_FILTERS = [
+  { key: 'all', label: 'All', color: '' },
+  { key: 'green', label: 'Green', color: 'bg-green-500' },
+  { key: 'orange', label: 'Orange', color: 'bg-orange-500' },
+  { key: 'red', label: 'Red', color: 'bg-red-500' },
+];
+
+const BADGES = [
+  { id: 'first-win', name: 'First Win', emoji: '\u{1F947}', check: ({ wins }) => wins >= 1 },
+  { id: 'hot-streak', name: 'Hot Streak', emoji: '\u{1F525}', check: ({ bestStreak }) => bestStreak >= 3 },
+  { id: 'tactician', name: 'Tactician', emoji: '\u{1F9E0}', check: ({ completedIds, greenIds }) => greenIds.every((id) => completedIds.includes(id)) },
+  { id: 'court-general', name: 'Court General', emoji: '\u2B50', check: ({ completedIds, orangeIds }) => orangeIds.every((id) => completedIds.includes(id)) },
+  { id: 'champion', name: 'Champion', emoji: '\u{1F3C6}', check: ({ completedIds, allIds }) => allIds.every((id) => completedIds.includes(id)) },
+];
+
+const greenIds = rallies.filter((r) => r.difficulty === 'green').map((r) => r.id);
+const orangeIds = rallies.filter((r) => r.difficulty === 'orange').map((r) => r.id);
+const allIds = rallies.map((r) => r.id);
+
 export default function Patterns() {
   const [completedIds, setCompletedIds] = useStorage('completedPatterns', []);
   const [stats, setStats] = useStorage('patternStats', { attempts: 0, wins: 0, currentStreak: 0, bestStreak: 0 });
   const [activeRally, setActiveRally] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+
+  const filteredRallies = useMemo(
+    () => difficultyFilter === 'all' ? rallies : rallies.filter((r) => r.difficulty === difficultyFilter),
+    [difficultyFilter],
+  );
+
+  const badgeContext = useMemo(
+    () => ({ wins: stats.wins, bestStreak: stats.bestStreak, completedIds, greenIds, orangeIds, allIds }),
+    [stats.wins, stats.bestStreak, completedIds],
+  );
 
   const masteredCount = completedIds.length;
 
@@ -112,9 +142,56 @@ export default function Patterns() {
         </div>
       )}
 
+      {/* Achievement Badges */}
+      <div className="px-4 mb-5">
+        <h2 className="text-white text-sm font-semibold mb-2">Achievements</h2>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {BADGES.map((badge) => {
+            const unlocked = badge.check(badgeContext);
+            return (
+              <div
+                key={badge.id}
+                className={`flex-shrink-0 w-20 rounded-2xl p-3 text-center ${
+                  unlocked ? 'bg-navy-light' : 'bg-navy-lighter opacity-50 grayscale'
+                }`}
+              >
+                <div className="text-2xl mb-1">
+                  {unlocked ? badge.emoji : <Lock className="w-5 h-5 text-gray-400 mx-auto" />}
+                </div>
+                <p className={`text-xs font-medium ${unlocked ? 'text-white' : 'text-gray-400'}`}>
+                  {badge.name}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Difficulty Filter Tabs */}
+      <div className="px-4 mb-4">
+        <div className="flex gap-2">
+          {DIFFICULTY_FILTERS.map((filter) => {
+            const isActive = difficultyFilter === filter.key;
+            return (
+              <button
+                key={filter.key}
+                onClick={() => setDifficultyFilter(filter.key)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  isActive
+                    ? `${filter.color || 'bg-tennis'} text-white`
+                    : 'bg-navy-lighter text-gray-400'
+                }`}
+              >
+                {filter.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Rally list */}
       <div className="px-4 space-y-3">
-        {rallies.map((rally) => (
+        {filteredRallies.map((rally) => (
           <PatternCard
             key={rally.id}
             rally={rally}
