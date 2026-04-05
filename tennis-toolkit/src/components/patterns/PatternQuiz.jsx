@@ -12,12 +12,16 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   const [readyCount, setReadyCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(1);
   const [ballAnim, setBallAnim] = useState(0);
+  const [shotAnim, setShotAnim] = useState(0);
+  const [oppMoveAnim, setOppMoveAnim] = useState(0);
+  const [prevOpponentPos, setPrevOpponentPos] = useState(null);
   const [combo, setCombo] = useState(0);
   const [flashText, setFlashText] = useState(null);
   const [racketSwing, setRacketSwing] = useState(false);
   const timerRef = useRef(null);
-  const startRef = useRef(null);
   const animRef = useRef(null);
+  const startRef = useRef(null);
+  const pendingFlash = useRef(null);
 
   const step = rally.steps[stepIndex];
   const isLast = stepIndex === rally.steps.length - 1;
@@ -31,7 +35,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     return () => clearTimeout(t);
   }, [phase, readyCount]);
 
-  // Ball incoming
+  // Ball incoming — from opponent to landing position
   useEffect(() => {
     if (phase !== 'incoming') return;
     setBallAnim(0);
@@ -55,26 +59,86 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     function tick(now) {
       const r = Math.max(0, 1 - (now - startRef.current) / allowed);
       setTimeLeft(r);
-      if (r <= 0) { setResult('wrong'); setPhase('feedback'); return; }
+      if (r <= 0) {
+        setResult('wrong');
+        setPhase('feedback');
+        return;
+      }
       timerRef.current = requestAnimationFrame(tick);
     }
     timerRef.current = requestAnimationFrame(tick);
     return () => { if (timerRef.current) cancelAnimationFrame(timerRef.current); };
   }, [phase, allowed]);
 
-  // Auto-advance
+  // Shot animation — ball flies from landing spot to where user tapped
   useEffect(() => {
-    if (phase !== 'feedback' || result === 'wrong' || result === 'won') return;
-    const d = setTimeout(() => {
-      setStepIndex((i) => i + 1);
-      setResult(null);
-      setTapPosition(null);
-      setPhase('incoming');
-      setBallAnim(0);
-      setRacketSwing(false);
-    }, 600);
-    return () => clearTimeout(d);
-  }, [phase, result]);
+    if (phase !== 'shotAnim') return;
+    setShotAnim(0);
+    const dur = 350;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min(1, (now - start) / dur);
+      setShotAnim(1 - Math.pow(1 - p, 3));
+      if (p < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      } else {
+        // Shot landed — show flash text
+        if (pendingFlash.current) {
+          setFlashText(pendingFlash.current);
+          pendingFlash.current = null;
+        }
+        setPhase('shotLanded');
+      }
+    }
+    animRef.current = requestAnimationFrame(tick);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [phase]);
+
+  // Shot landed — brief pause then decide what happens
+  useEffect(() => {
+    if (phase !== 'shotLanded') return;
+    const delay = result === 'correct' ? 400 : 300;
+    const t = setTimeout(() => {
+      if (result === 'wrong' || result === 'won') {
+        setPhase('feedback');
+      } else {
+        // Correct, not last — opponent runs to ball
+        setPrevOpponentPos(step.opponentPosition);
+        setPhase('opponentMove');
+      }
+    }, delay);
+    return () => clearTimeout(t);
+  }, [phase, result, step]);
+
+  // Opponent moves to return ball, then hits it back
+  useEffect(() => {
+    if (phase !== 'opponentMove') return;
+    setOppMoveAnim(0);
+    const dur = 450;
+    const start = performance.now();
+    const nextStep = rally.steps[stepIndex + 1];
+    if (!nextStep) { setPhase('feedback'); return; }
+    function tick(now) {
+      const p = Math.min(1, (now - start) / dur);
+      setOppMoveAnim(1 - Math.pow(1 - p, 2));
+      if (p < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      } else {
+        // Opponent reached the ball — advance to next step
+        setStepIndex((i) => i + 1);
+        setResult(null);
+        setTapPosition(null);
+        setPhase('incoming');
+        setBallAnim(0);
+        setShotAnim(0);
+        setOppMoveAnim(0);
+        setRacketSwing(false);
+        setPrevOpponentPos(null);
+      }
+    }
+    animRef.current = requestAnimationFrame(tick);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [phase, stepIndex, rally.steps]);
 
   // Flash text auto-clear
   useEffect(() => {
@@ -95,36 +159,68 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
       setCombo(newCombo);
       if (isLast) {
         setResult('won');
-        setFlashText('POINT WON!');
+        pendingFlash.current = 'POINT WON!';
       } else {
         setResult('correct');
-        setFlashText(newCombo >= 2 ? `${newCombo}x COMBO!` : step.correctLabel);
+        pendingFlash.current = newCombo >= 2 ? `${newCombo}x COMBO!` : step.correctLabel;
       }
     } else {
       setResult('wrong');
       setCombo(0);
+      pendingFlash.current = null;
     }
-    setPhase('feedback');
+    setPhase('shotAnim');
   }, [step, result, isLast, phase, combo]);
 
   const handleRestart = useCallback(() => {
     setStepIndex(0); setResult(null); setTapPosition(null);
     setPhase('brief'); setReadyCount(3); setTimeLeft(1);
-    setBallAnim(0); setCombo(0); setFlashText(null); setRacketSwing(false);
+    setBallAnim(0); setShotAnim(0); setOppMoveAnim(0);
+    setCombo(0); setFlashText(null); setRacketSwing(false);
+    setPrevOpponentPos(null); pendingFlash.current = null;
   }, []);
 
+  // Ball position based on current phase
   const getBallPos = () => {
     if (phase === 'incoming' && step) {
       const sx = step.opponentPosition?.x ?? 0.5;
       const sy = step.opponentPosition?.y ?? 0.1;
-      return { x: sx + (step.ballPosition.x - sx) * ballAnim, y: sy + (step.ballPosition.y - sy) * ballAnim };
+      return {
+        x: sx + (step.ballPosition.x - sx) * ballAnim,
+        y: sy + (step.ballPosition.y - sy) * ballAnim,
+      };
+    }
+    if ((phase === 'shotAnim' || phase === 'shotLanded') && step && tapPosition) {
+      const progress = phase === 'shotLanded' ? 1 : shotAnim;
+      return {
+        x: step.ballPosition.x + (tapPosition.x - step.ballPosition.x) * progress,
+        y: step.ballPosition.y + (tapPosition.y - step.ballPosition.y) * progress,
+      };
+    }
+    if (phase === 'opponentMove' && tapPosition) {
+      return tapPosition;
     }
     return step?.ballPosition || null;
   };
 
+  // Opponent position — smooth slide during opponentMove phase
+  const getOpponentPos = () => {
+    if (phase === 'opponentMove' && prevOpponentPos) {
+      const nextStep = rally.steps[stepIndex + 1];
+      if (nextStep) {
+        return {
+          x: prevOpponentPos.x + (nextStep.opponentPosition.x - prevOpponentPos.x) * oppMoveAnim,
+          y: prevOpponentPos.y + (nextStep.opponentPosition.y - prevOpponentPos.y) * oppMoveAnim,
+        };
+      }
+    }
+    return step?.opponentPosition;
+  };
+
   const timerColor = timeLeft > 0.5 ? '#22c55e' : timeLeft > 0.25 ? '#f59e0b' : '#ef4444';
-  const showBall = phase !== 'ready';
+  const showBall = phase !== 'ready' && phase !== 'brief';
   const animBall = showBall ? getBallPos() : null;
+  const displayOpp = getOpponentPos();
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden z-[60]">
@@ -134,16 +230,16 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         <CourtFirstPerson
           ballPosition={animBall}
           targetZone={step.correctZone}
-          showTarget={result === 'correct' || result === 'won'}
+          showTarget={phase === 'feedback' && (result === 'correct' || result === 'won')}
           onTap={phase === 'play' && !result ? handleTap : null}
-          result={result === 'wrong' ? 'wrong' : result ? 'correct' : null}
+          result={phase === 'feedback' ? (result === 'wrong' ? 'wrong' : result ? 'correct' : null) : null}
           tapPosition={tapPosition}
           swipeLine={
             phase === 'feedback' && result
               ? { start: step.ballPosition, end: result === 'wrong' ? tapPosition : { x: step.correctZone.x, y: step.correctZone.y } }
               : null
           }
-          opponentPosition={step.opponentPosition}
+          opponentPosition={displayOpp}
           dimmed={phase === 'ready' || phase === 'brief'}
           racketSwing={racketSwing}
         />
@@ -179,7 +275,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
       )}
 
       {/* Combo counter — top center */}
-      {combo >= 2 && phase !== 'ready' && (
+      {combo >= 2 && phase !== 'ready' && phase !== 'brief' && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
           <span className="text-tennis text-xs font-black tracking-widest bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
             style={{ textShadow: '0 0 10px rgba(204,255,0,0.5)' }}
@@ -189,7 +285,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         </div>
       )}
 
-      {/* Shot counter — bottom area, shows which shot you're on */}
+      {/* Shot counter — bottom area */}
       {(phase === 'play' || phase === 'incoming') && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
           <span className="text-white/30 text-xs font-bold tracking-wider uppercase">
@@ -280,7 +376,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
       )}
 
       {/* POINT WON */}
-      {result === 'won' && (
+      {phase === 'feedback' && result === 'won' && (
         <div className="absolute inset-0 flex items-end justify-center z-20 pb-8">
           <div className="bg-black/70 backdrop-blur-md rounded-2xl p-6 mx-4 w-full max-w-sm text-center border border-green-500/30"
             style={{ animation: 'slideUp 0.3s ease-out' }}
@@ -298,7 +394,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
       )}
 
       {/* POINT LOST */}
-      {result === 'wrong' && (
+      {phase === 'feedback' && result === 'wrong' && (
         <div className="absolute inset-0 flex items-end justify-center z-20 pb-8">
           <div className="bg-black/70 backdrop-blur-md rounded-2xl p-5 mx-4 w-full max-w-sm text-center border border-red-500/30"
             style={{ animation: 'slideUp 0.3s ease-out' }}
