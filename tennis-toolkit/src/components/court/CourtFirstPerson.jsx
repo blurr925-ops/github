@@ -177,22 +177,39 @@ export default function CourtFirstPerson({
       <circle cx={COURT.netNearRight + 13.5} cy={COURT.netY - 18} r="5" fill="#e5e7eb" />
 
       {/* Opponent */}
-      {opp && (
-        <g opacity="0.9">
-          <ellipse cx={opp.x} cy={opp.y + 20 * oppSc} rx={10 * oppSc} ry={3 * oppSc} fill="rgba(0,0,0,0.3)" />
-          <ellipse cx={opp.x - 5 * oppSc} cy={opp.y + 18 * oppSc} rx={4 * oppSc} ry={2 * oppSc} fill="#f8fafc" />
-          <ellipse cx={opp.x + 5 * oppSc} cy={opp.y + 18 * oppSc} rx={4 * oppSc} ry={2 * oppSc} fill="#f8fafc" />
-          <line x1={opp.x - 4 * oppSc} y1={opp.y + 11 * oppSc} x2={opp.x - 5 * oppSc} y2={opp.y + 17 * oppSc} stroke="#1e293b" strokeWidth={3.5 * oppSc} strokeLinecap="round" />
-          <line x1={opp.x + 4 * oppSc} y1={opp.y + 11 * oppSc} x2={opp.x + 5 * oppSc} y2={opp.y + 17 * oppSc} stroke="#1e293b" strokeWidth={3.5 * oppSc} strokeLinecap="round" />
-          <rect x={opp.x - 9 * oppSc} y={opp.y - 5 * oppSc} width={18 * oppSc} height={18 * oppSc} rx={4 * oppSc} fill="#ef4444" />
-          <line x1={opp.x - 9 * oppSc} y1={opp.y + 1 * oppSc} x2={opp.x - 15 * oppSc} y2={opp.y + 8 * oppSc} stroke="#fbbf24" strokeWidth={3 * oppSc} strokeLinecap="round" />
-          <line x1={opp.x + 9 * oppSc} y1={opp.y + 1 * oppSc} x2={opp.x + 20 * oppSc} y2={opp.y - 7 * oppSc} stroke="#fbbf24" strokeWidth={3 * oppSc} strokeLinecap="round" />
-          <line x1={opp.x + 20 * oppSc} y1={opp.y - 7 * oppSc} x2={opp.x + 26 * oppSc} y2={opp.y - 16 * oppSc} stroke="#78716c" strokeWidth={2 * oppSc} />
-          <ellipse cx={opp.x + 28 * oppSc} cy={opp.y - 20 * oppSc} rx={5 * oppSc} ry={7 * oppSc} fill="none" stroke="#a8a29e" strokeWidth={1.5 * oppSc} transform={`rotate(-20, ${opp.x + 28 * oppSc}, ${opp.y - 20 * oppSc})`} />
-          <circle cx={opp.x} cy={opp.y - 5 * oppSc - 10 * oppSc} r={10 * oppSc} fill="#fbbf24" />
-          <ellipse cx={opp.x} cy={opp.y - 15 * oppSc - 6 * oppSc} rx={11 * oppSc} ry={3.5 * oppSc} fill="#dc2626" />
+      {opp && (() => {
+        const s = oppSc * 2.2;
+        return (
+        <g opacity="0.95">
+          {/* Shadow */}
+          <ellipse cx={opp.x} cy={opp.y + 36 * s} rx={16 * s} ry={5 * s} fill="rgba(0,0,0,0.35)" />
+          {/* Shoes */}
+          <ellipse cx={opp.x - 8 * s} cy={opp.y + 34 * s} rx={6 * s} ry={3 * s} fill="#f8fafc" />
+          <ellipse cx={opp.x + 8 * s} cy={opp.y + 34 * s} rx={6 * s} ry={3 * s} fill="#f8fafc" />
+          {/* Legs */}
+          <line x1={opp.x - 6 * s} y1={opp.y + 20 * s} x2={opp.x - 8 * s} y2={opp.y + 32 * s} stroke="#1e293b" strokeWidth={5 * s} strokeLinecap="round" />
+          <line x1={opp.x + 6 * s} y1={opp.y + 20 * s} x2={opp.x + 8 * s} y2={opp.y + 32 * s} stroke="#1e293b" strokeWidth={5 * s} strokeLinecap="round" />
+          {/* Body - shirt */}
+          <rect x={opp.x - 14 * s} y={opp.y - 8 * s} width={28 * s} height={30 * s} rx={6 * s} fill="#ef4444" />
+          {/* Shirt collar */}
+          <ellipse cx={opp.x} cy={opp.y - 7 * s} rx={8 * s} ry={4 * s} fill="#dc2626" />
+          {/* Left arm */}
+          <line x1={opp.x - 14 * s} y1={opp.y + 2 * s} x2={opp.x - 24 * s} y2={opp.y + 14 * s} stroke="#fbbf24" strokeWidth={4.5 * s} strokeLinecap="round" />
+          {/* Right arm + racket */}
+          <line x1={opp.x + 14 * s} y1={opp.y + 2 * s} x2={opp.x + 30 * s} y2={opp.y - 10 * s} stroke="#fbbf24" strokeWidth={4.5 * s} strokeLinecap="round" />
+          <line x1={opp.x + 30 * s} y1={opp.y - 10 * s} x2={opp.x + 40 * s} y2={opp.y - 24 * s} stroke="#78716c" strokeWidth={3 * s} strokeLinecap="round" />
+          <ellipse cx={opp.x + 43 * s} cy={opp.y - 30 * s} rx={8 * s} ry={12 * s} fill="none" stroke="#a8a29e" strokeWidth={2.5 * s} transform={`rotate(-20, ${opp.x + 43 * s}, ${opp.y - 30 * s})`} />
+          {/* Head */}
+          <circle cx={opp.x} cy={opp.y - 8 * s - 14 * s} r={14 * s} fill="#fbbf24" />
+          {/* Eyes */}
+          <circle cx={opp.x - 4 * s} cy={opp.y - 23 * s} r={1.5 * s} fill="#1e293b" />
+          <circle cx={opp.x + 4 * s} cy={opp.y - 23 * s} r={1.5 * s} fill="#1e293b" />
+          {/* Cap */}
+          <ellipse cx={opp.x} cy={opp.y - 22 * s - 8 * s} rx={16 * s} ry={5 * s} fill="#dc2626" />
+          <rect x={opp.x - 15 * s} y={opp.y - 30 * s - 4 * s} width={30 * s} height={8 * s} rx={4 * s} fill="#dc2626" />
         </g>
-      )}
+        );
+      })()}
 
       {/* Target zone */}
       {showTarget && zone && (
