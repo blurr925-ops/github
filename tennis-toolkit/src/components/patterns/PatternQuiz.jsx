@@ -127,9 +127,10 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
   const animBall = showBall ? getBallPos() : null;
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden">
-      {/* FULL SCREEN COURT */}
-      <div className="absolute inset-0">
+    <div className="fixed inset-0 bg-black overflow-hidden z-[60]">
+      {/* FULL SCREEN COURT — constrained to portrait ratio so it fits on any screen */}
+      <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="h-full aspect-[9/16] max-w-full">
         <CourtFirstPerson
           ballPosition={animBall}
           targetZone={step.correctZone}
@@ -146,6 +147,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
           dimmed={phase === 'ready'}
           racketSwing={racketSwing}
         />
+        </div>
       </div>
 
       {/* ===== HUD OVERLAYS ===== */}
