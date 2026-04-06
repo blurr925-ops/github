@@ -323,17 +323,17 @@ export const rallies = [
     difficulty: 'red',
     steps: [
       {
-        // SERVE STEP: Player serves — tap where to aim in the service box
-        // CORRECT: Wide serve to the ad court (x:0.15, y:0.3) — stretches opponent left
+        // SERVE STEP: Player serves from ad side (left) — tap where to aim
+        // CORRECT: Wide serve into the LEFT service box (x:0.2, y:0.33) — stretches opponent wide
         // WRONG: T serve near center (x:0.5) — doesn't stretch them
         // OPPONENT AFTER: scrambles wide to x:0.15
         isServe: true,
         description: 'You\'re serving from the ad side. Aim your serve!',
         ballPosition: { x: 0.38, y: 0.98 },
-        correctZone: { x: 0.15, y: 0.3, radius: 0.2 },
+        correctZone: { x: 0.2, y: 0.33, radius: 0.18 },
         correctLabel: 'Wide serve!',
-        explanation: 'Great serve! Wide to the ad court — your opponent is stretched!',
-        wrongExplanation: 'Serve WIDE to stretch your opponent — aim to the far LEFT of the service box!',
+        explanation: 'Great serve! Wide to stretch your opponent — they\'re in trouble!',
+        wrongExplanation: 'Serve WIDE into the LEFT service box to stretch your opponent!',
         opponentPosition: { x: 0.5, y: 0.0 },
       },
       {
