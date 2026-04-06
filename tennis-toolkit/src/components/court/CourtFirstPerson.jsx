@@ -3,23 +3,24 @@ import { useCallback } from 'react';
 const WIDTH = 360;
 const HEIGHT = 640;
 
-// First-person perspective — low camera behind baseline, strong vanishing point
+// First-person — tall player standing behind baseline, seeing everything
+// Strong perspective: wide baseline, narrow far end, court fills screen
 const COURT = {
-  nearLeft: -60,
-  nearRight: 420,
-  nearY: 600,
-  farLeft: 148,
-  farRight: 212,
-  farY: 95,
-  netNearLeft: 20,
-  netNearRight: 340,
-  netY: 260,
-  serviceNearLeft: -20,
-  serviceNearRight: 380,
-  serviceNearY: 440,
-  serviceFarLeft: 120,
-  serviceFarRight: 240,
-  serviceFarY: 175,
+  nearLeft: -80,
+  nearRight: 440,
+  nearY: 590,        // baseline visible near bottom
+  farLeft: 152,
+  farRight: 208,
+  farY: 90,          // far baseline narrow and high
+  netNearLeft: 10,
+  netNearRight: 350,
+  netY: 280,         // net in upper-middle — your court takes up more space
+  serviceNearLeft: -40,
+  serviceNearRight: 400,
+  serviceNearY: 445,  // your service line — wide and prominent
+  serviceFarLeft: 118,
+  serviceFarRight: 242,
+  serviceFarY: 180,   // opponent service line — compressed
 };
 
 function interpX(leftNear, leftFar, rightNear, rightFar, depth, normalizedX) {
@@ -48,7 +49,7 @@ function toNormCoords(svgX, svgY) {
 }
 
 function perspectiveScale(normY) {
-  return 0.15 + 0.85 * normY;
+  return 0.18 + 0.82 * normY;
 }
 
 export default function CourtFirstPerson({
@@ -137,22 +138,22 @@ export default function CourtFirstPerson({
         </radialGradient>
       </defs>
 
-      {/* Sky */}
-      <rect x="0" y="0" width={WIDTH} height={COURT.farY + 10} fill="url(#sky)" />
+      {/* Sky — smaller, you're looking forward not up */}
+      <rect x="0" y="0" width={WIDTH} height={COURT.farY + 5} fill="url(#sky)" />
 
       {/* Stadium backdrop */}
-      <rect x="0" y={COURT.farY - 40} width={WIDTH} height="50" fill="#0f2440" />
+      <rect x="0" y={COURT.farY - 35} width={WIDTH} height="42" fill="#0f2440" />
       {/* Stadium lights */}
       {[70, 180, 290].map((cx) => (
         <g key={cx}>
-          <rect x={cx - 2} y={COURT.farY - 52} width="3" height="16" fill="#374151" />
-          <circle cx={cx} cy={COURT.farY - 54} r="4" fill="#fef08a" opacity="0.7" />
-          <circle cx={cx} cy={COURT.farY - 54} r="8" fill="#fef08a" opacity="0.1" />
+          <rect x={cx - 1.5} y={COURT.farY - 44} width="3" height="12" fill="#374151" />
+          <circle cx={cx} cy={COURT.farY - 46} r="3.5" fill="#fef08a" opacity="0.7" />
+          <circle cx={cx} cy={COURT.farY - 46} r="7" fill="#fef08a" opacity="0.1" />
         </g>
       ))}
       {/* Crowd */}
       {Array.from({ length: 22 }).map((_, i) => (
-        <circle key={i} cx={16 * i + 8} cy={COURT.farY - 20 + (i % 3) * 4} r={2 + (i % 2)} fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc'][i % 6]} opacity="0.3" />
+        <circle key={i} cx={16 * i + 8} cy={COURT.farY - 16 + (i % 3) * 3} r={1.5 + (i % 2)} fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc'][i % 6]} opacity="0.3" />
       ))}
 
       {/* Ground around court */}
