@@ -279,7 +279,7 @@ export const rallies = [
     id: 'wrong-foot',
     name: 'The Wrong-Foot',
     category: 'rally',
-    description: 'Hit two cross-courts to build the pattern, then go behind your opponent!',
+    description: 'Build a cross-court pattern so your opponent commits early — then go behind them!',
     difficulty: 'red',
     steps: [
       {
@@ -291,7 +291,7 @@ export const rallies = [
         ballPosition: { x: 0.3, y: 0.87 },
         correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
         correctLabel: 'Cross-court!',
-        explanation: 'Good. Your opponent is starting to expect cross-court...',
+        explanation: 'Good. Your opponent is starting to read a pattern...',
         wrongExplanation: 'Deep ball on your left — rally it cross-court to the far right!',
         opponentPosition: { x: 0.5, y: 0.08 },
       },
@@ -300,27 +300,28 @@ export const rallies = [
         // From x:0.8, cross-court goes to your left → ball at x:0.3
         // DEPTH: y:0.86 = deep → cross-court again (setting the trap)
         // TARGET: Cross-court from left = far right (x:0.8) again
-        // OPPONENT AFTER: stays at x:0.8, starts cheating right
-        description: 'Deep ball to your backhand again. One more cross-court!',
+        // OPPONENT AFTER: recovers to center (x:0.55) — they know the pattern now
+        description: 'Deep ball to your backhand again. One more cross-court to set the trap!',
         ballPosition: { x: 0.28, y: 0.86 },
         correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
         correctLabel: 'Cross-court again!',
-        explanation: 'They\'re cheating to the right now... time to spring the trap!',
+        explanation: 'The trap is set! They expect cross-court every time now...',
         wrongExplanation: 'Keep going cross-court to the far right — set the trap!',
         opponentPosition: { x: 0.8, y: 0.08 },
       },
       {
-        // SETUP: Opponent at x:0.85 (cheating far right, expecting cross-court)
+        // SETUP: Opponent RECOVERED to center (x:0.55) — good position
+        // BUT they're anticipating cross-court and will COMMIT right
         // Ball deep to your left again
-        // TACTIC: Wrong-foot! Go BEHIND them to the LEFT
-        // TARGET: DTL from left = far left (x:0.2) — opponent is running right!
-        description: 'Your opponent is already moving right. Wrong-foot them!',
-        ballPosition: { x: 0.35, y: 0.84 },
+        // TACTIC: Wrong-foot! They dive right expecting cross-court, you go LEFT behind them
+        // opponentReaction shows them diving right as ball goes left
+        description: 'Your opponent expects cross-court again. Catch them out!',
+        ballPosition: { x: 0.32, y: 0.85 },
         correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
-        correctLabel: 'Behind them!',
-        explanation: 'GENIUS! They ran right but you went left — completely wrong-footed!',
-        wrongExplanation: 'Your opponent is cheating RIGHT — hit it to the LEFT, behind them!',
-        opponentPosition: { x: 0.85, y: 0.08 },
+        correctLabel: 'Wrong-footed!',
+        explanation: 'GENIUS! They committed right but you went left — completely wrong-footed!',
+        wrongExplanation: 'Your opponent is expecting cross-court RIGHT — go BEHIND them to the LEFT!',
+        opponentPosition: { x: 0.55, y: 0.08 },
         opponentReaction: { x: 0.95, y: 0.06 },
       },
     ],
