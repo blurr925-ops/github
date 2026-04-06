@@ -256,8 +256,17 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     return step?.ballPosition || null;
   };
 
-  // Opponent position — smooth slide during opponentMove and opponentWinner phases
+  // Opponent position — smooth slide during opponentMove, opponentWinner, and wrong-foot reactions
   const getOpponentPos = () => {
+    // Wrong-foot reaction: opponent dives the wrong way as ball flies behind them
+    if ((phase === 'shotAnim' || phase === 'shotLanded') && step?.opponentReaction && (result === 'correct' || result === 'won')) {
+      const progress = phase === 'shotLanded' ? 1 : shotAnim;
+      const eased = 1 - Math.pow(1 - progress, 2);
+      return {
+        x: step.opponentPosition.x + (step.opponentReaction.x - step.opponentPosition.x) * eased,
+        y: step.opponentPosition.y + (step.opponentReaction.y - step.opponentPosition.y) * eased,
+      };
+    }
     if (phase === 'opponentMove' && prevOpponentPos) {
       const nextStep = rally.steps[stepIndex + 1];
       if (nextStep) {
@@ -278,6 +287,10 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         x: prevOpponentPos.x + (targetX - prevOpponentPos.x) * eased,
         y: prevOpponentPos.y + (targetY - prevOpponentPos.y) * eased,
       };
+    }
+    // Keep opponent at wrong-foot position during feedback
+    if (phase === 'feedback' && step?.opponentReaction && (result === 'correct' || result === 'won')) {
+      return step.opponentReaction;
     }
     return step?.opponentPosition;
   };

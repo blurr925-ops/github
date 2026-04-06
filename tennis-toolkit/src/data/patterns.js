@@ -321,6 +321,7 @@ export const rallies = [
         explanation: 'GENIUS! They ran right but you went left — completely wrong-footed!',
         wrongExplanation: 'Your opponent is cheating RIGHT — hit it to the LEFT, behind them!',
         opponentPosition: { x: 0.85, y: 0.08 },
+        opponentReaction: { x: 0.95, y: 0.06 },
       },
     ],
   },
