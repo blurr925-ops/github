@@ -434,6 +434,9 @@ export default function PointsGame({ level, onComplete, onBack }) {
               <div className="bg-navy/50 rounded-xl p-4 mb-4 text-left">
                 <p className="text-white text-sm font-bold mb-2">
                   🎾 vs {level.brief.opponent}
+                  <span className="ml-2 text-xs font-medium text-gray-400">
+                    ({level.brief.hand}-handed)
+                  </span>
                 </p>
                 <div className="mb-2">
                   <p className="text-green-400 text-xs font-bold mb-1">STRENGTHS</p>
