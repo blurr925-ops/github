@@ -64,6 +64,9 @@ export default function CourtFirstPerson({
   playerPos,
   dimmed = false,
   racketSwing = false,
+  shotType = null,       // 'topspin' | 'slice' | 'approach' — shows spin/height cues
+  ballMoving = false,    // true during animations — shows speed trail
+  ballFrom = null,       // {x, y} normalized — where ball came from, for trail direction
 }) {
   const handleClick = useCallback(
     (e) => {
@@ -238,17 +241,109 @@ export default function CourtFirstPerson({
         <line x1={swA.x} y1={swA.y} x2={swB.x} y2={swB.y} stroke="#ef4444" strokeWidth="3" strokeDasharray="6 4" opacity="0.5" />
       )}
 
-      {/* Ball shadow */}
-      {ball && <ellipse cx={ball.x} cy={ball.y + 10 * ballSc} rx={9 * ballSc} ry={3 * ballSc} fill="rgba(0,0,0,0.3)" />}
+      {/* Speed trail — motion lines behind ball when moving */}
+      {ball && ballMoving && ballFrom && (() => {
+        const from = toSvgCoords(ballFrom.x, ballFrom.y);
+        const dx = ball.x - from.x;
+        const dy = ball.y - from.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 5) return null;
+        const ux = dx / len;
+        const uy = dy / len;
+        // Perpendicular for spread
+        const px = -uy;
+        const py = ux;
+        const trailLen = Math.min(len * 0.4, 50);
+        return (
+          <g opacity="0.5">
+            {[0, -1, 1].map((offset) => {
+              const spread = offset * 4 * ballSc;
+              const sx = ball.x - ux * trailLen + px * spread;
+              const sy = ball.y - uy * trailLen + py * spread;
+              return (
+                <line
+                  key={offset}
+                  x1={sx} y1={sy}
+                  x2={ball.x + px * spread * 0.3} y2={ball.y + py * spread * 0.3}
+                  stroke="#CCFF00"
+                  strokeWidth={2 * ballSc}
+                  strokeLinecap="round"
+                  opacity={offset === 0 ? 0.6 : 0.3}
+                />
+              );
+            })}
+          </g>
+        );
+      })()}
+
+      {/* Ball shadow — height varies by shot type */}
+      {ball && (() => {
+        // Topspin = high bounce (shadow far), slice = low skid (shadow close), default = medium
+        const heightGap = shotType === 'topspin' ? 22 : shotType === 'slice' ? 5 : 10;
+        const shadowSize = shotType === 'topspin' ? 7 : shotType === 'slice' ? 10 : 9;
+        return (
+          <ellipse
+            cx={ball.x}
+            cy={ball.y + heightGap * ballSc}
+            rx={shadowSize * ballSc}
+            ry={3 * ballSc}
+            fill="rgba(0,0,0,0.3)"
+          />
+        );
+      })()}
 
       {/* Tennis ball */}
       {ball && (
         <g filter="url(#ballGlow)">
           <circle cx={ball.x} cy={ball.y} r={12 * ballSc} fill="url(#ballG)" filter="url(#shadow)" />
+          {/* Seam lines */}
           <path d={`M ${ball.x - 5 * ballSc} ${ball.y - 8 * ballSc} Q ${ball.x} ${ball.y} ${ball.x - 5 * ballSc} ${ball.y + 8 * ballSc}`} stroke="#7a9e00" strokeWidth={1 * ballSc} fill="none" />
           <path d={`M ${ball.x + 5 * ballSc} ${ball.y - 8 * ballSc} Q ${ball.x} ${ball.y} ${ball.x + 5 * ballSc} ${ball.y + 8 * ballSc}`} stroke="#7a9e00" strokeWidth={1 * ballSc} fill="none" />
         </g>
       )}
+
+      {/* Spin indicator — arrows around ball */}
+      {ball && shotType && shotType !== 'approach' && (() => {
+        const r = 16 * ballSc;
+        if (shotType === 'topspin') {
+          // Forward spin — curved arrow going over the top (clockwise from viewer)
+          return (
+            <g opacity="0.7">
+              <path
+                d={`M ${ball.x - r * 0.6} ${ball.y - r * 0.8}
+                    A ${r * 0.8} ${r * 0.8} 0 0 1 ${ball.x + r * 0.6} ${ball.y - r * 0.8}`}
+                stroke="#ff6b35" strokeWidth={2 * ballSc} fill="none"
+                strokeLinecap="round"
+              />
+              {/* Arrowhead */}
+              <polygon
+                points={`${ball.x + r * 0.6},${ball.y - r * 0.8}
+                         ${ball.x + r * 0.3},${ball.y - r * 1.1}
+                         ${ball.x + r * 0.9},${ball.y - r * 0.6}`}
+                fill="#ff6b35"
+              />
+            </g>
+          );
+        }
+        // Slice — backspin arrow going under (counter-clockwise)
+        return (
+          <g opacity="0.7">
+            <path
+              d={`M ${ball.x + r * 0.6} ${ball.y + r * 0.8}
+                  A ${r * 0.8} ${r * 0.8} 0 0 1 ${ball.x - r * 0.6} ${ball.y + r * 0.8}`}
+              stroke="#38bdf8" strokeWidth={2 * ballSc} fill="none"
+              strokeLinecap="round"
+            />
+            {/* Arrowhead */}
+            <polygon
+              points={`${ball.x - r * 0.6},${ball.y + r * 0.8}
+                       ${ball.x - r * 0.3},${ball.y + r * 1.1}
+                       ${ball.x - r * 0.9},${ball.y + r * 0.6}`}
+              fill="#38bdf8"
+            />
+          </g>
+        );
+      })()}
 
       {/* YOUR PLAYER */}
       {(() => {

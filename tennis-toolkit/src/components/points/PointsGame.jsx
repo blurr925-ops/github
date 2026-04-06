@@ -324,6 +324,15 @@ export default function PointsGame({ level, onComplete, onBack }) {
             playerPos={displayPlayer}
             dimmed={phase === 'ready' || phase === 'brief'}
             racketSwing={racketSwing}
+            shotType={
+              (phase === 'shotAnim' || phase === 'shotLanded') ? selectedShot : null
+            }
+            ballMoving={phase === 'incoming' || phase === 'shotAnim'}
+            ballFrom={
+              phase === 'incoming' ? (step.opponentPosition || null) :
+              phase === 'shotAnim' ? step.ballPosition :
+              null
+            }
           />
         </div>
       </div>

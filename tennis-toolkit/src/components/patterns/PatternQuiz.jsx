@@ -336,6 +336,12 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
           playerPos={displayPlayer}
           dimmed={phase === 'ready' || phase === 'brief'}
           racketSwing={racketSwing}
+          ballMoving={phase === 'incoming' || phase === 'shotAnim'}
+          ballFrom={
+            phase === 'incoming' ? (step.opponentPosition || null) :
+            phase === 'shotAnim' ? step.ballPosition :
+            null
+          }
         />
         </div>
       </div>
