@@ -28,6 +28,7 @@ export const rallies = [
   {
     id: 'rally-and-attack',
     name: 'Rally & Attack',
+    category: 'forehand',
     description: 'Keep the ball deep cross-court until you get a short ball, then attack down the line!',
     difficulty: 'green',
     steps: [
@@ -62,6 +63,7 @@ export const rallies = [
   {
     id: 'backhand-battle',
     name: 'Backhand Battle',
+    category: 'backhand',
     description: 'Rally deep on the backhand side, wait for the short ball, then attack down the line!',
     difficulty: 'green',
     steps: [
@@ -96,6 +98,7 @@ export const rallies = [
   {
     id: 'return-deep',
     name: 'Return & Recover',
+    category: 'return',
     description: 'Return the serve deep cross-court, then punish the weak reply down the line!',
     difficulty: 'green',
     steps: [
@@ -132,6 +135,7 @@ export const rallies = [
   {
     id: 'approach-and-volley',
     name: 'Approach & Volley',
+    category: 'forehand',
     description: 'Hit an approach shot down the line on a short ball, rush the net, and finish with a volley!',
     difficulty: 'orange',
     steps: [
@@ -166,6 +170,7 @@ export const rallies = [
   {
     id: 'drop-shot-surprise',
     name: 'Drop Shot Surprise',
+    category: 'forehand',
     description: 'Push your opponent deep behind the baseline, then drop it short!',
     difficulty: 'orange',
     steps: [
@@ -200,6 +205,7 @@ export const rallies = [
   {
     id: 'passing-shot',
     name: 'The Passing Shot',
+    category: 'forehand',
     description: 'Your opponent charges the net — blast it past them down the line!',
     difficulty: 'orange',
     steps: [
@@ -235,6 +241,7 @@ export const rallies = [
   {
     id: 'defend-and-lob',
     name: 'Defend & Lob',
+    category: 'backhand',
     description: 'You\'re stretched wide with the opponent at the net — lob them, then attack the short ball!',
     difficulty: 'orange',
     steps: [
@@ -271,6 +278,7 @@ export const rallies = [
   {
     id: 'wrong-foot',
     name: 'The Wrong-Foot',
+    category: 'backhand',
     description: 'Hit two cross-courts to build the pattern, then go behind your opponent!',
     difficulty: 'red',
     steps: [
@@ -319,6 +327,7 @@ export const rallies = [
   {
     id: 'serve-wide-attack',
     name: 'Serve Wide & Dominate',
+    category: 'serve',
     description: 'Serve wide to stretch the opponent, attack the short return, approach, then volley!',
     difficulty: 'red',
     steps: [
@@ -382,6 +391,7 @@ export const rallies = [
   {
     id: 'counter-attack',
     name: 'The Counter-Attack',
+    category: 'backhand',
     description: 'Defend deep cross-court under pressure, change direction, then attack the short ball!',
     difficulty: 'red',
     steps: [

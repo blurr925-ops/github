@@ -6,11 +6,12 @@ import PatternCard from '../components/patterns/PatternCard';
 import RallyQuiz from '../components/patterns/PatternQuiz';
 import Confetti from '../components/common/Confetti';
 
-const DIFFICULTY_FILTERS = [
-  { key: 'all', label: 'All', color: '' },
-  { key: 'green', label: 'Green', color: 'bg-green-500' },
-  { key: 'orange', label: 'Orange', color: 'bg-orange-500' },
-  { key: 'red', label: 'Red', color: 'bg-red-500' },
+const CATEGORY_FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'serve', label: 'Serve' },
+  { key: 'return', label: 'Return' },
+  { key: 'forehand', label: 'Forehand' },
+  { key: 'backhand', label: 'Backhand' },
 ];
 
 const BADGES = [
@@ -30,11 +31,11 @@ export default function Patterns() {
   const [stats, setStats] = useStorage('patternStats', { attempts: 0, wins: 0, currentStreak: 0, bestStreak: 0 });
   const [activeRally, setActiveRally] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const filteredRallies = useMemo(
-    () => difficultyFilter === 'all' ? rallies : rallies.filter((r) => r.difficulty === difficultyFilter),
-    [difficultyFilter],
+    () => categoryFilter === 'all' ? rallies : rallies.filter((r) => r.category === categoryFilter),
+    [categoryFilter],
   );
 
   const badgeContext = useMemo(
@@ -167,18 +168,18 @@ export default function Patterns() {
         </div>
       </div>
 
-      {/* Difficulty Filter Tabs */}
+      {/* Category Filter Tabs */}
       <div className="px-4 mb-4">
-        <div className="flex gap-2">
-          {DIFFICULTY_FILTERS.map((filter) => {
-            const isActive = difficultyFilter === filter.key;
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {CATEGORY_FILTERS.map((filter) => {
+            const isActive = categoryFilter === filter.key;
             return (
               <button
                 key={filter.key}
-                onClick={() => setDifficultyFilter(filter.key)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                onClick={() => setCategoryFilter(filter.key)}
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   isActive
-                    ? `${filter.color || 'bg-tennis'} text-white`
+                    ? 'bg-tennis text-navy'
                     : 'bg-navy-lighter text-gray-400'
                 }`}
               >
