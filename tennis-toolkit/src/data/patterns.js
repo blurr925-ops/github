@@ -319,9 +319,23 @@ export const rallies = [
   {
     id: 'serve-wide-attack',
     name: 'Serve Wide & Dominate',
-    description: 'Your wide serve stretches the opponent — attack the short return, approach, then volley!',
+    description: 'Serve wide to stretch the opponent, attack the short return, approach, then volley!',
     difficulty: 'red',
     steps: [
+      {
+        // SERVE STEP: Player serves — tap where to aim in the service box
+        // CORRECT: Wide serve to the ad court (x:0.15, y:0.3) — stretches opponent left
+        // WRONG: T serve near center (x:0.5) — doesn't stretch them
+        // OPPONENT AFTER: scrambles wide to x:0.15
+        isServe: true,
+        description: 'You\'re serving. Aim your serve!',
+        ballPosition: { x: 0.5, y: 0.98 },
+        correctZone: { x: 0.15, y: 0.3, radius: 0.2 },
+        correctLabel: 'Wide serve!',
+        explanation: 'Great serve! Wide to the ad court — your opponent is stretched!',
+        wrongExplanation: 'Serve WIDE to stretch your opponent — aim to the far LEFT of the service box!',
+        opponentPosition: { x: 0.5, y: 0.0 },
+      },
       {
         // SETUP: You served wide left. Opponent stretched to x:0.15
         // They hit a short return to your right (cross-court from their position)

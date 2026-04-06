@@ -37,9 +37,15 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     return () => clearTimeout(t);
   }, [phase, readyCount]);
 
-  // Ball incoming — from opponent to landing position
+  // Ball incoming — from opponent to landing position (skip for serve steps)
   useEffect(() => {
     if (phase !== 'incoming') return;
+    if (step.isServe) {
+      // Serve: ball is already with the player, go straight to play
+      setBallAnim(1);
+      setPhase('play');
+      return;
+    }
     setBallAnim(0);
     const dur = 400;
     const start = performance.now();
@@ -51,7 +57,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     }
     animRef.current = requestAnimationFrame(tick);
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [phase]);
+  }, [phase, step.isServe]);
 
   // Timer
   useEffect(() => {
@@ -276,20 +282,13 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     return step?.opponentPosition;
   };
 
-  // Player position — stays at ball during play, holds forward after hitting
+  // Player position — stays at ball landing spot during play, holds there after hitting
+  // IMPORTANT: during shotAnim the ball flies away but the PLAYER must NOT follow it
   const getPlayerPos = () => {
-    if (phase === 'incoming' && step) {
-      // Player moves to where the ball is landing
-      return step.ballPosition;
-    }
-    if (phase === 'play' && step) {
-      return step.ballPosition;
-    }
-    if ((phase === 'shotAnim' || phase === 'shotLanded' || phase === 'opponentMove' || phase === 'opponentWinner' || phase === 'feedback') && step) {
-      // After hitting, player stays where they were (at ball position)
-      return step.ballPosition;
-    }
-    return null;
+    if (!step) return null;
+    if (phase === 'brief' || phase === 'ready') return null;
+    // For all active phases, player stays at the step's ball position (where they stand to hit)
+    return step.ballPosition;
   };
 
   const timerColor = timeLeft > 0.5 ? '#22c55e' : timeLeft > 0.25 ? '#f59e0b' : '#ef4444';
@@ -377,7 +376,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
           <span className="text-white/50 text-xs font-black tracking-[0.3em] uppercase animate-pulse"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}
           >
-            TAP TO HIT
+            {step.isServe ? 'TAP TO SERVE' : 'TAP TO HIT'}
           </span>
         </div>
       )}
