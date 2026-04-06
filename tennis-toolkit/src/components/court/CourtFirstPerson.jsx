@@ -3,23 +3,23 @@ import { useCallback } from 'react';
 const WIDTH = 360;
 const HEIGHT = 640;
 
-// Third-person perspective — standing behind the baseline, seeing the full court
+// First-person perspective — low camera behind baseline, strong vanishing point
 const COURT = {
-  nearLeft: 10,
-  nearRight: 350,
-  nearY: 520,
-  farLeft: 115,
-  farRight: 245,
-  farY: 140,
-  netNearLeft: 45,
-  netNearRight: 315,
-  netY: 310,
-  serviceNearLeft: 25,
-  serviceNearRight: 335,
-  serviceNearY: 420,
-  serviceFarLeft: 80,
-  serviceFarRight: 280,
-  serviceFarY: 220,
+  nearLeft: -60,
+  nearRight: 420,
+  nearY: 600,
+  farLeft: 148,
+  farRight: 212,
+  farY: 95,
+  netNearLeft: 20,
+  netNearRight: 340,
+  netY: 260,
+  serviceNearLeft: -20,
+  serviceNearRight: 380,
+  serviceNearY: 440,
+  serviceFarLeft: 120,
+  serviceFarRight: 240,
+  serviceFarY: 175,
 };
 
 function interpX(leftNear, leftFar, rightNear, rightFar, depth, normalizedX) {
@@ -48,7 +48,7 @@ function toNormCoords(svgX, svgY) {
 }
 
 function perspectiveScale(normY) {
-  return 0.3 + 0.7 * normY;
+  return 0.15 + 0.85 * normY;
 }
 
 export default function CourtFirstPerson({
@@ -102,13 +102,13 @@ export default function CourtFirstPerson({
   const pPos = playerPos || ballPosition;
   const playerBaseX = WIDTH / 2;
   const playerNormY = pPos
-    ? Math.min(1.08, pPos.y + 0.1)
-    : 1.08;
+    ? Math.min(1.12, pPos.y + 0.12)
+    : 1.12;
   const playerSvgY = COURT.farY + (COURT.nearY - COURT.farY) * playerNormY;
   const playerSvgX = pPos
     ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, pPos.x)
     : playerBaseX;
-  const playerScale = perspectiveScale(playerNormY);
+  const playerScale = perspectiveScale(playerNormY) * 1.3;
 
   return (
     <svg
@@ -141,18 +141,18 @@ export default function CourtFirstPerson({
       <rect x="0" y="0" width={WIDTH} height={COURT.farY + 10} fill="url(#sky)" />
 
       {/* Stadium backdrop */}
-      <rect x="0" y={COURT.farY - 50} width={WIDTH} height="60" fill="#0f2440" />
+      <rect x="0" y={COURT.farY - 40} width={WIDTH} height="50" fill="#0f2440" />
       {/* Stadium lights */}
       {[70, 180, 290].map((cx) => (
         <g key={cx}>
-          <rect x={cx - 2} y={COURT.farY - 65} width="4" height="20" fill="#374151" />
-          <circle cx={cx} cy={COURT.farY - 68} r="6" fill="#fef08a" opacity="0.7" />
-          <circle cx={cx} cy={COURT.farY - 68} r="12" fill="#fef08a" opacity="0.1" />
+          <rect x={cx - 2} y={COURT.farY - 52} width="3" height="16" fill="#374151" />
+          <circle cx={cx} cy={COURT.farY - 54} r="4" fill="#fef08a" opacity="0.7" />
+          <circle cx={cx} cy={COURT.farY - 54} r="8" fill="#fef08a" opacity="0.1" />
         </g>
       ))}
       {/* Crowd */}
       {Array.from({ length: 22 }).map((_, i) => (
-        <circle key={i} cx={16 * i + 8} cy={COURT.farY - 28 + (i % 3) * 5} r={3 + (i % 2)} fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc'][i % 6]} opacity="0.3" />
+        <circle key={i} cx={16 * i + 8} cy={COURT.farY - 20 + (i % 3) * 4} r={2 + (i % 2)} fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc'][i % 6]} opacity="0.3" />
       ))}
 
       {/* Ground around court */}
@@ -173,16 +173,16 @@ export default function CourtFirstPerson({
       <line x1={cFar} y1={COURT.serviceFarY} x2={cNear} y2={COURT.serviceNearY} stroke="white" strokeWidth="1" opacity="0.7" />
       <line x1={cNear} y1={COURT.nearY} x2={cNear} y2={COURT.nearY - 14} stroke="white" strokeWidth="1.5" />
 
-      {/* Net */}
-      <line x1={COURT.netNearLeft - 10} y1={COURT.netY} x2={COURT.netNearRight + 10} y2={COURT.netY} stroke="#e5e7eb" strokeWidth="4" />
-      <line x1={COURT.netNearLeft - 10} y1={COURT.netY} x2={COURT.netNearRight + 10} y2={COURT.netY} stroke="rgba(255,255,255,0.12)" strokeWidth="12" />
-      {[-5, -2.5, 0, 2.5, 5].map((dy) => (
-        <line key={dy} x1={COURT.netNearLeft} y1={COURT.netY + dy} x2={COURT.netNearRight} y2={COURT.netY + dy} stroke="white" strokeWidth="0.3" opacity="0.1" />
+      {/* Net — prominent from first-person view */}
+      <line x1={COURT.netNearLeft - 15} y1={COURT.netY} x2={COURT.netNearRight + 15} y2={COURT.netY} stroke="#e5e7eb" strokeWidth="5" />
+      <line x1={COURT.netNearLeft - 15} y1={COURT.netY} x2={COURT.netNearRight + 15} y2={COURT.netY} stroke="rgba(255,255,255,0.15)" strokeWidth="18" />
+      {[-7, -3.5, 0, 3.5, 7].map((dy) => (
+        <line key={dy} x1={COURT.netNearLeft} y1={COURT.netY + dy} x2={COURT.netNearRight} y2={COURT.netY + dy} stroke="white" strokeWidth="0.4" opacity="0.12" />
       ))}
-      <rect x={COURT.netNearLeft - 14} y={COURT.netY - 14} width="6" height="28" rx="3" fill="#d1d5db" />
-      <rect x={COURT.netNearRight + 8} y={COURT.netY - 14} width="6" height="28" rx="3" fill="#d1d5db" />
-      <circle cx={COURT.netNearLeft - 11} cy={COURT.netY - 14} r="4" fill="#e5e7eb" />
-      <circle cx={COURT.netNearRight + 11} cy={COURT.netY - 14} r="4" fill="#e5e7eb" />
+      <rect x={COURT.netNearLeft - 16} y={COURT.netY - 18} width="7" height="36" rx="3" fill="#d1d5db" />
+      <rect x={COURT.netNearRight + 9} y={COURT.netY - 18} width="7" height="36" rx="3" fill="#d1d5db" />
+      <circle cx={COURT.netNearLeft - 12} cy={COURT.netY - 18} r="5" fill="#e5e7eb" />
+      <circle cx={COURT.netNearRight + 13} cy={COURT.netY - 18} r="5" fill="#e5e7eb" />
 
       {/* OPPONENT */}
       {opp && (() => {
