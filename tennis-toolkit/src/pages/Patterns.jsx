@@ -10,8 +10,9 @@ const CATEGORY_FILTERS = [
   { key: 'all', label: 'All' },
   { key: 'serve', label: 'Serve' },
   { key: 'return', label: 'Return' },
-  { key: 'forehand', label: 'Forehand' },
-  { key: 'backhand', label: 'Backhand' },
+  { key: 'rally', label: 'Rally' },
+  { key: 'attack', label: 'Attack' },
+  { key: 'defend', label: 'Defend' },
 ];
 
 const BADGES = [
