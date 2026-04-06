@@ -328,8 +328,8 @@ export const rallies = [
         // WRONG: T serve near center (x:0.5) — doesn't stretch them
         // OPPONENT AFTER: scrambles wide to x:0.15
         isServe: true,
-        description: 'You\'re serving from the ad side. Aim your serve!',
-        ballPosition: { x: 0.38, y: 0.98 },
+        description: 'You\'re serving from the deuce side. Aim your serve!',
+        ballPosition: { x: 0.62, y: 0.98 },
         correctZone: { x: 0.2, y: 0.33, radius: 0.18 },
         correctLabel: 'Wide serve!',
         explanation: 'Great serve! Wide to stretch your opponent — they\'re in trouble!',
