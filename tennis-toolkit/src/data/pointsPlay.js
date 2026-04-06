@@ -25,7 +25,7 @@ export const levels = [
         wrongZoneFeedback: 'That goes to the forehand side — Alex\'s strength! Target the backhand (your right).',
       },
       {
-        ballPosition: { x: 0.3, y: 0.8 },
+        ballPosition: { x: 0.3, y: 0.68 },
         opponentPosition: { x: 0.75, y: 0.18 },
         description: 'Alex floats a weak backhand reply. Time to finish!',
         correctShot: 'topspin',
@@ -65,7 +65,7 @@ export const levels = [
         wrongZoneFeedback: 'Keep it deep and central — don\'t give Mia an angle.',
       },
       {
-        ballPosition: { x: 0.6, y: 0.82 },
+        ballPosition: { x: 0.6, y: 0.58 },
         opponentPosition: { x: 0.5, y: 0.18 },
         description: 'Mia pops up a short ball from the low slice. Now what?',
         correctShot: 'approach',
@@ -105,7 +105,7 @@ export const levels = [
         wrongZoneFeedback: 'Hit wide to pull Sam off the court — don\'t go back to the middle.',
       },
       {
-        ballPosition: { x: 0.3, y: 0.82 },
+        ballPosition: { x: 0.3, y: 0.62 },
         opponentPosition: { x: 0.75, y: 0.18 },
         description: 'Sam stretches and hits a short reply. What now?',
         correctShot: 'topspin',
@@ -118,7 +118,7 @@ export const levels = [
         wrongZoneFeedback: 'The open court is to Sam\'s backhand side — don\'t hit it back to Sam!',
       },
       {
-        ballPosition: { x: 0.65, y: 0.78 },
+        ballPosition: { x: 0.65, y: 0.55 },
         opponentPosition: { x: 0.3, y: 0.22 },
         description: 'Sam barely gets it back — it lands short! Time to finish.',
         correctShot: 'approach',
@@ -171,7 +171,7 @@ export const levels = [
         wrongZoneFeedback: 'Move the ball to the other side — make Jordan run!',
       },
       {
-        ballPosition: { x: 0.35, y: 0.75 },
+        ballPosition: { x: 0.35, y: 0.58 },
         opponentPosition: { x: 0.25, y: 0.15 },
         description: 'Jordan is exhausted and hits a short ball. Finish it!',
         correctShot: 'approach',
@@ -211,7 +211,7 @@ export const levels = [
         wrongZoneFeedback: 'Aim at Casey\'s feet in the middle — don\'t give an easy volley angle.',
       },
       {
-        ballPosition: { x: 0.4, y: 0.82 },
+        ballPosition: { x: 0.4, y: 0.62 },
         opponentPosition: { x: 0.5, y: 0.35 },
         description: 'Casey\'s half-volley pops up weakly. Now what?',
         correctShot: 'topspin',
@@ -224,7 +224,7 @@ export const levels = [
         wrongZoneFeedback: 'Hit the crosscourt pass — the gap is wide on the right side!',
       },
       {
-        ballPosition: { x: 0.7, y: 0.8 },
+        ballPosition: { x: 0.7, y: 0.58 },
         opponentPosition: { x: 0.8, y: 0.32 },
         description: 'Casey lunges and gets a racket on it! Ball comes back short.',
         correctShot: 'topspin',
@@ -264,7 +264,7 @@ export const levels = [
         wrongZoneFeedback: 'Go wide! Riley is strong in the middle — use the angles to pull Riley out.',
       },
       {
-        ballPosition: { x: 0.25, y: 0.82 },
+        ballPosition: { x: 0.25, y: 0.72 },
         opponentPosition: { x: 0.2, y: 0.18 },
         description: 'Riley stretches and pushes it back. The other side is wide open!',
         correctShot: 'topspin',
@@ -277,7 +277,7 @@ export const levels = [
         wrongZoneFeedback: 'The open court is on the opposite side — make Riley run!',
       },
       {
-        ballPosition: { x: 0.7, y: 0.78 },
+        ballPosition: { x: 0.7, y: 0.58 },
         opponentPosition: { x: 0.8, y: 0.2 },
         description: 'Riley barely gets it back from wide — a weak, short ball!',
         correctShot: 'topspin',
@@ -330,7 +330,7 @@ export const levels = [
         wrongZoneFeedback: 'Target the backhand (your right) — don\'t feed Marcus\'s forehand!',
       },
       {
-        ballPosition: { x: 0.6, y: 0.8 },
+        ballPosition: { x: 0.6, y: 0.58 },
         opponentPosition: { x: 0.75, y: 0.16 },
         description: 'Marcus gets impatient and goes for too much — it lands short!',
         correctShot: 'approach',
@@ -396,7 +396,7 @@ export const levels = [
         wrongZoneFeedback: 'Go back to the backhand side (your left) — don\'t let Taylor settle.',
       },
       {
-        ballPosition: { x: 0.3, y: 0.76 },
+        ballPosition: { x: 0.3, y: 0.58 },
         opponentPosition: { x: 0.25, y: 0.2 },
         description: 'Taylor\'s frustrated and hits a short ball. Time to finish!',
         correctShot: 'approach',
@@ -449,7 +449,7 @@ export const levels = [
         wrongZoneFeedback: 'Stay deep — a short slice gives Kai a chance to come forward.',
       },
       {
-        ballPosition: { x: 0.55, y: 0.8 },
+        ballPosition: { x: 0.55, y: 0.60 },
         opponentPosition: { x: 0.6, y: 0.16 },
         description: 'Kai tries to create pace but the ball lands short! Now attack!',
         correctShot: 'topspin',
@@ -462,7 +462,7 @@ export const levels = [
         wrongZoneFeedback: 'Hit to the open side — Kai is shaded the wrong way!',
       },
       {
-        ballPosition: { x: 0.3, y: 0.76 },
+        ballPosition: { x: 0.3, y: 0.55 },
         opponentPosition: { x: 0.25, y: 0.2 },
         description: 'Kai scrambles and barely gets it back. Finish the point!',
         correctShot: 'approach',
@@ -528,7 +528,7 @@ export const levels = [
         wrongZoneFeedback: 'Pull the coach wide to the backhand (your right) — create the opening!',
       },
       {
-        ballPosition: { x: 0.7, y: 0.78 },
+        ballPosition: { x: 0.7, y: 0.65 },
         opponentPosition: { x: 0.8, y: 0.2 },
         description: 'The coach is stretched wide and hits a weak reply. Build more or attack?',
         correctShot: 'topspin',
@@ -541,7 +541,7 @@ export const levels = [
         wrongZoneFeedback: 'The open court is on the left — make the coach run!',
       },
       {
-        ballPosition: { x: 0.3, y: 0.74 },
+        ballPosition: { x: 0.3, y: 0.55 },
         opponentPosition: { x: 0.25, y: 0.22 },
         description: 'The coach barely gets it back — a short, weak ball. This is your moment!',
         correctShot: 'approach',
