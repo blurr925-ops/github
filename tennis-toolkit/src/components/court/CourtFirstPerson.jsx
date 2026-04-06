@@ -60,6 +60,7 @@ export default function CourtFirstPerson({
   tapPosition,
   swipeLine,
   opponentPosition,
+  playerPos,
   dimmed = false,
   racketSwing = false,
 }) {
@@ -97,14 +98,15 @@ export default function CourtFirstPerson({
   const sFL = COURT.farLeft + (COURT.farRight - COURT.farLeft) * si;
   const sFR = COURT.farRight - (COURT.farRight - COURT.farLeft) * si;
 
-  // YOUR PLAYER position — moves toward the ball (X and Y)
+  // YOUR PLAYER position — uses explicit playerPos or falls back to ball position
+  const pPos = playerPos || ballPosition;
   const playerBaseX = WIDTH / 2;
-  const playerNormY = ballPosition
-    ? Math.min(1.08, ballPosition.y + 0.1)
+  const playerNormY = pPos
+    ? Math.min(1.08, pPos.y + 0.1)
     : 1.08;
   const playerSvgY = COURT.farY + (COURT.nearY - COURT.farY) * playerNormY;
-  const playerSvgX = ballPosition
-    ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, ballPosition.x)
+  const playerSvgX = pPos
+    ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, pPos.x)
     : playerBaseX;
   const playerScale = perspectiveScale(playerNormY);
 
@@ -253,7 +255,10 @@ export default function CourtFirstPerson({
         const py = playerSvgY;
         const s = playerScale;
         return (
-        <g style={{ transition: 'all 0.3s ease-out' }} transform={`translate(${px}, ${py})`}>
+        <g style={{
+          transition: 'transform 0.35s ease-out',
+          transform: `translate(${px}px, ${py}px)`,
+        }}>
           {/* Shadow */}
           <ellipse cx={0} cy={48 * s} rx={22 * s} ry={7 * s} fill="rgba(0,0,0,0.35)" />
           {/* Shoes */}

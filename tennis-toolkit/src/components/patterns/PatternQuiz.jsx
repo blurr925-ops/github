@@ -276,10 +276,27 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
     return step?.opponentPosition;
   };
 
+  // Player position — stays at ball during play, holds forward after hitting
+  const getPlayerPos = () => {
+    if (phase === 'incoming' && step) {
+      // Player moves to where the ball is landing
+      return step.ballPosition;
+    }
+    if (phase === 'play' && step) {
+      return step.ballPosition;
+    }
+    if ((phase === 'shotAnim' || phase === 'shotLanded' || phase === 'opponentMove' || phase === 'opponentWinner' || phase === 'feedback') && step) {
+      // After hitting, player stays where they were (at ball position)
+      return step.ballPosition;
+    }
+    return null;
+  };
+
   const timerColor = timeLeft > 0.5 ? '#22c55e' : timeLeft > 0.25 ? '#f59e0b' : '#ef4444';
   const showBall = phase !== 'ready' && phase !== 'brief';
   const animBall = showBall ? getBallPos() : null;
   const displayOpp = getOpponentPos();
+  const displayPlayer = getPlayerPos();
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden z-[60]">
@@ -299,6 +316,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
               : null
           }
           opponentPosition={displayOpp}
+          playerPos={displayPlayer}
           dimmed={phase === 'ready' || phase === 'brief'}
           racketSwing={racketSwing}
         />
