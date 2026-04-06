@@ -97,12 +97,16 @@ export default function CourtFirstPerson({
   const sFL = COURT.farLeft + (COURT.farRight - COURT.farLeft) * si;
   const sFR = COURT.farRight - (COURT.farRight - COURT.farLeft) * si;
 
-  // YOUR PLAYER position — moves toward the ball
+  // YOUR PLAYER position — moves toward the ball (X and Y)
   const playerBaseX = WIDTH / 2;
-  const playerX = ballPosition
-    ? playerBaseX + (ballPosition.x - 0.5) * 200
+  const playerNormY = ballPosition
+    ? Math.min(1.08, ballPosition.y + 0.1)
+    : 1.08;
+  const playerSvgY = COURT.farY + (COURT.nearY - COURT.farY) * playerNormY;
+  const playerSvgX = ballPosition
+    ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, ballPosition.x)
     : playerBaseX;
-  const playerY = COURT.nearY + 30;
+  const playerScale = perspectiveScale(playerNormY);
 
   return (
     <svg
@@ -243,49 +247,49 @@ export default function CourtFirstPerson({
         </g>
       )}
 
-      {/* YOUR PLAYER — from behind, moves to the ball */}
-      <g style={{ transition: 'transform 0.25s ease-out' }} transform={`translate(${playerX - playerBaseX}, 0)`}>
-        {/* Shadow */}
-        <ellipse cx={playerBaseX} cy={playerY + 48} rx="22" ry="7" fill="rgba(0,0,0,0.35)" />
-        {/* Shoes */}
-        <ellipse cx={playerBaseX - 10} cy={playerY + 45} rx="8" ry="4" fill="#f8fafc" />
-        <ellipse cx={playerBaseX + 10} cy={playerY + 45} rx="8" ry="4" fill="#f8fafc" />
-        {/* Legs */}
-        <line x1={playerBaseX - 8} y1={playerY + 26} x2={playerBaseX - 10} y2={playerY + 42} stroke="#1e293b" strokeWidth="7" strokeLinecap="round" />
-        <line x1={playerBaseX + 8} y1={playerY + 26} x2={playerBaseX + 10} y2={playerY + 42} stroke="#1e293b" strokeWidth="7" strokeLinecap="round" />
-        {/* Body - shirt */}
-        <rect x={playerBaseX - 18} y={playerY - 10} width="36" height="38" rx="8" fill="#3b82f6" />
-        {/* Collar */}
-        <ellipse cx={playerBaseX} cy={playerY - 9} rx="10" ry="5" fill="#2563eb" />
-        {/* Number on back */}
-        <text x={playerBaseX} y={playerY + 16} textAnchor="middle" fontSize="18" fill="white" fontWeight="bold" opacity="0.6">7</text>
-        {/* Left arm */}
-        <line x1={playerBaseX - 18} y1={playerY + 4} x2={playerBaseX - 30} y2={playerY + 18} stroke="#fbbf24" strokeWidth="6" strokeLinecap="round" />
-        {/* Right arm + racket */}
-        <g style={{
-          transformOrigin: `${playerBaseX + 18}px ${playerY + 4}px`,
-          transition: 'transform 0.12s ease-out',
-          transform: racketSwing ? 'rotate(-50deg)' : 'rotate(0deg)',
-        }}>
-          <line x1={playerBaseX + 18} y1={playerY + 4} x2={playerBaseX + 34} y2={playerY - 14} stroke="#fbbf24" strokeWidth="6" strokeLinecap="round" />
-          {/* Racket handle */}
-          <line x1={playerBaseX + 34} y1={playerY - 14} x2={playerBaseX + 44} y2={playerY - 32} stroke="#8B4513" strokeWidth="4" strokeLinecap="round" />
-          {/* Racket head */}
-          <ellipse cx={playerBaseX + 48} cy={playerY - 42} rx="10" ry="16" fill="none" stroke="#374151" strokeWidth="3" transform={`rotate(-15, ${playerBaseX + 48}, ${playerY - 42})`} />
-          <ellipse cx={playerBaseX + 48} cy={playerY - 42} rx="8" ry="13" fill="none" stroke="#6b7280" strokeWidth="0.8" transform={`rotate(-15, ${playerBaseX + 48}, ${playerY - 42})`} />
-          {/* Strings */}
-          {[-5, 0, 5].map((dx) => (
-            <line key={`v${dx}`} x1={playerBaseX + 48 + dx} y1={playerY - 55} x2={playerBaseX + 48 + dx} y2={playerY - 30} stroke="#9ca3af" strokeWidth="0.4" opacity="0.4" transform={`rotate(-15, ${playerBaseX + 48}, ${playerY - 42})`} />
-          ))}
+      {/* YOUR PLAYER — moves to the ball position (X and Y) */}
+      {(() => {
+        const px = playerSvgX;
+        const py = playerSvgY;
+        const s = playerScale;
+        return (
+        <g style={{ transition: 'all 0.3s ease-out' }} transform={`translate(${px}, ${py})`}>
+          {/* Shadow */}
+          <ellipse cx={0} cy={48 * s} rx={22 * s} ry={7 * s} fill="rgba(0,0,0,0.35)" />
+          {/* Shoes */}
+          <ellipse cx={-10 * s} cy={45 * s} rx={8 * s} ry={4 * s} fill="#f8fafc" />
+          <ellipse cx={10 * s} cy={45 * s} rx={8 * s} ry={4 * s} fill="#f8fafc" />
+          {/* Legs */}
+          <line x1={-8 * s} y1={26 * s} x2={-10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
+          <line x1={8 * s} y1={26 * s} x2={10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
+          {/* Body - shirt */}
+          <rect x={-18 * s} y={-10 * s} width={36 * s} height={38 * s} rx={8 * s} fill="#3b82f6" />
+          {/* Collar */}
+          <ellipse cx={0} cy={-9 * s} rx={10 * s} ry={5 * s} fill="#2563eb" />
+          {/* Number on back */}
+          <text x={0} y={16 * s} textAnchor="middle" fontSize={18 * s} fill="white" fontWeight="bold" opacity="0.6">7</text>
+          {/* Left arm */}
+          <line x1={-18 * s} y1={4 * s} x2={-30 * s} y2={18 * s} stroke="#fbbf24" strokeWidth={6 * s} strokeLinecap="round" />
+          {/* Right arm + racket */}
+          <g style={{
+            transformOrigin: `${18 * s}px ${4 * s}px`,
+            transition: 'transform 0.12s ease-out',
+            transform: racketSwing ? 'rotate(-50deg)' : 'rotate(0deg)',
+          }}>
+            <line x1={18 * s} y1={4 * s} x2={34 * s} y2={-14 * s} stroke="#fbbf24" strokeWidth={6 * s} strokeLinecap="round" />
+            <line x1={34 * s} y1={-14 * s} x2={44 * s} y2={-32 * s} stroke="#8B4513" strokeWidth={4 * s} strokeLinecap="round" />
+            <ellipse cx={48 * s} cy={-42 * s} rx={10 * s} ry={16 * s} fill="none" stroke="#374151" strokeWidth={3 * s} transform={`rotate(-15, ${48 * s}, ${-42 * s})`} />
+          </g>
+          {/* Head */}
+          <circle cx={0} cy={-28 * s} r={16 * s} fill="#fbbf24" />
+          {/* Hair (from behind) */}
+          <ellipse cx={0} cy={-32 * s} rx={16 * s} ry={12 * s} fill="#92400e" />
+          {/* Cap */}
+          <ellipse cx={0} cy={-36 * s} rx={18 * s} ry={6 * s} fill="#2563eb" />
+          <rect x={-17 * s} y={-40 * s} width={34 * s} height={8 * s} rx={4 * s} fill="#2563eb" />
         </g>
-        {/* Head */}
-        <circle cx={playerBaseX} cy={playerY - 10 - 18} r="16" fill="#fbbf24" />
-        {/* Hair (from behind) */}
-        <ellipse cx={playerBaseX} cy={playerY - 32} rx="16" ry="12" fill="#92400e" />
-        {/* Cap */}
-        <ellipse cx={playerBaseX} cy={playerY - 36} rx="18" ry="6" fill="#2563eb" />
-        <rect x={playerBaseX - 17} y={playerY - 40} width="34" height="8" rx="4" fill="#2563eb" />
-      </g>
+        );
+      })()}
 
       {/* Dim overlay */}
       {dimmed && <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(0,0,0,0.5)" />}
