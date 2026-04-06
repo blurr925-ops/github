@@ -3,24 +3,24 @@ import { useCallback } from 'react';
 const WIDTH = 360;
 const HEIGHT = 640;
 
-// Behind-the-player camera — like the US Open practice court angle
-// Player is large in foreground, court stretches away, opponent tiny in distance
+// TV broadcast angle — elevated camera behind baseline, full court visible
+// Like watching from the stands behind the player
 const COURT = {
-  nearLeft: -120,
-  nearRight: 480,
-  nearY: 620,        // baseline barely visible at bottom edge
-  farLeft: 148,
-  farRight: 212,
-  farY: 105,         // far baseline — tiny and distant
-  netNearLeft: 5,
-  netNearRight: 355,
-  netY: 285,         // net at ~44% from top — your court fills more
-  serviceNearLeft: -60,
-  serviceNearRight: 420,
-  serviceNearY: 460,  // your service line
-  serviceFarLeft: 115,
-  serviceFarRight: 245,
-  serviceFarY: 190,   // opponent service line — compressed
+  nearLeft: -10,
+  nearRight: 370,
+  nearY: 510,        // near baseline visible
+  farLeft: 130,
+  farRight: 230,
+  farY: 135,         // far baseline visible
+  netNearLeft: 40,
+  netNearRight: 320,
+  netY: 295,         // net in the middle
+  serviceNearLeft: 10,
+  serviceNearRight: 350,
+  serviceNearY: 410,
+  serviceFarLeft: 100,
+  serviceFarRight: 260,
+  serviceFarY: 210,
 };
 
 function interpX(leftNear, leftFar, rightNear, rightFar, depth, normalizedX) {
@@ -49,7 +49,7 @@ function toNormCoords(svgX, svgY) {
 }
 
 function perspectiveScale(normY) {
-  return 0.18 + 0.82 * normY;
+  return 0.28 + 0.72 * normY;
 }
 
 export default function CourtFirstPerson({
@@ -99,18 +99,17 @@ export default function CourtFirstPerson({
   const sFL = COURT.farLeft + (COURT.farRight - COURT.farLeft) * si;
   const sFR = COURT.farRight - (COURT.farRight - COURT.farLeft) * si;
 
-  // YOUR PLAYER — large, like the camera is right behind them
+  // Player position
   const pPos = playerPos || ballPosition;
   const playerBaseX = WIDTH / 2;
   const playerNormY = pPos
-    ? Math.min(1.15, pPos.y + 0.15)
-    : 1.15;
+    ? Math.min(1.1, pPos.y + 0.1)
+    : 1.1;
   const playerSvgY = COURT.farY + (COURT.nearY - COURT.farY) * playerNormY;
   const playerSvgX = pPos
     ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, pPos.x)
     : playerBaseX;
-  // Big player — fills ~35% of screen height like the photo
-  const playerScale = 2.8;
+  const playerScale = 1.8;
 
   return (
     <svg
@@ -125,10 +124,9 @@ export default function CourtFirstPerson({
         <filter id="ballGlow"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         <filter id="shadow"><feDropShadow dx="1" dy="3" stdDeviation="3" floodOpacity="0.5" /></filter>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#87CEEB" />
-          <stop offset="100%" stopColor="#B0E0E6" />
+          <stop offset="0%" stopColor="#6CB4EE" />
+          <stop offset="100%" stopColor="#A8D8EA" />
         </linearGradient>
-        {/* Blue hard court like US Open */}
         <linearGradient id="court" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#1a5276" />
           <stop offset="100%" stopColor="#1e6091" />
@@ -139,30 +137,30 @@ export default function CourtFirstPerson({
         </radialGradient>
       </defs>
 
-      {/* Sky — bright, daylight like photo */}
+      {/* Sky */}
       <rect x="0" y="0" width={WIDTH} height={COURT.farY + 5} fill="url(#sky)" />
 
-      {/* Stadium — back wall with branding strip */}
-      <rect x="0" y={COURT.farY - 60} width={WIDTH} height="70" fill="#2856A3" />
+      {/* Stadium back wall */}
+      <rect x="0" y={COURT.farY - 55} width={WIDTH} height="65" fill="#2856A3" />
       {/* Branding strip */}
-      <rect x="0" y={COURT.farY - 30} width={WIDTH} height="18" fill="#1a4080" />
+      <rect x="0" y={COURT.farY - 28} width={WIDTH} height="16" fill="#1a4080" />
       {/* Crowd rows */}
       {[0, 1, 2].map((row) => (
         <g key={row}>
-          {Array.from({ length: 28 }).map((_, i) => (
+          {Array.from({ length: 24 }).map((_, i) => (
             <circle
               key={i}
-              cx={13 * i + 4}
-              cy={COURT.farY - 38 - row * 8 + (i % 2) * 2}
-              r={2.2 - row * 0.3}
+              cx={15 * i + 4}
+              cy={COURT.farY - 34 - row * 7 + (i % 2) * 2}
+              r={2 - row * 0.3}
               fill={['#ef4444', '#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#f8fafc', '#fb923c', '#ec4899'][i % 8]}
-              opacity={0.5 - row * 0.1}
+              opacity={0.45 - row * 0.08}
             />
           ))}
         </g>
       ))}
 
-      {/* Green surround outside court lines */}
+      {/* Green surround */}
       <rect x="0" y={COURT.farY} width={WIDTH} height={HEIGHT - COURT.farY} fill="#2d8c4e" />
 
       {/* Court surface — blue hard court */}
@@ -170,33 +168,25 @@ export default function CourtFirstPerson({
 
       {/* Court lines */}
       <line x1={COURT.farLeft} y1={COURT.farY} x2={COURT.farRight} y2={COURT.farY} stroke="white" strokeWidth="2" />
-      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.nearRight} y2={COURT.nearY} stroke="white" strokeWidth="3.5" />
-      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.farLeft} y2={COURT.farY} stroke="white" strokeWidth="2" />
-      <line x1={COURT.nearRight} y1={COURT.nearY} x2={COURT.farRight} y2={COURT.farY} stroke="white" strokeWidth="2" />
-      <line x1={sNL} y1={COURT.nearY} x2={sFL} y2={COURT.farY} stroke="white" strokeWidth="1.2" opacity="0.7" />
-      <line x1={sNR} y1={COURT.nearY} x2={sFR} y2={COURT.farY} stroke="white" strokeWidth="1.2" opacity="0.7" />
-      <line x1={COURT.serviceFarLeft} y1={COURT.serviceFarY} x2={COURT.serviceFarRight} y2={COURT.serviceFarY} stroke="white" strokeWidth="1.8" />
-      <line x1={COURT.serviceNearLeft} y1={COURT.serviceNearY} x2={COURT.serviceNearRight} y2={COURT.serviceNearY} stroke="white" strokeWidth="2" />
-      <line x1={cFar} y1={COURT.serviceFarY} x2={cNear} y2={COURT.serviceNearY} stroke="white" strokeWidth="1.2" opacity="0.7" />
-      <line x1={cNear} y1={COURT.nearY} x2={cNear} y2={COURT.nearY - 16} stroke="white" strokeWidth="2" />
+      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.nearRight} y2={COURT.nearY} stroke="white" strokeWidth="3" />
+      <line x1={COURT.nearLeft} y1={COURT.nearY} x2={COURT.farLeft} y2={COURT.farY} stroke="white" strokeWidth="1.5" />
+      <line x1={COURT.nearRight} y1={COURT.nearY} x2={COURT.farRight} y2={COURT.farY} stroke="white" strokeWidth="1.5" />
+      <line x1={sNL} y1={COURT.nearY} x2={sFL} y2={COURT.farY} stroke="white" strokeWidth="1" opacity="0.7" />
+      <line x1={sNR} y1={COURT.nearY} x2={sFR} y2={COURT.farY} stroke="white" strokeWidth="1" opacity="0.7" />
+      <line x1={COURT.serviceFarLeft} y1={COURT.serviceFarY} x2={COURT.serviceFarRight} y2={COURT.serviceFarY} stroke="white" strokeWidth="1.5" />
+      <line x1={COURT.serviceNearLeft} y1={COURT.serviceNearY} x2={COURT.serviceNearRight} y2={COURT.serviceNearY} stroke="white" strokeWidth="1.5" />
+      <line x1={cFar} y1={COURT.serviceFarY} x2={cNear} y2={COURT.serviceNearY} stroke="white" strokeWidth="1" opacity="0.7" />
+      <line x1={cNear} y1={COURT.nearY} x2={cNear} y2={COURT.nearY - 14} stroke="white" strokeWidth="1.5" />
 
-      {/* Net — prominent white band across court */}
-      <line x1={COURT.netNearLeft - 20} y1={COURT.netY} x2={COURT.netNearRight + 20} y2={COURT.netY} stroke="white" strokeWidth="3" />
-      {/* Net tape — white band on top */}
-      <rect x={COURT.netNearLeft - 15} y={COURT.netY - 6} width={COURT.netNearRight - COURT.netNearLeft + 30} height="6" fill="white" opacity="0.9" />
-      {/* Net mesh lines */}
-      {[-3, 0, 3, 6, 9].map((dy) => (
-        <line key={dy} x1={COURT.netNearLeft} y1={COURT.netY + dy} x2={COURT.netNearRight} y2={COURT.netY + dy} stroke="white" strokeWidth="0.5" opacity="0.15" />
-      ))}
-      {/* Net body — slight transparency */}
-      <rect x={COURT.netNearLeft} y={COURT.netY} width={COURT.netNearRight - COURT.netNearLeft} height="12" fill="rgba(255,255,255,0.08)" />
+      {/* Net */}
+      <rect x={COURT.netNearLeft - 10} y={COURT.netY - 4} width={COURT.netNearRight - COURT.netNearLeft + 20} height="4" fill="white" opacity="0.95" />
+      <rect x={COURT.netNearLeft - 5} y={COURT.netY} width={COURT.netNearRight - COURT.netNearLeft + 10} height="10" fill="rgba(255,255,255,0.1)" />
+      <line x1={COURT.netNearLeft - 10} y1={COURT.netY + 10} x2={COURT.netNearRight + 10} y2={COURT.netY + 10} stroke="white" strokeWidth="1" opacity="0.3" />
       {/* Net posts */}
-      <rect x={COURT.netNearLeft - 8} y={COURT.netY - 10} width="5" height="26" rx="2" fill="#c0c0c0" />
-      <rect x={COURT.netNearRight + 3} y={COURT.netY - 10} width="5" height="26" rx="2" fill="#c0c0c0" />
-      <circle cx={COURT.netNearLeft - 5} cy={COURT.netY - 10} r="4" fill="#d4d4d4" />
-      <circle cx={COURT.netNearRight + 6} cy={COURT.netY - 10} r="4" fill="#d4d4d4" />
+      <rect x={COURT.netNearLeft - 10} y={COURT.netY - 8} width="4" height="22" rx="2" fill="#c0c0c0" />
+      <rect x={COURT.netNearRight + 6} y={COURT.netY - 8} width="4" height="22" rx="2" fill="#c0c0c0" />
 
-      {/* OPPONENT — tiny in the distance */}
+      {/* OPPONENT */}
       {opp && (() => {
         const s = oppSc * 1.8;
         return (
@@ -208,15 +198,14 @@ export default function CourtFirstPerson({
           <line x1={opp.x + 5 * s} y1={opp.y + 16 * s} x2={opp.x + 6 * s} y2={opp.y + 26 * s} stroke="#1e293b" strokeWidth={4 * s} strokeLinecap="round" />
           <rect x={opp.x - 11 * s} y={opp.y - 6 * s} width={22 * s} height={24 * s} rx={5 * s} fill="#ef4444" />
           <ellipse cx={opp.x} cy={opp.y - 5 * s} rx={6 * s} ry={3 * s} fill="#dc2626" />
-          <line x1={opp.x - 11 * s} y1={opp.y + 2 * s} x2={opp.x - 20 * s} y2={opp.y + 11 * s} stroke="#fbbf24" strokeWidth={3.5 * s} strokeLinecap="round" />
-          <line x1={opp.x + 11 * s} y1={opp.y + 2 * s} x2={opp.x + 24 * s} y2={opp.y - 8 * s} stroke="#fbbf24" strokeWidth={3.5 * s} strokeLinecap="round" />
-          <line x1={opp.x + 24 * s} y1={opp.y - 8 * s} x2={opp.x + 32 * s} y2={opp.y - 20 * s} stroke="#78716c" strokeWidth={2.5 * s} strokeLinecap="round" />
-          <ellipse cx={opp.x + 35 * s} cy={opp.y - 25 * s} rx={6 * s} ry={9 * s} fill="none" stroke="#a8a29e" strokeWidth={2 * s} transform={`rotate(-20, ${opp.x + 35 * s}, ${opp.y - 25 * s})`} />
-          <circle cx={opp.x} cy={opp.y - 6 * s - 12 * s} r={12 * s} fill="#fbbf24" />
+          <line x1={opp.x - 11 * s} y1={opp.y + 2 * s} x2={opp.x - 20 * s} y2={opp.y + 11 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
+          <line x1={opp.x + 11 * s} y1={opp.y + 2 * s} x2={opp.x + 24 * s} y2={opp.y - 8 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
+          <line x1={opp.x + 24 * s} y1={opp.y - 8 * s} x2={opp.x + 32 * s} y2={opp.y - 20 * s} stroke="#5c3d2e" strokeWidth={2.5 * s} strokeLinecap="round" />
+          <ellipse cx={opp.x + 35 * s} cy={opp.y - 25 * s} rx={6 * s} ry={9 * s} fill="none" stroke="#1e293b" strokeWidth={2 * s} transform={`rotate(-20, ${opp.x + 35 * s}, ${opp.y - 25 * s})`} />
+          <circle cx={opp.x} cy={opp.y - 6 * s - 12 * s} r={12 * s} fill="#d4a574" />
+          <ellipse cx={opp.x} cy={opp.y - 22 * s} rx={12 * s} ry={8 * s} fill="#2c1810" />
           <circle cx={opp.x - 3 * s} cy={opp.y - 19 * s} r={1.2 * s} fill="#1e293b" />
           <circle cx={opp.x + 3 * s} cy={opp.y - 19 * s} r={1.2 * s} fill="#1e293b" />
-          <ellipse cx={opp.x} cy={opp.y - 18 * s - 7 * s} rx={13 * s} ry={4 * s} fill="#dc2626" />
-          <rect x={opp.x - 12 * s} y={opp.y - 25 * s - 3 * s} width={24 * s} height={6 * s} rx={3 * s} fill="#dc2626" />
         </g>
         );
       })()}
@@ -261,7 +250,7 @@ export default function CourtFirstPerson({
         </g>
       )}
 
-      {/* YOUR PLAYER — large, camera is right behind them like the photo */}
+      {/* YOUR PLAYER */}
       {(() => {
         const px = playerSvgX;
         const py = playerSvgY;
@@ -279,13 +268,11 @@ export default function CourtFirstPerson({
           {/* Legs */}
           <line x1={-8 * s} y1={26 * s} x2={-10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
           <line x1={8 * s} y1={26 * s} x2={10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
-          {/* Body - white shirt like photo */}
+          {/* Body - white shirt */}
           <rect x={-18 * s} y={-10 * s} width={36 * s} height={38 * s} rx={8 * s} fill="#f8fafc" />
           {/* Collar */}
           <ellipse cx={0} cy={-9 * s} rx={10 * s} ry={5 * s} fill="#e5e7eb" />
-          {/* Number on back */}
-          <text x={0} y={16 * s} textAnchor="middle" fontSize={18 * s} fill="#94a3b8" fontWeight="bold" opacity="0.4">7</text>
-          {/* Left arm — skin tone */}
+          {/* Left arm */}
           <line x1={-18 * s} y1={4 * s} x2={-30 * s} y2={18 * s} stroke="#d4a574" strokeWidth={6 * s} strokeLinecap="round" />
           {/* Right arm + racket */}
           <g style={{
@@ -299,9 +286,9 @@ export default function CourtFirstPerson({
           </g>
           {/* Head */}
           <circle cx={0} cy={-28 * s} r={16 * s} fill="#d4a574" />
-          {/* Hair (from behind) */}
+          {/* Hair */}
           <ellipse cx={0} cy={-32 * s} rx={16 * s} ry={12 * s} fill="#2c1810" />
-          {/* Cap — dark like photo */}
+          {/* Cap */}
           <ellipse cx={0} cy={-36 * s} rx={18 * s} ry={6 * s} fill="#1e293b" />
           <rect x={-17 * s} y={-40 * s} width={34 * s} height={8 * s} rx={4 * s} fill="#1e293b" />
         </g>
