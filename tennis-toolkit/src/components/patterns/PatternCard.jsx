@@ -1,10 +1,15 @@
 import { CheckCircle, Play } from 'lucide-react';
 import Card from '../common/Card';
-import { difficultyColors } from '../../data/patterns';
+
+const CATEGORY_LABELS = {
+  serve: 'Serve',
+  return: 'Return',
+  rally: 'Rally',
+  attack: 'Attack',
+  defend: 'Defend',
+};
 
 export default function PatternCard({ rally, completed, onStart }) {
-  const colors = difficultyColors[rally.difficulty] || difficultyColors.green;
-
   return (
     <Card
       className="flex items-center gap-3"
@@ -25,17 +30,12 @@ export default function PatternCard({ rally, completed, onStart }) {
           <h3 className="text-white font-semibold text-base truncate">
             {rally.name}
           </h3>
-          <span
-            className={`${colors.bg} text-white text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0`}
-          >
-            {colors.label}
+          <span className="bg-white/10 text-gray-300 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0">
+            {rally.steps.length} shots
           </span>
         </div>
         <p className="text-gray-400 text-sm line-clamp-1">
           {rally.description}
-        </p>
-        <p className="text-gray-500 text-xs mt-0.5">
-          {rally.steps.length} shots to win
         </p>
       </div>
 

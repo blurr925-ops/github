@@ -18,13 +18,18 @@ const CATEGORY_FILTERS = [
 const BADGES = [
   { id: 'first-win', name: 'First Win', emoji: '\u{1F947}', check: ({ wins }) => wins >= 1 },
   { id: 'hot-streak', name: 'Hot Streak', emoji: '\u{1F525}', check: ({ bestStreak }) => bestStreak >= 3 },
-  { id: 'tactician', name: 'Tactician', emoji: '\u{1F9E0}', check: ({ completedIds, greenIds }) => greenIds.every((id) => completedIds.includes(id)) },
-  { id: 'court-general', name: 'Court General', emoji: '\u2B50', check: ({ completedIds, orangeIds }) => orangeIds.every((id) => completedIds.includes(id)) },
+  { id: 'serve-master', name: 'Serve Master', emoji: '\u{1F3BE}', check: ({ completedIds, categoryIds }) => categoryIds.serve.every((id) => completedIds.includes(id)) },
+  { id: 'rally-king', name: 'Rally King', emoji: '\u{1F9E0}', check: ({ completedIds, categoryIds }) => categoryIds.rally.every((id) => completedIds.includes(id)) },
   { id: 'champion', name: 'Champion', emoji: '\u{1F3C6}', check: ({ completedIds, allIds }) => allIds.every((id) => completedIds.includes(id)) },
 ];
 
-const greenIds = rallies.filter((r) => r.difficulty === 'green').map((r) => r.id);
-const orangeIds = rallies.filter((r) => r.difficulty === 'orange').map((r) => r.id);
+const categoryIds = {
+  serve: rallies.filter((r) => r.category === 'serve').map((r) => r.id),
+  return: rallies.filter((r) => r.category === 'return').map((r) => r.id),
+  rally: rallies.filter((r) => r.category === 'rally').map((r) => r.id),
+  attack: rallies.filter((r) => r.category === 'attack').map((r) => r.id),
+  defend: rallies.filter((r) => r.category === 'defend').map((r) => r.id),
+};
 const allIds = rallies.map((r) => r.id);
 
 export default function Patterns() {
@@ -40,7 +45,7 @@ export default function Patterns() {
   );
 
   const badgeContext = useMemo(
-    () => ({ wins: stats.wins, bestStreak: stats.bestStreak, completedIds, greenIds, orangeIds, allIds }),
+    () => ({ wins: stats.wins, bestStreak: stats.bestStreak, completedIds, categoryIds, allIds }),
     [stats.wins, stats.bestStreak, completedIds],
   );
 

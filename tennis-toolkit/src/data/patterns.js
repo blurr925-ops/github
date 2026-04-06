@@ -24,13 +24,13 @@
 //   From YOUR LEFT:  cross-court → far RIGHT (x≈0.8), DTL → far LEFT (x≈0.2)
 
 export const rallies = [
-  // ============ GREEN (Beginner) ============
+
   {
     id: 'rally-and-attack',
     name: 'Rally & Attack',
     category: 'rally',
     description: 'Keep the ball deep cross-court until you get a short ball, then attack down the line!',
-    difficulty: 'green',
+
     steps: [
       {
         // SETUP: Opponent rallying from center, hits deep to your right
@@ -65,7 +65,7 @@ export const rallies = [
     name: 'Backhand Battle',
     category: 'rally',
     description: 'Rally deep on the backhand side, wait for the short ball, then attack down the line!',
-    difficulty: 'green',
+
     steps: [
       {
         // SETUP: Opponent at center, hits deep to your left
@@ -100,7 +100,7 @@ export const rallies = [
     name: 'Return & Recover',
     category: 'return',
     description: 'Return the serve deep cross-court, then punish the weak reply down the line!',
-    difficulty: 'green',
+
     steps: [
       {
         // SETUP: Opponent served, ball deep to your left
@@ -131,13 +131,13 @@ export const rallies = [
     ],
   },
 
-  // ============ ORANGE (Intermediate) ============
+
   {
     id: 'approach-and-volley',
     name: 'Approach & Volley',
     category: 'attack',
     description: 'Hit an approach shot down the line on a short ball, rush the net, and finish with a volley!',
-    difficulty: 'orange',
+
     steps: [
       {
         // SETUP: Opponent at center, hits a short ball to your right
@@ -172,7 +172,7 @@ export const rallies = [
     name: 'Drop Shot Surprise',
     category: 'rally',
     description: 'Push your opponent deep behind the baseline, then drop it short!',
-    difficulty: 'orange',
+
     steps: [
       {
         // SETUP: Opponent at center, hits deep to your right
@@ -207,7 +207,7 @@ export const rallies = [
     name: 'The Passing Shot',
     category: 'defend',
     description: 'Your opponent charges the net — blast it past them down the line!',
-    difficulty: 'orange',
+
     steps: [
       {
         // SETUP: Opponent at center, hits deep to your right
@@ -243,7 +243,7 @@ export const rallies = [
     name: 'Defend & Lob',
     category: 'defend',
     description: 'You\'re stretched wide with the opponent at the net — lob them, then attack the short ball!',
-    difficulty: 'orange',
+
     steps: [
       {
         // SETUP: Opponent at net, slightly left (x:0.4), smashes wide to your left
@@ -274,13 +274,13 @@ export const rallies = [
     ],
   },
 
-  // ============ RED (Advanced) ============
+
   {
     id: 'wrong-foot',
     name: 'The Wrong-Foot',
     category: 'rally',
     description: 'Build a cross-court pattern so your opponent commits early — then go behind them!',
-    difficulty: 'red',
+
     steps: [
       {
         // SETUP: Opponent at center, hits deep to your left
@@ -331,7 +331,7 @@ export const rallies = [
     name: 'Serve Wide & Dominate',
     category: 'serve',
     description: 'Serve wide to stretch the opponent, attack the short return, approach, then volley!',
-    difficulty: 'red',
+
     steps: [
       {
         // SERVE STEP: Player serves from ad side (left) — tap where to aim
@@ -395,7 +395,7 @@ export const rallies = [
     name: 'The Counter-Attack',
     category: 'attack',
     description: 'Defend deep cross-court under pressure, change direction, then attack the short ball!',
-    difficulty: 'red',
+
     steps: [
       {
         // SETUP: Opponent attacks from center, big shot deep to your left
@@ -448,7 +448,7 @@ export const rallies = [
     name: 'Serve Down the T',
     category: 'serve',
     description: 'Jam your opponent with a T serve, then punish the weak return!',
-    difficulty: 'green',
+
     steps: [
       {
         // SERVE: Deuce side, T serve to center of left service box
@@ -479,7 +479,7 @@ export const rallies = [
     name: 'Serve & Stay Back',
     category: 'serve',
     description: 'Serve wide, but the return is deep — be patient, rally, then attack when the short ball comes!',
-    difficulty: 'orange',
+
     steps: [
       {
         // SERVE: Deuce side, wide serve
@@ -523,7 +523,7 @@ export const rallies = [
     name: 'Punish the Second Serve',
     category: 'return',
     description: 'A weak second serve lands short — step inside the baseline and attack it!',
-    difficulty: 'orange',
+
     steps: [
       {
         // Weak second serve lands short (y:0.7 = inside service line)
@@ -554,7 +554,7 @@ export const rallies = [
     name: 'Return & Build',
     category: 'return',
     description: 'Return the deep serve, rally patiently — don\'t attack until the short ball comes!',
-    difficulty: 'orange',
+
     steps: [
       {
         // Deep first serve to your left (y:0.9)
@@ -598,7 +598,7 @@ export const rallies = [
     name: 'Stay Patient',
     category: 'rally',
     description: 'Three deep balls in a row — keep rallying cross-court until you get the short ball to attack!',
-    difficulty: 'orange',
+
     steps: [
       {
         // Deep ball right → cross-court left
@@ -650,7 +650,7 @@ export const rallies = [
     name: 'Switch & Attack',
     category: 'rally',
     description: 'Rally cross-court on both sides, then recognise the short ball and attack!',
-    difficulty: 'orange',
+
     steps: [
       {
         // Deep ball LEFT → cross-court right
@@ -693,7 +693,7 @@ export const rallies = [
     name: 'Read the Depth',
     category: 'attack',
     description: 'Two deep balls then a short one — can you tell the difference and attack at the right time?',
-    difficulty: 'green',
+
     steps: [
       {
         // Deep ball LEFT → must rally cross-court (NOT attack)
@@ -732,7 +732,7 @@ export const rallies = [
     name: 'Approach, Volley, Smash',
     category: 'attack',
     description: 'Approach the net on a short ball, put away the volley — or smash the lob!',
-    difficulty: 'red',
+
     steps: [
       {
         // Short ball right → approach DTL
@@ -774,7 +774,7 @@ export const rallies = [
     name: 'Reset & Recover',
     category: 'defend',
     description: 'Pushed wide under pressure — defend deep to get back in the rally, then attack when you can!',
-    difficulty: 'green',
+
     steps: [
       {
         // Pushed wide to your left, very deep
@@ -816,7 +816,7 @@ export const rallies = [
     name: 'Scramble & Counter',
     category: 'defend',
     description: 'Your opponent attacks you from side to side — survive the pressure, then counter-attack!',
-    difficulty: 'red',
+
     steps: [
       {
         // Big shot pushes you deep right
@@ -872,7 +872,7 @@ export const rallies = [
     name: 'The Marathon Rally',
     category: 'rally',
     description: 'A long baseline rally — stay patient through 6 deep balls, then approach and finish at the net!',
-    difficulty: 'red',
+
     steps: [
       {
         // Step 1: Opp center. Deep RIGHT. XC left.
@@ -961,7 +961,7 @@ export const rallies = [
     name: 'Serve & Construct',
     category: 'serve',
     description: 'Serve wide, rally patiently through deep returns, then approach the net and finish with a smash!',
-    difficulty: 'red',
+
     steps: [
       {
         // Serve: Deuce side, wide
@@ -1051,7 +1051,7 @@ export const rallies = [
     name: 'The Great Escape',
     category: 'defend',
     description: 'Under heavy attack from side to side — survive, get back in the rally, then turn defence into attack!',
-    difficulty: 'red',
+
     steps: [
       {
         // Big shot deep LEFT. Defend XC right.
@@ -1137,8 +1137,3 @@ export const rallies = [
   },
 ];
 
-export const difficultyColors = {
-  green: { bg: 'bg-green-500', text: 'text-green-400', label: 'Green Stage' },
-  orange: { bg: 'bg-orange-500', text: 'text-orange-400', label: 'Orange Stage' },
-  red: { bg: 'bg-red-500', text: 'text-red-400', label: 'Red Stage' },
-};

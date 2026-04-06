@@ -2,7 +2,12 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import CourtFirstPerson from '../court/CourtFirstPerson';
 import { isInZone } from '../../utils/courtGeometry';
 
-const DIFFICULTY_TIME = { green: 4000, orange: 3200, red: 2500 };
+// Time allowed per shot based on total steps: shorter patterns = more time
+function getAllowedTime(steps) {
+  if (steps <= 2) return 4000;
+  if (steps <= 4) return 3500;
+  return 3000;
+}
 
 export default function RallyQuiz({ rally, onComplete, onBack }) {
   const [stepIndex, setStepIndex] = useState(0);
@@ -27,7 +32,7 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
 
   const step = rally.steps[stepIndex];
   const isLast = stepIndex === rally.steps.length - 1;
-  const allowed = DIFFICULTY_TIME[rally.difficulty] || 3500;
+  const allowed = getAllowedTime(rally.steps.length);
 
   // Ready countdown
   useEffect(() => {
@@ -425,16 +430,11 @@ export default function RallyQuiz({ rally, onComplete, onBack }) {
         <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/80">
           <div className="mx-6 max-w-sm w-full text-center" style={{ animation: 'slideUp 0.4s ease-out' }}>
             <div className="bg-navy-light rounded-2xl p-6 border border-white/10">
-              <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 ${
-                rally.difficulty === 'green' ? 'bg-green-500/20 text-green-400' :
-                rally.difficulty === 'orange' ? 'bg-orange-500/20 text-orange-400' :
-                'bg-red-500/20 text-red-400'
-              }`}>
-                {rally.difficulty.toUpperCase()} BALL
+              <div className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 bg-white/10 text-gray-300">
+                {rally.steps.length} SHOTS
               </div>
               <h2 className="text-white text-2xl font-black mb-3">{rally.name}</h2>
-              <p className="text-gray-300 text-sm leading-relaxed mb-2">{rally.description}</p>
-              <p className="text-gray-500 text-xs mb-6">{rally.steps.length} shots to win the point</p>
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">{rally.description}</p>
               <button
                 onClick={() => setPhase('ready')}
                 className="w-full bg-tennis text-navy font-black py-3.5 rounded-full text-base active:scale-95 transition-transform min-h-[48px]"
