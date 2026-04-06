@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Target, ClipboardList, Trophy, Camera } from 'lucide-react';
+import { Home, Target, Swords, ClipboardList, Trophy, Camera } from 'lucide-react';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/patterns', icon: Target, label: 'Patterns' },
+  { to: '/points', icon: Swords, label: 'Points' },
   { to: '/match', icon: ClipboardList, label: 'Match' },
   { to: '/goals', icon: Trophy, label: 'Goals' },
   { to: '/photos', icon: Camera, label: 'Photos' },

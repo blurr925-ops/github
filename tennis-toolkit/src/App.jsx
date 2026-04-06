@@ -5,6 +5,7 @@ import Patterns from './pages/Patterns';
 import MatchCentre from './pages/MatchCentre';
 import Goals from './pages/Goals';
 import Photos from './pages/Photos';
+import PointsPlay from './pages/PointsPlay';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/patterns" element={<Patterns />} />
           <Route path="/match" element={<MatchCentre />} />
+          <Route path="/points" element={<PointsPlay />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/photos" element={<Photos />} />
         </Routes>
