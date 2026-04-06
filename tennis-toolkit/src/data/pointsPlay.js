@@ -16,7 +16,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.15 },
         description: 'Alex hits a neutral ball to the middle. Where do you hit?',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.25, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.25, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Heavy topspin to the backhand — perfect! The ball kicks up high and Alex struggles.' },
           slice: { correct: false, text: 'Slice sits up too much — Alex can run around it and hit a forehand.' },
@@ -29,7 +29,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.18 },
         description: 'Alex floats a weak backhand reply. Time to finish!',
         correctShot: 'topspin',
-        correctZone: { x: 0.2, y: 0.2, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Brilliant! You drag Alex to the backhand then finish to the open forehand side. Winner!' },
           slice: { correct: false, text: 'A slice here lacks pace — Alex has time to recover.' },
@@ -56,7 +56,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Mia sends a deep topspin ball. How do you neutralise?',
         correctShot: 'slice',
-        correctZone: { x: 0.5, y: 0.3, radius: 0.18 },
+        correctZone: { x: 0.5, y: 0.3, radius: 0.24 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin bounces high — that\'s exactly what Mia wants!' },
           slice: { correct: true, text: 'Great slice! The ball stays low and skids through. Mia has to dig it out.' },
@@ -69,7 +69,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.18 },
         description: 'Mia pops up a short ball from the low slice. Now what?',
         correctShot: 'approach',
-        correctZone: { x: 0.8, y: 0.25, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.25, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin from here is okay but you miss the chance to finish at the net.' },
           slice: { correct: false, text: 'Another slice just gives Mia time to reset.' },
@@ -96,7 +96,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Sam rallies deep to the centre. Build the point.',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Nice topspin wide to Sam\'s forehand side. You\'re pulling Sam out of position.' },
           slice: { correct: false, text: 'Slice keeps it neutral — you need to move Sam to create the opening.' },
@@ -109,7 +109,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.18 },
         description: 'Sam stretches and hits a short reply. What now?',
         correctShot: 'topspin',
-        correctZone: { x: 0.2, y: 0.25, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.25, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Smart! You send the ball to the open backhand side. Sam is scrambling!' },
           slice: { correct: false, text: 'Slice doesn\'t have enough weight — Sam can recover.' },
@@ -122,7 +122,7 @@ export const levels = [
         opponentPosition: { x: 0.3, y: 0.22 },
         description: 'Sam barely gets it back — it lands short! Time to finish.',
         correctShot: 'approach',
-        correctZone: { x: 0.75, y: 0.2, radius: 0.15 },
+        correctZone: { x: 0.75, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin stays back — you miss the perfect chance to close at the net.' },
           slice: { correct: false, text: 'Slice approach could work but Sam might get a lob up. Be more aggressive.' },
@@ -149,7 +149,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.1 },
         description: 'Jordan floats a soft ball back. Don\'t rush!',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.2, radius: 0.16 },
+        correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Heavy topspin deep to the backhand. The high bounce pushes Jordan way behind the baseline!' },
           slice: { correct: false, text: 'Slice stays low — Jordan loves low pace balls, easy to retrieve.' },
@@ -162,7 +162,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.08 },
         description: 'Jordan is pinned deep on the backhand. Keep building!',
         correctShot: 'topspin',
-        correctZone: { x: 0.2, y: 0.2, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Excellent! Topspin crosscourt to the forehand side. Jordan is behind the baseline and off-balance.' },
           slice: { correct: false, text: 'Slice brings Jordan back into the court — don\'t let up the pressure!' },
@@ -175,7 +175,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.15 },
         description: 'Jordan is exhausted and hits a short ball. Finish it!',
         correctShot: 'approach',
-        correctZone: { x: 0.8, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin stays back and lets Jordan recover — you had the chance to come in!' },
           slice: { correct: false, text: 'Slice is too passive. Jordan will just run it down again.' },
@@ -202,7 +202,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Casey hits an approach shot and rushes to the net!',
         correctShot: 'slice',
-        correctZone: { x: 0.5, y: 0.4, radius: 0.15 },
+        correctZone: { x: 0.5, y: 0.4, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin bounces up high — Casey loves that at the net! Easy volley.' },
           slice: { correct: true, text: 'Smart slice right at Casey\'s feet! The ball stays low and Casey has to half-volley awkwardly.' },
@@ -215,7 +215,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.35 },
         description: 'Casey\'s half-volley pops up weakly. Now what?',
         correctShot: 'topspin',
-        correctZone: { x: 0.85, y: 0.3, radius: 0.15 },
+        correctZone: { x: 0.85, y: 0.3, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Crosscourt topspin passing shot! Casey stretches but can\'t reach it.' },
           slice: { correct: false, text: 'Slice is too floaty — Casey can recover and punch a volley.' },
@@ -228,7 +228,7 @@ export const levels = [
         opponentPosition: { x: 0.8, y: 0.32 },
         description: 'Casey lunges and gets a racket on it! Ball comes back short.',
         correctShot: 'topspin',
-        correctZone: { x: 0.15, y: 0.25, radius: 0.15 },
+        correctZone: { x: 0.15, y: 0.25, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Winner! You whip a topspin pass to the wide open court. Casey can\'t change direction. Point over!' },
           slice: { correct: false, text: 'Slice doesn\'t have enough pace to get past Casey even at full stretch.' },
@@ -255,7 +255,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Riley hits a safe ball down the middle. Start working the angles!',
         correctShot: 'topspin',
-        correctZone: { x: 0.15, y: 0.28, radius: 0.14 },
+        correctZone: { x: 0.15, y: 0.28, radius: 0.20 },
         shotFeedback: {
           topspin: { correct: true, text: 'Sharp crosscourt angle! The topspin pulls the ball wide and Riley is scrambling!' },
           slice: { correct: false, text: 'Slice doesn\'t curve enough — Riley stays comfortable in the centre.' },
@@ -268,7 +268,7 @@ export const levels = [
         opponentPosition: { x: 0.2, y: 0.18 },
         description: 'Riley stretches and pushes it back. The other side is wide open!',
         correctShot: 'topspin',
-        correctZone: { x: 0.85, y: 0.25, radius: 0.14 },
+        correctZone: { x: 0.85, y: 0.25, radius: 0.20 },
         shotFeedback: {
           topspin: { correct: true, text: 'Brilliant angle the other way! Riley has to sprint the full width of the court!' },
           slice: { correct: false, text: 'Slice is too slow — Riley has time to recover to the middle.' },
@@ -281,7 +281,7 @@ export const levels = [
         opponentPosition: { x: 0.8, y: 0.2 },
         description: 'Riley barely gets it back from wide — a weak, short ball!',
         correctShot: 'topspin',
-        correctZone: { x: 0.15, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.15, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Clean winner! You angle it back the other way and Riley can\'t change direction. Beautiful point construction!' },
           slice: { correct: false, text: 'Slice lets Riley crawl back into position. Be aggressive with topspin!' },
@@ -308,7 +308,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.1 },
         description: 'Marcus fires a big serve to your right side!',
         correctShot: 'slice',
-        correctZone: { x: 0.5, y: 0.32, radius: 0.16 },
+        correctZone: { x: 0.5, y: 0.32, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Hard to generate topspin on a big serve — your return sits up and Marcus crushes it.' },
           slice: { correct: true, text: 'Perfect slice return! The ball stays low and deep — Marcus can\'t attack it.' },
@@ -321,7 +321,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.14 },
         description: 'Marcus hits a hard forehand but it\'s not a winner. Stay patient!',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Deep topspin to the backhand! Marcus is getting frustrated — he wants to end the point quickly.' },
           slice: { correct: false, text: 'More slice gives Marcus time to set up his forehand. Push him back with topspin.' },
@@ -334,7 +334,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.16 },
         description: 'Marcus gets impatient and goes for too much — it lands short!',
         correctShot: 'approach',
-        correctZone: { x: 0.2, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin from mid-court gives Marcus another chance. Come to the net and finish!' },
           slice: { correct: false, text: 'Slice approach is too slow — Marcus will reset and overpower you.' },
@@ -361,7 +361,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Taylor hits a smooth, rhythmic groundstroke. Break the pattern!',
         correctShot: 'slice',
-        correctZone: { x: 0.2, y: 0.28, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.28, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin plays into Taylor\'s rhythm — same pace, same bounce. Mix it up!' },
           slice: { correct: true, text: 'Nice change of pace! The low slice to the backhand disrupts Taylor\'s timing.' },
@@ -374,7 +374,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.14 },
         description: 'Taylor adjusts to the low ball. Now switch it up!',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.2, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'From low slice to heavy topspin to the forehand! The ball kicks up high and Taylor is completely wrong-footed by the speed change.' },
           slice: { correct: false, text: 'Two slices in a row lets Taylor adjust. Switch to topspin to change the height and pace!' },
@@ -387,7 +387,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.16 },
         description: 'Taylor is struggling with the changes. Keep mixing!',
         correctShot: 'slice',
-        correctZone: { x: 0.2, y: 0.3, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.3, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Going topspin again lets Taylor re-find the rhythm. Keep mixing!' },
           slice: { correct: true, text: 'Another speed change! Taylor expects topspin but gets a low skidding slice to the backhand. Completely fooled!' },
@@ -400,7 +400,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.2 },
         description: 'Taylor\'s frustrated and hits a short ball. Time to finish!',
         correctShot: 'approach',
-        correctZone: { x: 0.8, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin stays back — you worked so hard to get this chance, come in and finish!' },
           slice: { correct: false, text: 'Slice lets Taylor regroup. Be decisive and approach!' },
@@ -427,7 +427,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.12 },
         description: 'Kai returns your shot with interest — using your pace. Take the speed off!',
         correctShot: 'slice',
-        correctZone: { x: 0.4, y: 0.3, radius: 0.15 },
+        correctZone: { x: 0.4, y: 0.3, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'More pace is what Kai wants! Kai redirects your topspin for a winner.' },
           slice: { correct: true, text: 'Smart! Low slice with no pace — Kai has nothing to work with.' },
@@ -440,7 +440,7 @@ export const levels = [
         opponentPosition: { x: 0.45, y: 0.14 },
         description: 'Kai floats a weaker ball — struggling without pace. Keep squeezing!',
         correctShot: 'slice',
-        correctZone: { x: 0.65, y: 0.28, radius: 0.15 },
+        correctZone: { x: 0.65, y: 0.28, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'There\'s the pace Kai was waiting for! Don\'t feed the counter-puncher.' },
           slice: { correct: true, text: 'Another low slice! Kai is fishing for pace but you won\'t give it. Kai is getting uncomfortable.' },
@@ -453,7 +453,7 @@ export const levels = [
         opponentPosition: { x: 0.6, y: 0.16 },
         description: 'Kai tries to create pace but the ball lands short! Now attack!',
         correctShot: 'topspin',
-        correctZone: { x: 0.2, y: 0.24, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.24, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: true, text: 'Now you add the topspin! On YOUR terms, not Kai\'s. The ball kicks away and Kai is wrong-footed.' },
           slice: { correct: false, text: 'You have the short ball — time to be aggressive with topspin, not more slice.' },
@@ -466,7 +466,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.2 },
         description: 'Kai scrambles and barely gets it back. Finish the point!',
         correctShot: 'approach',
-        correctZone: { x: 0.8, y: 0.22, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'Topspin from here gives Kai another ball to redirect. Come in and finish!' },
           slice: { correct: false, text: 'No more slice — you\'ve earned the net position, take it!' },
@@ -493,7 +493,7 @@ export const levels = [
         opponentPosition: { x: 0.5, y: 0.1 },
         description: 'The coach hits a solid deep ball. Start building the point.',
         correctShot: 'topspin',
-        correctZone: { x: 0.8, y: 0.24, radius: 0.14 },
+        correctZone: { x: 0.8, y: 0.24, radius: 0.20 },
         shotFeedback: {
           topspin: { correct: true, text: 'Good start! Deep topspin to the backhand, pushing the coach wide.' },
           slice: { correct: false, text: 'Slice is too neutral here — you need to start building pressure.' },
@@ -506,7 +506,7 @@ export const levels = [
         opponentPosition: { x: 0.75, y: 0.16 },
         description: 'The coach gets it back crosscourt. Change the pace!',
         correctShot: 'slice',
-        correctZone: { x: 0.2, y: 0.3, radius: 0.15 },
+        correctZone: { x: 0.2, y: 0.3, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'The coach reads your pattern. Mix it up to disrupt their rhythm!' },
           slice: { correct: true, text: 'Change of pace! The low slice to the forehand side catches the coach off-guard.' },
@@ -519,7 +519,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.15 },
         description: 'The coach adjusts but is slightly off-balance. Keep constructing!',
         correctShot: 'topspin',
-        correctZone: { x: 0.85, y: 0.22, radius: 0.14 },
+        correctZone: { x: 0.85, y: 0.22, radius: 0.20 },
         shotFeedback: {
           topspin: { correct: true, text: 'Sharp topspin angle back to the backhand! The coach has to sprint across the court.' },
           slice: { correct: false, text: 'Two slices lets the coach settle. Switch back to topspin to change the height.' },
@@ -532,7 +532,7 @@ export const levels = [
         opponentPosition: { x: 0.8, y: 0.2 },
         description: 'The coach is stretched wide and hits a weak reply. Build more or attack?',
         correctShot: 'topspin',
-        correctZone: { x: 0.2, y: 0.24, radius: 0.14 },
+        correctZone: { x: 0.2, y: 0.24, radius: 0.20 },
         shotFeedback: {
           topspin: { correct: true, text: 'You send it deep to the open forehand side — the coach is in full sprint!' },
           slice: { correct: false, text: 'Slice gives the coach time to recover. Keep the pressure up with topspin!' },
@@ -545,7 +545,7 @@ export const levels = [
         opponentPosition: { x: 0.25, y: 0.22 },
         description: 'The coach barely gets it back — a short, weak ball. This is your moment!',
         correctShot: 'approach',
-        correctZone: { x: 0.8, y: 0.2, radius: 0.15 },
+        correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
         shotFeedback: {
           topspin: { correct: false, text: 'You\'ve earned the net — don\'t waste this chance by staying back!' },
           slice: { correct: false, text: 'The court is open — be decisive and approach for the finish!' },
