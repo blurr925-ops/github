@@ -112,7 +112,7 @@ export default function CourtFirstPerson({
   const playerSvgX = pPos
     ? interpX(COURT.nearLeft, COURT.farLeft, COURT.nearRight, COURT.farRight, playerNormY, pPos.x)
     : playerBaseX;
-  const playerScale = 1.8;
+  const playerScale = perspectiveScale(playerNormY) * 1.8;
 
   return (
     <svg
