@@ -439,6 +439,431 @@ export const rallies = [
       },
     ],
   },
+
+  // ============ NEW PATTERNS ============
+
+  // --- SERVE ---
+  {
+    id: 'serve-down-the-t',
+    name: 'Serve Down the T',
+    category: 'serve',
+    description: 'Jam your opponent with a T serve, then punish the weak return!',
+    difficulty: 'green',
+    steps: [
+      {
+        // SERVE: Deuce side, T serve to center of left service box
+        isServe: true,
+        description: 'You\'re serving from the deuce side. Jam them down the T!',
+        ballPosition: { x: 0.62, y: 0.98 },
+        correctZone: { x: 0.45, y: 0.33, radius: 0.18 },
+        correctLabel: 'T serve!',
+        explanation: 'Right down the T! Your opponent is jammed — weak return coming...',
+        wrongExplanation: 'Aim for the T — the CENTER of the service box!',
+        opponentPosition: { x: 0.5, y: 0.0 },
+      },
+      {
+        // Opponent jammed at center (x:0.45), returns short to your right
+        // Short → attack DTL right, away from center opponent
+        description: 'Weak return from a jammed opponent. Put it away!',
+        ballPosition: { x: 0.55, y: 0.65 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack the open court!',
+        explanation: 'T serve jams them, weak return, attack into the open court!',
+        wrongExplanation: 'Your opponent is stuck in the MIDDLE — attack to the far RIGHT!',
+        opponentPosition: { x: 0.45, y: 0.08 },
+      },
+    ],
+  },
+  {
+    id: 'serve-and-rally',
+    name: 'Serve & Stay Back',
+    category: 'serve',
+    description: 'Serve wide, but the return is deep — be patient, rally, then attack when the short ball comes!',
+    difficulty: 'orange',
+    steps: [
+      {
+        // SERVE: Deuce side, wide serve
+        isServe: true,
+        description: 'You\'re serving from the deuce side. Go wide!',
+        ballPosition: { x: 0.62, y: 0.98 },
+        correctZone: { x: 0.2, y: 0.33, radius: 0.18 },
+        correctLabel: 'Wide serve!',
+        explanation: 'Good serve! But watch the return — it might be deep...',
+        wrongExplanation: 'Serve WIDE into the LEFT of the service box!',
+        opponentPosition: { x: 0.5, y: 0.0 },
+      },
+      {
+        // Opponent stretched to x:0.15 but hits a DEEP return (y:0.88)
+        // DEEP → must rally cross-court, NOT attack
+        description: 'Good return from your opponent — it\'s deep! Don\'t over-attack.',
+        ballPosition: { x: 0.6, y: 0.88 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Smart! Deep cross-court.',
+        explanation: 'Patient play! The return was deep so you rallied — wait for a better ball.',
+        wrongExplanation: 'That return was DEEP near your baseline — rally it cross-court, don\'t attack!',
+        opponentPosition: { x: 0.15, y: 0.08 },
+      },
+      {
+        // Opponent recovered to x:0.25. Hits a short ball to your right.
+        // Short → NOW attack DTL right
+        description: 'Now you get a short ball! This time, attack!',
+        ballPosition: { x: 0.6, y: 0.62 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack down the line!',
+        explanation: 'That\'s the difference — deep ball = rally, short ball = ATTACK!',
+        wrongExplanation: 'THIS ball is short — NOW you can attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.25, y: 0.1 },
+      },
+    ],
+  },
+
+  // --- RETURN ---
+  {
+    id: 'punish-second-serve',
+    name: 'Punish the Second Serve',
+    category: 'return',
+    description: 'A weak second serve lands short — step inside the baseline and attack it!',
+    difficulty: 'orange',
+    steps: [
+      {
+        // Weak second serve lands short (y:0.7 = inside service line)
+        // Short → step in and attack DTL right
+        description: 'Weak second serve to your forehand. Step in and punish it!',
+        ballPosition: { x: 0.65, y: 0.7 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Aggressive return!',
+        explanation: 'Short second serve = step in and attack! Put pressure on the server.',
+        wrongExplanation: 'That second serve was SHORT — step in and attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.5, y: 0.06 },
+      },
+      {
+        // Opponent scrambles to x:0.8, panics, hits short again to your left
+        // Short → finish DTL left, away from opponent at x:0.8
+        description: 'Your opponent is scrambling! Finish the point.',
+        ballPosition: { x: 0.35, y: 0.62 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctLabel: 'Winner down the line!',
+        explanation: 'Punish the weak serve, then finish into the open court!',
+        wrongExplanation: 'Your opponent is on the RIGHT — finish it to the far LEFT!',
+        opponentPosition: { x: 0.8, y: 0.1 },
+      },
+    ],
+  },
+  {
+    id: 'return-and-build',
+    name: 'Return & Build',
+    category: 'return',
+    description: 'Return the deep serve, rally patiently — don\'t attack until the short ball comes!',
+    difficulty: 'orange',
+    steps: [
+      {
+        // Deep first serve to your left (y:0.9)
+        // Deep → return cross-court from left → right
+        description: 'Deep first serve to your backhand. Get it back deep!',
+        ballPosition: { x: 0.2, y: 0.9 },
+        correctZone: { x: 0.75, y: 0.08, radius: 0.28 },
+        correctLabel: 'Deep return!',
+        explanation: 'Solid return! Now stay patient...',
+        wrongExplanation: 'Deep serve — return it DEEP CROSS-COURT to the far right!',
+        opponentPosition: { x: 0.5, y: 0.06 },
+      },
+      {
+        // Opponent at x:0.75, hits deep to your left again (y:0.87)
+        // STILL DEEP → rally cross-court again (patience!)
+        description: 'Another deep ball. Stay patient — don\'t force it!',
+        ballPosition: { x: 0.3, y: 0.87 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctLabel: 'Patient cross-court!',
+        explanation: 'Good discipline! That ball was deep — wait for the right one.',
+        wrongExplanation: 'That ball is still DEEP — rally cross-court, don\'t attack yet!',
+        opponentPosition: { x: 0.75, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.8, hits SHORT ball to your left (y:0.6)
+        // Short → NOW attack DTL left, away from opponent at x:0.8
+        description: 'Short ball at last! Now attack!',
+        ballPosition: { x: 0.35, y: 0.6 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack down the line!',
+        explanation: 'That\'s the one! Two patient rallies, then punish the short ball!',
+        wrongExplanation: 'THIS ball is short — attack DOWN THE LINE to the far left!',
+        opponentPosition: { x: 0.8, y: 0.1 },
+      },
+    ],
+  },
+
+  // --- RALLY ---
+  {
+    id: 'stay-patient',
+    name: 'Stay Patient',
+    category: 'rally',
+    description: 'Three deep balls in a row — keep rallying cross-court until you get the short ball to attack!',
+    difficulty: 'orange',
+    steps: [
+      {
+        // Deep ball right → cross-court left
+        description: 'Deep ball to your forehand. Rally it cross-court.',
+        ballPosition: { x: 0.7, y: 0.88 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctLabel: 'Deep cross-court!',
+        explanation: 'Good. That was deep — cross-court is the right choice.',
+        wrongExplanation: 'That ball was DEEP — rally it cross-court to the far left!',
+        opponentPosition: { x: 0.5, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.2, hits deep to your right (y:0.87)
+        // STILL DEEP → cross-court again
+        description: 'Another deep one. Keep rallying!',
+        ballPosition: { x: 0.65, y: 0.87 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Still deep — cross-court!',
+        explanation: 'Patient! Two deep balls, two cross-courts. Keep waiting...',
+        wrongExplanation: 'Still DEEP near your baseline — rally cross-court again!',
+        opponentPosition: { x: 0.2, y: 0.08 },
+      },
+      {
+        // Opponent recovers to x:0.3, hits ANOTHER deep one (y:0.86)
+        // STILL DEEP → cross-court AGAIN
+        description: 'Deep again! Don\'t get tempted — stay patient!',
+        ballPosition: { x: 0.68, y: 0.86 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Great patience!',
+        explanation: 'Three deep balls, three cross-courts. That\'s elite discipline!',
+        wrongExplanation: 'That ball is STILL deep — keep rallying cross-court! Don\'t attack yet!',
+        opponentPosition: { x: 0.3, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.2, finally hits SHORT (y:0.62)
+        // Short → attack DTL right, away from opponent at x:0.2
+        description: 'Short ball! NOW is the time!',
+        ballPosition: { x: 0.6, y: 0.62 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack down the line!',
+        explanation: 'THAT\'S how you do it! Patient, patient, patient... ATTACK!',
+        wrongExplanation: 'THIS one is short — NOW attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
+  {
+    id: 'switch-direction',
+    name: 'Switch & Attack',
+    category: 'rally',
+    description: 'Rally cross-court on both sides, then recognise the short ball and attack!',
+    difficulty: 'orange',
+    steps: [
+      {
+        // Deep ball LEFT → cross-court right
+        description: 'Deep ball to your backhand. Rally cross-court.',
+        ballPosition: { x: 0.3, y: 0.88 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Cross-court right!',
+        explanation: 'Good rally ball. Now get ready for the reply...',
+        wrongExplanation: 'Deep ball on your left — rally it cross-court to the far right!',
+        opponentPosition: { x: 0.5, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.8, hits deep to your RIGHT (y:0.86)
+        // DEEP → cross-court from right → left
+        description: 'Deep ball to your forehand now. Keep rallying!',
+        ballPosition: { x: 0.7, y: 0.86 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Cross-court left!',
+        explanation: 'Moving your opponent side to side. Stay patient...',
+        wrongExplanation: 'That\'s still a DEEP ball — rally cross-court to the far left!',
+        opponentPosition: { x: 0.8, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.2, hits SHORT ball to your right (y:0.6)
+        // Short → attack DTL right, away from opponent at x:0.2
+        description: 'Short ball to your forehand! Time to attack!',
+        ballPosition: { x: 0.6, y: 0.6 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack down the line!',
+        explanation: 'Rally, rally, then ATTACK the short ball!',
+        wrongExplanation: 'That ball is SHORT — attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
+
+  // --- ATTACK ---
+  {
+    id: 'recognise-short-ball',
+    name: 'Read the Depth',
+    category: 'attack',
+    description: 'Two deep balls then a short one — can you tell the difference and attack at the right time?',
+    difficulty: 'green',
+    steps: [
+      {
+        // Deep ball LEFT → must rally cross-court (NOT attack)
+        description: 'Ball to your backhand. What do you do?',
+        ballPosition: { x: 0.3, y: 0.89 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Rally cross-court!',
+        explanation: 'Correct! That ball was DEEP — cross-court is the smart play.',
+        wrongExplanation: 'Look at the depth — that ball is DEEP near your baseline. Rally cross-court!',
+        opponentPosition: { x: 0.5, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.8, deep ball to your RIGHT (y:0.86) → rally again
+        description: 'Ball to your forehand. Deep or short?',
+        ballPosition: { x: 0.65, y: 0.86 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Still deep — rally!',
+        explanation: 'Right again! Still deep — keep it cross-court.',
+        wrongExplanation: 'That ball is still DEEP — rally cross-court, don\'t attack yet!',
+        opponentPosition: { x: 0.8, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.2, SHORT ball RIGHT (y:0.6) → NOW attack
+        description: 'Ball to your forehand again. What about this one?',
+        ballPosition: { x: 0.6, y: 0.6 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Short ball — attack!',
+        explanation: 'You spotted it! Deep = rally, short = ATTACK down the line!',
+        wrongExplanation: 'This one is SHORT inside the service line — attack DOWN THE LINE!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
+  {
+    id: 'approach-volley-overhead',
+    name: 'Approach, Volley, Smash',
+    category: 'attack',
+    description: 'Approach the net on a short ball, put away the volley — or smash the lob!',
+    difficulty: 'red',
+    steps: [
+      {
+        // Short ball right → approach DTL
+        description: 'Short ball to your forehand. Approach the net!',
+        ballPosition: { x: 0.65, y: 0.6 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Approach down the line!',
+        explanation: 'Great approach! Now get to the net...',
+        wrongExplanation: 'Short ball on your right — approach DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.5, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.8, tries cross-court pass. You volley to open court.
+        description: 'At the net! Opponent tries to pass you cross-court.',
+        ballPosition: { x: 0.3, y: 0.5 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.28 },
+        correctLabel: 'Volley to open court!',
+        explanation: 'Great volley! But your opponent gets it back — and lobs you!',
+        wrongExplanation: 'Opponent is on the RIGHT — volley to the OPEN court on the far LEFT!',
+        opponentPosition: { x: 0.8, y: 0.12 },
+      },
+      {
+        // Opponent scrambled to x:0.2, throws up a lob. You're at net.
+        // Lob lands around net area (y:0.48) — overhead smash to open court right
+        description: 'They lob you! Smash it away!',
+        ballPosition: { x: 0.45, y: 0.48 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.28 },
+        correctLabel: 'SMASH!',
+        explanation: 'Approach, volley, SMASH! Complete net domination!',
+        wrongExplanation: 'Opponent is on the LEFT — smash it to the OPEN court on the far RIGHT!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
+
+  // --- DEFEND ---
+  {
+    id: 'reset-and-recover',
+    name: 'Reset & Recover',
+    category: 'defend',
+    description: 'Pushed wide under pressure — defend deep to get back in the rally, then attack when you can!',
+    difficulty: 'green',
+    steps: [
+      {
+        // Pushed wide to your left, very deep
+        // Under pressure → defend cross-court right
+        description: 'Big shot pushes you wide to your backhand! Get it back deep.',
+        ballPosition: { x: 0.1, y: 0.92 },
+        correctZone: { x: 0.75, y: 0.08, radius: 0.28 },
+        correctLabel: 'Deep cross-court!',
+        explanation: 'Great defense! Deep cross-court gives you time to recover.',
+        wrongExplanation: 'You\'re under pressure — go DEEP CROSS-COURT to the far right to stay in the point!',
+        opponentPosition: { x: 0.5, y: 0.06 },
+      },
+      {
+        // Opponent at x:0.75, hits deep to your right (y:0.87)
+        // Deep → rally cross-court from right → left
+        description: 'You\'re back in the rally. Keep building.',
+        ballPosition: { x: 0.7, y: 0.87 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctLabel: 'Deep cross-court!',
+        explanation: 'Solid! You\'ve recovered your position. Keep waiting...',
+        wrongExplanation: 'Deep ball — rally it cross-court to the far left!',
+        opponentPosition: { x: 0.75, y: 0.08 },
+      },
+      {
+        // Opponent at x:0.2, hits short ball to your right
+        // Short → attack DTL right
+        description: 'Short ball to your forehand! You\'ve earned this — attack!',
+        ballPosition: { x: 0.6, y: 0.62 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Attack down the line!',
+        explanation: 'Defended, recovered, then attacked the short ball. Complete point!',
+        wrongExplanation: 'Short ball — attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
+  {
+    id: 'scramble-and-counter',
+    name: 'Scramble & Counter',
+    category: 'defend',
+    description: 'Your opponent attacks you from side to side — survive the pressure, then counter-attack!',
+    difficulty: 'red',
+    steps: [
+      {
+        // Big shot pushes you deep right
+        // Deep → defend cross-court left
+        description: 'Powerful shot to your forehand corner! Stay in the point!',
+        ballPosition: { x: 0.85, y: 0.93 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Deep cross-court!',
+        explanation: 'Great scramble! Deep cross-court keeps you alive.',
+        wrongExplanation: 'Under pressure — go DEEP CROSS-COURT to stay in the point!',
+        opponentPosition: { x: 0.5, y: 0.06 },
+      },
+      {
+        // Opponent at x:0.2, attacks deep to your LEFT (y:0.91)
+        // Deep → defend cross-court right
+        description: 'They attack the other side! Scramble and get it back!',
+        ballPosition: { x: 0.15, y: 0.91 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctLabel: 'Great scramble!',
+        explanation: 'Still alive! Side to side — your defence is holding!',
+        wrongExplanation: 'Deep and wide — scramble it DEEP CROSS-COURT to stay in the rally!',
+        opponentPosition: { x: 0.2, y: 0.06 },
+      },
+      {
+        // Opponent at x:0.8, attacks deep right AGAIN (y:0.9)
+        // Deep → defend cross-court left
+        description: 'Another big shot to your forehand! Keep fighting!',
+        ballPosition: { x: 0.82, y: 0.9 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctLabel: 'Still defending!',
+        explanation: 'Incredible defence! Three big shots and you\'re still in this...',
+        wrongExplanation: 'Still under pressure — keep going DEEP CROSS-COURT!',
+        opponentPosition: { x: 0.8, y: 0.06 },
+      },
+      {
+        // Opponent at x:0.2, finally hits a shorter ball to your right (y:0.6)
+        // Short → counter-attack DTL right, away from opponent at x:0.2
+        description: 'Their attack runs out of steam — short ball! Counter-attack!',
+        ballPosition: { x: 0.6, y: 0.6 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctLabel: 'Counter-attack!',
+        explanation: 'INCREDIBLE! Three huge defences then you counter-attacked the short ball!',
+        wrongExplanation: 'Short ball at last — counter-attack DOWN THE LINE to the far right!',
+        opponentPosition: { x: 0.2, y: 0.1 },
+      },
+    ],
+  },
 ];
 
 export const difficultyColors = {
