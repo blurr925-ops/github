@@ -13,7 +13,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.15 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Alex hits a neutral ball to the middle. Where do you hit?',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.25, radius: 0.22 },
@@ -26,7 +26,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.68 },
-        opponentPosition: { x: 0.75, y: 0.18 },
+        opponentPosition: { x: 0.75, y: 0.07 },
         description: 'Alex floats a weak backhand reply. Time to finish!',
         correctShot: 'topspin',
         correctZone: { x: 0.2, y: 0.2, radius: 0.22 },
@@ -53,7 +53,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.4, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Mia sends a deep topspin ball. How do you neutralise?',
         correctShot: 'slice',
         correctZone: { x: 0.5, y: 0.3, radius: 0.24 },
@@ -66,7 +66,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.6, y: 0.58 },
-        opponentPosition: { x: 0.5, y: 0.18 },
+        opponentPosition: { x: 0.5, y: 0.07 },
         description: 'Mia pops up a short ball from the low slice. Now what?',
         correctShot: 'approach',
         correctZone: { x: 0.8, y: 0.25, radius: 0.22 },
@@ -93,7 +93,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Sam rallies deep to the centre. Build the point.',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
@@ -106,7 +106,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.62 },
-        opponentPosition: { x: 0.75, y: 0.18 },
+        opponentPosition: { x: 0.75, y: 0.07 },
         description: 'Sam stretches and hits a short reply. What now?',
         correctShot: 'topspin',
         correctZone: { x: 0.2, y: 0.25, radius: 0.22 },
@@ -119,7 +119,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.65, y: 0.55 },
-        opponentPosition: { x: 0.3, y: 0.22 },
+        opponentPosition: { x: 0.3, y: 0.08 },
         description: 'Sam barely gets it back — it lands short! Time to finish.',
         correctShot: 'approach',
         correctZone: { x: 0.75, y: 0.2, radius: 0.22 },
@@ -146,7 +146,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.88 },
-        opponentPosition: { x: 0.5, y: 0.1 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Jordan floats a soft ball back. Don\'t rush!',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
@@ -159,7 +159,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.6, y: 0.84 },
-        opponentPosition: { x: 0.75, y: 0.08 },
+        opponentPosition: { x: 0.75, y: 0.03 },
         description: 'Jordan is pinned deep on the backhand. Keep building!',
         correctShot: 'topspin',
         correctZone: { x: 0.2, y: 0.2, radius: 0.22 },
@@ -172,7 +172,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.35, y: 0.58 },
-        opponentPosition: { x: 0.25, y: 0.15 },
+        opponentPosition: { x: 0.25, y: 0.06 },
         description: 'Jordan is exhausted and hits a short ball. Finish it!',
         correctShot: 'approach',
         correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
@@ -199,7 +199,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Casey hits an approach shot and rushes to the net!',
         correctShot: 'slice',
         correctZone: { x: 0.5, y: 0.4, radius: 0.22 },
@@ -252,7 +252,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Riley hits a safe ball down the middle. Start working the angles!',
         correctShot: 'topspin',
         correctZone: { x: 0.15, y: 0.28, radius: 0.20 },
@@ -265,7 +265,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.25, y: 0.72 },
-        opponentPosition: { x: 0.2, y: 0.18 },
+        opponentPosition: { x: 0.2, y: 0.07 },
         description: 'Riley stretches and pushes it back. The other side is wide open!',
         correctShot: 'topspin',
         correctZone: { x: 0.85, y: 0.25, radius: 0.20 },
@@ -278,7 +278,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.7, y: 0.58 },
-        opponentPosition: { x: 0.8, y: 0.2 },
+        opponentPosition: { x: 0.8, y: 0.07 },
         description: 'Riley barely gets it back from wide — a weak, short ball!',
         correctShot: 'topspin',
         correctZone: { x: 0.15, y: 0.22, radius: 0.22 },
@@ -305,7 +305,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.7, y: 0.9 },
-        opponentPosition: { x: 0.5, y: 0.1 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Marcus fires a big serve to your right side!',
         correctShot: 'slice',
         correctZone: { x: 0.5, y: 0.32, radius: 0.22 },
@@ -318,7 +318,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.5, y: 0.86 },
-        opponentPosition: { x: 0.5, y: 0.14 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Marcus hits a hard forehand but it\'s not a winner. Stay patient!',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
@@ -331,7 +331,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.6, y: 0.58 },
-        opponentPosition: { x: 0.75, y: 0.16 },
+        opponentPosition: { x: 0.75, y: 0.06 },
         description: 'Marcus gets impatient and goes for too much — it lands short!',
         correctShot: 'approach',
         correctZone: { x: 0.2, y: 0.22, radius: 0.22 },
@@ -358,7 +358,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.85 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Taylor hits a smooth, rhythmic groundstroke. Break the pattern!',
         correctShot: 'slice',
         correctZone: { x: 0.2, y: 0.28, radius: 0.22 },
@@ -371,7 +371,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.84 },
-        opponentPosition: { x: 0.25, y: 0.14 },
+        opponentPosition: { x: 0.25, y: 0.05 },
         description: 'Taylor adjusts to the low ball. Now switch it up!',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
@@ -384,7 +384,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.7, y: 0.82 },
-        opponentPosition: { x: 0.75, y: 0.16 },
+        opponentPosition: { x: 0.75, y: 0.06 },
         description: 'Taylor is struggling with the changes. Keep mixing!',
         correctShot: 'slice',
         correctZone: { x: 0.2, y: 0.3, radius: 0.22 },
@@ -397,7 +397,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.58 },
-        opponentPosition: { x: 0.25, y: 0.2 },
+        opponentPosition: { x: 0.25, y: 0.07 },
         description: 'Taylor\'s frustrated and hits a short ball. Time to finish!',
         correctShot: 'approach',
         correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
@@ -424,7 +424,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.86 },
-        opponentPosition: { x: 0.5, y: 0.12 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'Kai returns your shot with interest — using your pace. Take the speed off!',
         correctShot: 'slice',
         correctZone: { x: 0.4, y: 0.3, radius: 0.22 },
@@ -437,7 +437,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.45, y: 0.84 },
-        opponentPosition: { x: 0.45, y: 0.14 },
+        opponentPosition: { x: 0.45, y: 0.05 },
         description: 'Kai floats a weaker ball — struggling without pace. Keep squeezing!',
         correctShot: 'slice',
         correctZone: { x: 0.65, y: 0.28, radius: 0.22 },
@@ -450,7 +450,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.55, y: 0.60 },
-        opponentPosition: { x: 0.6, y: 0.16 },
+        opponentPosition: { x: 0.6, y: 0.06 },
         description: 'Kai tries to create pace but the ball lands short! Now attack!',
         correctShot: 'topspin',
         correctZone: { x: 0.2, y: 0.24, radius: 0.22 },
@@ -463,7 +463,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.55 },
-        opponentPosition: { x: 0.25, y: 0.2 },
+        opponentPosition: { x: 0.25, y: 0.07 },
         description: 'Kai scrambles and barely gets it back. Finish the point!',
         correctShot: 'approach',
         correctZone: { x: 0.8, y: 0.22, radius: 0.22 },
@@ -490,7 +490,7 @@ export const levels = [
     steps: [
       {
         ballPosition: { x: 0.5, y: 0.88 },
-        opponentPosition: { x: 0.5, y: 0.1 },
+        opponentPosition: { x: 0.5, y: 0.05 },
         description: 'The coach hits a solid deep ball. Start building the point.',
         correctShot: 'topspin',
         correctZone: { x: 0.8, y: 0.24, radius: 0.20 },
@@ -503,7 +503,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.65, y: 0.84 },
-        opponentPosition: { x: 0.75, y: 0.16 },
+        opponentPosition: { x: 0.75, y: 0.05 },
         description: 'The coach gets it back crosscourt. Change the pace!',
         correctShot: 'slice',
         correctZone: { x: 0.2, y: 0.3, radius: 0.22 },
@@ -516,7 +516,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.82 },
-        opponentPosition: { x: 0.25, y: 0.15 },
+        opponentPosition: { x: 0.25, y: 0.05 },
         description: 'The coach adjusts but is slightly off-balance. Keep constructing!',
         correctShot: 'topspin',
         correctZone: { x: 0.85, y: 0.22, radius: 0.20 },
@@ -529,7 +529,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.7, y: 0.65 },
-        opponentPosition: { x: 0.8, y: 0.2 },
+        opponentPosition: { x: 0.8, y: 0.06 },
         description: 'The coach is stretched wide and hits a weak reply. Build more or attack?',
         correctShot: 'topspin',
         correctZone: { x: 0.2, y: 0.24, radius: 0.20 },
@@ -542,7 +542,7 @@ export const levels = [
       },
       {
         ballPosition: { x: 0.3, y: 0.55 },
-        opponentPosition: { x: 0.25, y: 0.22 },
+        opponentPosition: { x: 0.25, y: 0.07 },
         description: 'The coach barely gets it back — a short, weak ball. This is your moment!',
         correctShot: 'approach',
         correctZone: { x: 0.8, y: 0.2, radius: 0.22 },
