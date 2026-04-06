@@ -201,10 +201,12 @@ export default function CourtFirstPerson({
           <line x1={opp.x + 5 * s} y1={opp.y + 16 * s} x2={opp.x + 6 * s} y2={opp.y + 26 * s} stroke="#1e293b" strokeWidth={4 * s} strokeLinecap="round" />
           <rect x={opp.x - 11 * s} y={opp.y - 6 * s} width={22 * s} height={24 * s} rx={5 * s} fill="#ef4444" />
           <ellipse cx={opp.x} cy={opp.y - 5 * s} rx={6 * s} ry={3 * s} fill="#dc2626" />
-          <line x1={opp.x - 11 * s} y1={opp.y + 2 * s} x2={opp.x - 20 * s} y2={opp.y + 11 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
-          <line x1={opp.x + 11 * s} y1={opp.y + 2 * s} x2={opp.x + 24 * s} y2={opp.y - 8 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
-          <line x1={opp.x + 24 * s} y1={opp.y - 8 * s} x2={opp.x + 32 * s} y2={opp.y - 20 * s} stroke="#5c3d2e" strokeWidth={2.5 * s} strokeLinecap="round" />
-          <ellipse cx={opp.x + 35 * s} cy={opp.y - 25 * s} rx={6 * s} ry={9 * s} fill="none" stroke="#1e293b" strokeWidth={2 * s} transform={`rotate(-20, ${opp.x + 35 * s}, ${opp.y - 25 * s})`} />
+          {/* Left arm (opponent's left = our right) — no racket */}
+          <line x1={opp.x + 11 * s} y1={opp.y + 2 * s} x2={opp.x + 20 * s} y2={opp.y + 11 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
+          {/* Right arm (opponent's right = our left) — racket hand */}
+          <line x1={opp.x - 11 * s} y1={opp.y + 2 * s} x2={opp.x - 24 * s} y2={opp.y - 8 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
+          <line x1={opp.x - 24 * s} y1={opp.y - 8 * s} x2={opp.x - 32 * s} y2={opp.y - 20 * s} stroke="#5c3d2e" strokeWidth={2.5 * s} strokeLinecap="round" />
+          <ellipse cx={opp.x - 35 * s} cy={opp.y - 25 * s} rx={6 * s} ry={9 * s} fill="none" stroke="#1e293b" strokeWidth={2 * s} transform={`rotate(20, ${opp.x - 35 * s}, ${opp.y - 25 * s})`} />
           <circle cx={opp.x} cy={opp.y - 6 * s - 12 * s} r={12 * s} fill="#d4a574" />
           <ellipse cx={opp.x} cy={opp.y - 22 * s} rx={12 * s} ry={8 * s} fill="#2c1810" />
           <circle cx={opp.x - 3 * s} cy={opp.y - 19 * s} r={1.2 * s} fill="#1e293b" />
