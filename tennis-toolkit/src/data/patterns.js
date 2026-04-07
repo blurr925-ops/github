@@ -39,7 +39,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.2 to retrieve
         description: 'Deep ball to your forehand.',
         ballPosition: { x: 0.7, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Deep ball = rally cross-court. Patient and smart!',
         wrongExplanation: 'That ball was deep near your baseline — rally it cross-court to the far left!',
@@ -52,7 +52,7 @@ export const rallies = [
         // TARGET: DTL from right = far right (x:0.8) — AWAY from opponent at x:0.2
         description: 'Short ball to your right!',
         ballPosition: { x: 0.65, y: 0.62 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Short ball = step in and attack down the line!',
         wrongExplanation: 'That was a short ball on your right — attack DOWN THE LINE to the far right!',
@@ -74,7 +74,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.8
         description: 'Deep ball to your backhand.',
         ballPosition: { x: 0.3, y: 0.87 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Backhand cross-court, deep and solid!',
         wrongExplanation: 'Deep ball on your left — rally it cross-court to the far right!',
@@ -87,7 +87,7 @@ export const rallies = [
         // TARGET: DTL from left = far left (x:0.2) — AWAY from opponent at x:0.8
         description: 'Short ball to your left!',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Short ball on your left — attacked down the line into the open court!',
         wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left!',
@@ -109,7 +109,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.75
         description: 'Deep serve to your backhand.',
         ballPosition: { x: 0.2, y: 0.9 },
-        correctZone: { x: 0.75, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.75, y: 0.08, radius: 0.18 },
         correctLabel: 'Deep cross-court return!',
         explanation: 'Great return! Deep cross-court puts the server under pressure.',
         wrongExplanation: 'On the return, go DEEP CROSS-COURT — from your left, aim far right!',
@@ -122,7 +122,7 @@ export const rallies = [
         // TARGET: DTL from left = far left (x:0.2) — AWAY from opponent at x:0.75
         description: 'Weak short reply to your left.',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Return deep, wait for the short ball, attack down the line!',
         wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left!',
@@ -146,7 +146,7 @@ export const rallies = [
         // OPPONENT AFTER: scrambles to x:0.8 to chase it
         description: 'Short ball to your forehand. Approach the net!',
         ballPosition: { x: 0.65, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Approach down the line!',
         explanation: 'Approach shots go DOWN THE LINE — then follow the ball to the net!',
         wrongExplanation: 'Short ball on your right — approach DOWN THE LINE to the far right!',
@@ -159,7 +159,7 @@ export const rallies = [
         // TARGET: Volley to OPEN court = far LEFT (x:0.2) — AWAY from opponent at x:0.8
         description: 'You\'re at the net! Opponent tries to pass you. Put it away!',
         ballPosition: { x: 0.3, y: 0.5 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.18 },
         correctLabel: 'Volley to open court!',
         explanation: 'Approach DTL, volley to the open court. Champion play!',
         wrongExplanation: 'Your opponent is on the RIGHT — volley to the OPEN court on the far LEFT!',
@@ -181,7 +181,7 @@ export const rallies = [
         // OPPONENT AFTER: pushed back to x:0.2, behind baseline
         description: 'Deep ball to your forehand. Push them back!',
         ballPosition: { x: 0.7, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.06, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.06, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Deep and heavy! Your opponent is being pushed back...',
         wrongExplanation: 'Hit it DEEP cross-court to push your opponent behind the baseline!',
@@ -216,7 +216,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.2, then approaches the net
         description: 'Deep ball to your forehand. Start the rally.',
         ballPosition: { x: 0.7, y: 0.87 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Good rally ball! But watch out — your opponent is coming forward...',
         wrongExplanation: 'Deep ball on your right — rally it cross-court to the far left!',
@@ -230,7 +230,7 @@ export const rallies = [
         // TARGET: DTL from right = far right (x:0.8) — passes them on the right side
         description: 'Your opponent rushes to the net! Pass them!',
         ballPosition: { x: 0.65, y: 0.82 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Passing shot down the line!',
         explanation: 'BOOM! Right past them down the line!',
         wrongExplanation: 'Your opponent is at the net on the LEFT — pass them DOWN THE LINE to the far right!',
@@ -252,7 +252,7 @@ export const rallies = [
         // OPPONENT AFTER: turns and chases lob to x:0.7
         description: 'Opponent at the net smashes it wide to your left! Stay alive!',
         ballPosition: { x: 0.1, y: 0.92 },
-        correctZone: { x: 0.7, y: 0.05, radius: 0.28 },
+        correctZone: { x: 0.7, y: 0.05, radius: 0.18 },
         correctLabel: 'LOB! High and deep!',
         explanation: 'Smart play! A high lob over their head buys you time!',
         wrongExplanation: 'Stretched wide with the opponent at the net — LOB it HIGH and DEEP over their head!',
@@ -265,7 +265,7 @@ export const rallies = [
         // TARGET: DTL from left = far left (x:0.2) — AWAY from opponent at x:0.7
         description: 'Your lob worked! Weak short ball back. Finish the point!',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Defended, lobbed, then attacked down the line. Tennis IQ!',
         wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left!',
@@ -289,7 +289,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.8
         description: 'Deep ball to your backhand. Build the pattern.',
         ballPosition: { x: 0.3, y: 0.87 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Cross-court!',
         explanation: 'Good. Your opponent is starting to read a pattern...',
         wrongExplanation: 'Deep ball on your left — rally it cross-court to the far right!',
@@ -303,7 +303,7 @@ export const rallies = [
         // OPPONENT AFTER: recovers to center (x:0.55) — they know the pattern now
         description: 'Deep ball to your backhand again. One more cross-court to set the trap!',
         ballPosition: { x: 0.28, y: 0.86 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Cross-court again!',
         explanation: 'The trap is set! They expect cross-court every time now...',
         wrongExplanation: 'Keep going cross-court to the far right — set the trap!',
@@ -317,7 +317,7 @@ export const rallies = [
         // opponentReaction shows them diving right as ball goes left
         description: 'Your opponent expects cross-court again. Catch them out!',
         ballPosition: { x: 0.32, y: 0.85 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Wrong-footed!',
         explanation: 'GENIUS! They committed right but you went left — completely wrong-footed!',
         wrongExplanation: 'Your opponent is expecting cross-court RIGHT — go BEHIND them to the LEFT!',
@@ -355,7 +355,7 @@ export const rallies = [
         // OPPONENT AFTER: scrambles from x:0.15 to x:0.8
         description: 'Your wide serve stretched them! Short return to your right. Attack!',
         ballPosition: { x: 0.6, y: 0.65 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Serve wide, short return, attack DTL into the open court!',
         wrongExplanation: 'Short ball on your right — attack DOWN THE LINE to the far right!',
@@ -369,7 +369,7 @@ export const rallies = [
         // OPPONENT AFTER: scrambles from x:0.8 to x:0.2
         description: 'They scrambled but sent back another short ball to your left. Approach!',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Approach down the line!',
         explanation: 'Perfect approach shot! Now rush to the net!',
         wrongExplanation: 'Short ball on your left — approach DOWN THE LINE to the far left!',
@@ -382,7 +382,7 @@ export const rallies = [
         // TARGET: Volley to OPEN court = far RIGHT (x:0.8) — AWAY from opponent at x:0.2
         description: 'You\'re at the net! Opponent tries to pass you. Finish it!',
         ballPosition: { x: 0.7, y: 0.5 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Volley to open court!',
         explanation: 'UNSTOPPABLE! Serve wide, attack, approach, volley — total domination!',
         wrongExplanation: 'Your opponent is on the LEFT — volley to the OPEN court on the far RIGHT!',
@@ -404,7 +404,7 @@ export const rallies = [
         // OPPONENT AFTER: moves to x:0.8
         description: 'Big shot pushes you deep on your backhand. Stay in the point!',
         ballPosition: { x: 0.15, y: 0.92 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Solid defense! Deep cross-court buys you time.',
         wrongExplanation: 'Under pressure on your left — go DEEP CROSS-COURT to the far right!',
@@ -418,7 +418,7 @@ export const rallies = [
         // TARGET: DTL from left = far left (x:0.2) — opponent at x:0.8, catches them off guard
         description: 'They attack your backhand again! They\'re expecting cross-court.',
         ballPosition: { x: 0.2, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Down the line!',
         explanation: 'They expected cross-court but you went down the line!',
         wrongExplanation: 'Your opponent is on the RIGHT — go DOWN THE LINE to the far left!',
@@ -431,7 +431,7 @@ export const rallies = [
         // TARGET: DTL from right = far right (x:0.8) — AWAY from opponent at x:0.2
         description: 'They scrambled and hit a short ball. End it!',
         ballPosition: { x: 0.65, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Finish down the line!',
         explanation: 'WHAT A COMEBACK! Defended, changed direction, attacked the short ball!',
         wrongExplanation: 'Short ball on your right — finish it DOWN THE LINE to the far right!',
@@ -466,7 +466,7 @@ export const rallies = [
         // Short → attack DTL right, away from center opponent
         description: 'Weak return from a jammed opponent. Put it away!',
         ballPosition: { x: 0.55, y: 0.65 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack the open court!',
         explanation: 'T serve jams them, weak return, attack into the open court!',
         wrongExplanation: 'Your opponent is stuck in the MIDDLE — attack to the far RIGHT!',
@@ -497,7 +497,7 @@ export const rallies = [
         // DEEP → must rally cross-court, NOT attack
         description: 'Good return from your opponent — it\'s deep! Don\'t over-attack.',
         ballPosition: { x: 0.6, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Smart! Deep cross-court.',
         explanation: 'Patient play! The return was deep so you rallied — wait for a better ball.',
         wrongExplanation: 'That return was DEEP near your baseline — rally it cross-court, don\'t attack!',
@@ -508,7 +508,7 @@ export const rallies = [
         // Short → NOW attack DTL right
         description: 'Now you get a short ball! This time, attack!',
         ballPosition: { x: 0.6, y: 0.62 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'That\'s the difference — deep ball = rally, short ball = ATTACK!',
         wrongExplanation: 'THIS ball is short — NOW you can attack DOWN THE LINE to the far right!',
@@ -530,7 +530,7 @@ export const rallies = [
         // Short → step in and attack DTL right
         description: 'Weak second serve to your forehand. Step in and punish it!',
         ballPosition: { x: 0.65, y: 0.7 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Aggressive return!',
         explanation: 'Short second serve = step in and attack! Put pressure on the server.',
         wrongExplanation: 'That second serve was SHORT — step in and attack DOWN THE LINE to the far right!',
@@ -541,7 +541,7 @@ export const rallies = [
         // Short → finish DTL left, away from opponent at x:0.8
         description: 'Your opponent is scrambling! Finish the point.',
         ballPosition: { x: 0.35, y: 0.62 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Winner down the line!',
         explanation: 'Punish the weak serve, then finish into the open court!',
         wrongExplanation: 'Your opponent is on the RIGHT — finish it to the far LEFT!',
@@ -561,7 +561,7 @@ export const rallies = [
         // Deep → return cross-court from left → right
         description: 'Deep first serve to your backhand. Get it back deep!',
         ballPosition: { x: 0.2, y: 0.9 },
-        correctZone: { x: 0.75, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.75, y: 0.08, radius: 0.18 },
         correctLabel: 'Deep return!',
         explanation: 'Solid return! Now stay patient...',
         wrongExplanation: 'Deep serve — return it DEEP CROSS-COURT to the far right!',
@@ -572,7 +572,7 @@ export const rallies = [
         // STILL DEEP → rally cross-court again (patience!)
         description: 'Another deep ball. Stay patient — don\'t force it!',
         ballPosition: { x: 0.3, y: 0.87 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Patient cross-court!',
         explanation: 'Good discipline! That ball was deep — wait for the right one.',
         wrongExplanation: 'That ball is still DEEP — rally cross-court, don\'t attack yet!',
@@ -583,7 +583,7 @@ export const rallies = [
         // Short → NOW attack DTL left, away from opponent at x:0.8
         description: 'Short ball at last! Now attack!',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'That\'s the one! Two patient rallies, then punish the short ball!',
         wrongExplanation: 'THIS ball is short — attack DOWN THE LINE to the far left!',
@@ -604,7 +604,7 @@ export const rallies = [
         // Deep ball right → cross-court left
         description: 'Deep ball to your forehand. Rally it cross-court.',
         ballPosition: { x: 0.7, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Good. That was deep — cross-court is the right choice.',
         wrongExplanation: 'That ball was DEEP — rally it cross-court to the far left!',
@@ -615,7 +615,7 @@ export const rallies = [
         // STILL DEEP → cross-court again
         description: 'Another deep one. Keep rallying!',
         ballPosition: { x: 0.65, y: 0.87 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Still deep — cross-court!',
         explanation: 'Patient! Two deep balls, two cross-courts. Keep waiting...',
         wrongExplanation: 'Still DEEP near your baseline — rally cross-court again!',
@@ -626,7 +626,7 @@ export const rallies = [
         // STILL DEEP → cross-court AGAIN
         description: 'Deep again! Don\'t get tempted — stay patient!',
         ballPosition: { x: 0.68, y: 0.86 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Great patience!',
         explanation: 'Three deep balls, three cross-courts. That\'s elite discipline!',
         wrongExplanation: 'That ball is STILL deep — keep rallying cross-court! Don\'t attack yet!',
@@ -637,7 +637,7 @@ export const rallies = [
         // Short → attack DTL right, away from opponent at x:0.2
         description: 'Short ball! NOW is the time!',
         ballPosition: { x: 0.6, y: 0.62 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'THAT\'S how you do it! Patient, patient, patient... ATTACK!',
         wrongExplanation: 'THIS one is short — NOW attack DOWN THE LINE to the far right!',
@@ -656,7 +656,7 @@ export const rallies = [
         // Deep ball LEFT → cross-court right
         description: 'Deep ball to your backhand. Rally cross-court.',
         ballPosition: { x: 0.3, y: 0.88 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Cross-court right!',
         explanation: 'Good rally ball. Now get ready for the reply...',
         wrongExplanation: 'Deep ball on your left — rally it cross-court to the far right!',
@@ -667,7 +667,7 @@ export const rallies = [
         // DEEP → cross-court from right → left
         description: 'Deep ball to your forehand now. Keep rallying!',
         ballPosition: { x: 0.7, y: 0.86 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Cross-court left!',
         explanation: 'Moving your opponent side to side. Stay patient...',
         wrongExplanation: 'That\'s still a DEEP ball — rally cross-court to the far left!',
@@ -678,7 +678,7 @@ export const rallies = [
         // Short → attack DTL right, away from opponent at x:0.2
         description: 'Short ball to your forehand! Time to attack!',
         ballPosition: { x: 0.6, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Rally, rally, then ATTACK the short ball!',
         wrongExplanation: 'That ball is SHORT — attack DOWN THE LINE to the far right!',
@@ -699,7 +699,7 @@ export const rallies = [
         // Deep ball LEFT → must rally cross-court (NOT attack)
         description: 'Ball to your backhand. What do you do?',
         ballPosition: { x: 0.3, y: 0.89 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Rally cross-court!',
         explanation: 'Correct! That ball was DEEP — cross-court is the smart play.',
         wrongExplanation: 'Look at the depth — that ball is DEEP near your baseline. Rally cross-court!',
@@ -709,7 +709,7 @@ export const rallies = [
         // Opponent at x:0.8, deep ball to your RIGHT (y:0.86) → rally again
         description: 'Ball to your forehand. Deep or short?',
         ballPosition: { x: 0.65, y: 0.86 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Still deep — rally!',
         explanation: 'Right again! Still deep — keep it cross-court.',
         wrongExplanation: 'That ball is still DEEP — rally cross-court, don\'t attack yet!',
@@ -719,7 +719,7 @@ export const rallies = [
         // Opponent at x:0.2, SHORT ball RIGHT (y:0.6) → NOW attack
         description: 'Ball to your forehand again. What about this one?',
         ballPosition: { x: 0.6, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Short ball — attack!',
         explanation: 'You spotted it! Deep = rally, short = ATTACK down the line!',
         wrongExplanation: 'This one is SHORT inside the service line — attack DOWN THE LINE!',
@@ -738,7 +738,7 @@ export const rallies = [
         // Short ball right → approach DTL
         description: 'Short ball to your forehand. Approach the net!',
         ballPosition: { x: 0.65, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Approach down the line!',
         explanation: 'Great approach! Now get to the net...',
         wrongExplanation: 'Short ball on your right — approach DOWN THE LINE to the far right!',
@@ -748,7 +748,7 @@ export const rallies = [
         // Opponent at x:0.8, tries cross-court pass. You volley to open court.
         description: 'At the net! Opponent tries to pass you cross-court.',
         ballPosition: { x: 0.3, y: 0.5 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.18 },
         correctLabel: 'Volley to open court!',
         explanation: 'Great volley! But your opponent gets it back — and lobs you!',
         wrongExplanation: 'Opponent is on the RIGHT — volley to the OPEN court on the far LEFT!',
@@ -759,7 +759,7 @@ export const rallies = [
         // Lob lands around net area (y:0.48) — overhead smash to open court right
         description: 'They lob you! Smash it away!',
         ballPosition: { x: 0.45, y: 0.48 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.18 },
         correctLabel: 'SMASH!',
         explanation: 'Approach, volley, SMASH! Complete net domination!',
         wrongExplanation: 'Opponent is on the LEFT — smash it to the OPEN court on the far RIGHT!',
@@ -781,7 +781,7 @@ export const rallies = [
         // Under pressure → defend cross-court right
         description: 'Big shot pushes you wide to your backhand! Get it back deep.',
         ballPosition: { x: 0.1, y: 0.92 },
-        correctZone: { x: 0.75, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.75, y: 0.08, radius: 0.18 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Great defense! Deep cross-court gives you time to recover.',
         wrongExplanation: 'You\'re under pressure — go DEEP CROSS-COURT to the far right to stay in the point!',
@@ -792,7 +792,7 @@ export const rallies = [
         // Deep → rally cross-court from right → left
         description: 'You\'re back in the rally. Keep building.',
         ballPosition: { x: 0.7, y: 0.87 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Solid! You\'ve recovered your position. Keep waiting...',
         wrongExplanation: 'Deep ball — rally it cross-court to the far left!',
@@ -803,7 +803,7 @@ export const rallies = [
         // Short → attack DTL right
         description: 'Short ball to your forehand! You\'ve earned this — attack!',
         ballPosition: { x: 0.6, y: 0.62 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'Defended, recovered, then attacked the short ball. Complete point!',
         wrongExplanation: 'Short ball — attack DOWN THE LINE to the far right!',
@@ -823,7 +823,7 @@ export const rallies = [
         // Deep → defend cross-court left
         description: 'Powerful shot to your forehand corner! Stay in the point!',
         ballPosition: { x: 0.85, y: 0.93 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Deep cross-court!',
         explanation: 'Great scramble! Deep cross-court keeps you alive.',
         wrongExplanation: 'Under pressure — go DEEP CROSS-COURT to stay in the point!',
@@ -834,7 +834,7 @@ export const rallies = [
         // Deep → defend cross-court right
         description: 'They attack the other side! Scramble and get it back!',
         ballPosition: { x: 0.15, y: 0.91 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Great scramble!',
         explanation: 'Still alive! Side to side — your defence is holding!',
         wrongExplanation: 'Deep and wide — scramble it DEEP CROSS-COURT to stay in the rally!',
@@ -845,7 +845,7 @@ export const rallies = [
         // Deep → defend cross-court left
         description: 'Another big shot to your forehand! Keep fighting!',
         ballPosition: { x: 0.82, y: 0.9 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Still defending!',
         explanation: 'Incredible defence! Three big shots and you\'re still in this...',
         wrongExplanation: 'Still under pressure — keep going DEEP CROSS-COURT!',
@@ -856,7 +856,7 @@ export const rallies = [
         // Short → counter-attack DTL right, away from opponent at x:0.2
         description: 'Their attack runs out of steam — short ball! Counter-attack!',
         ballPosition: { x: 0.6, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Counter-attack!',
         explanation: 'INCREDIBLE! Three huge defences then you counter-attacked the short ball!',
         wrongExplanation: 'Short ball at last — counter-attack DOWN THE LINE to the far right!',
@@ -878,7 +878,7 @@ export const rallies = [
         // Step 1: Opp center. Deep RIGHT. XC left.
         description: 'Deep ball to your forehand. Start the rally.',
         ballPosition: { x: 0.7, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Cross-court!',
         explanation: 'Good start. Deep ball = cross-court. Stay patient...',
         wrongExplanation: 'Deep ball — rally it cross-court to the far left!',
@@ -888,7 +888,7 @@ export const rallies = [
         // Step 2: Opp at 0.2 hits XC to your right. Deep. XC left again.
         description: 'Deep again. Keep rallying!',
         ballPosition: { x: 0.65, y: 0.87 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Patient cross-court!',
         explanation: 'Two deep balls, two cross-courts. Good discipline.',
         wrongExplanation: 'Still deep — keep rallying cross-court!',
@@ -898,7 +898,7 @@ export const rallies = [
         // Step 3: Opp recovered to 0.25, hits DTL to your left. Deep. XC right.
         description: 'Switched to your backhand. Deep ball — what do you do?',
         ballPosition: { x: 0.28, y: 0.85 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Cross-court right!',
         explanation: 'Direction changed but the ball is still deep — cross-court is correct.',
         wrongExplanation: 'Deep ball on your left — rally cross-court to the far right!',
@@ -908,7 +908,7 @@ export const rallies = [
         // Step 4: Opp at 0.8 hits XC to your left. Deep. XC right again.
         description: 'Deep to your backhand again. Stay in the rally!',
         ballPosition: { x: 0.3, y: 0.86 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Still rallying!',
         explanation: 'Four shots deep. Your patience is being tested...',
         wrongExplanation: 'Deep ball — don\'t attack! Rally cross-court to the far right!',
@@ -918,7 +918,7 @@ export const rallies = [
         // Step 5: Opp at 0.75 hits DTL to your right. Deep. XC left.
         description: 'Back to your forehand. Deep again — don\'t get tempted!',
         ballPosition: { x: 0.7, y: 0.84 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Five deep — still patient!',
         explanation: 'Five deep balls and you haven\'t forced it once. Elite patience.',
         wrongExplanation: 'STILL deep — rally cross-court to the far left! Wait for the short ball!',
@@ -928,7 +928,7 @@ export const rallies = [
         // Step 6: Opp at 0.2 hits XC to your right. Deep. XC left.
         description: 'One more deep ball. Hold your nerve!',
         ballPosition: { x: 0.68, y: 0.85 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Incredible patience!',
         explanation: 'SIX deep rallies! Your opponent is starting to tire...',
         wrongExplanation: 'Deep! Keep going cross-court — the short ball is coming!',
@@ -938,7 +938,7 @@ export const rallies = [
         // Step 7: Opp at 0.25 hits SHORT to your right. Approach DTL right.
         description: 'SHORT BALL! Approach the net!',
         ballPosition: { x: 0.6, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Approach down the line!',
         explanation: 'After six patient rallies — you earned this! Approach the net!',
         wrongExplanation: 'That\'s the short ball — approach DOWN THE LINE to the far right!',
@@ -948,7 +948,7 @@ export const rallies = [
         // Step 8: Opp scrambles to 0.8, tries pass to your left. Volley open court.
         description: 'At the net! Opponent tries to pass you. Finish it!',
         ballPosition: { x: 0.3, y: 0.5 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.18 },
         correctLabel: 'Volley winner!',
         explanation: 'WHAT A POINT! Six patient rallies, approach, volley — textbook tennis!',
         wrongExplanation: 'Opponent is on the RIGHT — volley to the OPEN court on the far LEFT!',
@@ -978,7 +978,7 @@ export const rallies = [
         // Opp stretched to 0.15. DEEP return to right. Must rally, not attack.
         description: 'Deep return! Don\'t rush — rally cross-court.',
         ballPosition: { x: 0.6, y: 0.88 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Patient cross-court!',
         explanation: 'Smart. The return was deep — rally and wait.',
         wrongExplanation: 'That return is DEEP — rally cross-court, don\'t attack!',
@@ -988,7 +988,7 @@ export const rallies = [
         // Opp recovered to 0.25. Deep to your right. XC left.
         description: 'Another deep ball. Keep building.',
         ballPosition: { x: 0.65, y: 0.86 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Cross-court again!',
         explanation: 'Two rallies after the serve. Patience pays off...',
         wrongExplanation: 'Still deep — rally cross-court to the far left!',
@@ -998,7 +998,7 @@ export const rallies = [
         // Opp at 0.2. Hits DTL to your left. Deep. XC right.
         description: 'Switched to your backhand. Still deep!',
         ballPosition: { x: 0.3, y: 0.85 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Cross-court right!',
         explanation: 'Deep ball on the backhand — cross-court is the right call.',
         wrongExplanation: 'Deep ball on your left — cross-court to the far right!',
@@ -1008,7 +1008,7 @@ export const rallies = [
         // Opp at 0.8. Deep to your left. XC right.
         description: 'Deep again to your backhand. One more rally!',
         ballPosition: { x: 0.32, y: 0.87 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Still patient!',
         explanation: 'Four rallies after the serve. The opening is coming...',
         wrongExplanation: 'Deep — rally cross-court to the far right!',
@@ -1018,7 +1018,7 @@ export const rallies = [
         // Opp at 0.75. SHORT ball to your right. Approach DTL.
         description: 'Short ball to your forehand! Approach!',
         ballPosition: { x: 0.6, y: 0.6 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'Approach down the line!',
         explanation: 'Finally the short ball! Rush to the net!',
         wrongExplanation: 'Short ball — approach DOWN THE LINE to the far right!',
@@ -1028,7 +1028,7 @@ export const rallies = [
         // Opp scrambles to 0.8. Passes XC to your left. Volley open court.
         description: 'At the net! Opponent tries a cross-court pass.',
         ballPosition: { x: 0.3, y: 0.5 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.18 },
         correctLabel: 'Volley to open court!',
         explanation: 'Great volley! But they get one more ball back...',
         wrongExplanation: 'Opponent is on the RIGHT — volley to the OPEN court on the LEFT!',
@@ -1038,7 +1038,7 @@ export const rallies = [
         // Opp scrambles to 0.2. Throws up a lob. Smash to open court right.
         description: 'Desperate lob! Put it away with a smash!',
         ballPosition: { x: 0.45, y: 0.48 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.28 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.18 },
         correctLabel: 'SMASH!',
         explanation: 'INCREDIBLE POINT! Serve, 4 patient rallies, approach, volley, SMASH!',
         wrongExplanation: 'Opponent is on the LEFT — smash to the OPEN court on the RIGHT!',
@@ -1057,7 +1057,7 @@ export const rallies = [
         // Big shot deep LEFT. Defend XC right.
         description: 'Huge shot to your backhand corner! Scramble!',
         ballPosition: { x: 0.1, y: 0.93 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Great defence!',
         explanation: 'Deep cross-court under pressure. Stay alive!',
         wrongExplanation: 'Under pressure — go DEEP CROSS-COURT to the far right!',
@@ -1067,7 +1067,7 @@ export const rallies = [
         // Opp at 0.8. Big shot deep RIGHT. Defend XC left.
         description: 'They attack the other corner! Get it back!',
         ballPosition: { x: 0.85, y: 0.92 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Still alive!',
         explanation: 'Side to side but you\'re hanging in there!',
         wrongExplanation: 'Scramble it DEEP CROSS-COURT to the far left!',
@@ -1077,7 +1077,7 @@ export const rallies = [
         // Opp at 0.2. Big shot deep LEFT again. Defend XC right.
         description: 'Back to your backhand! They won\'t let up!',
         ballPosition: { x: 0.15, y: 0.91 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Incredible scramble!',
         explanation: 'Three big shots defended. The pressure is easing...',
         wrongExplanation: 'Still under attack — go DEEP CROSS-COURT to the far right!',
@@ -1087,7 +1087,7 @@ export const rallies = [
         // Opp at 0.8. Hits deep but less aggressive to your RIGHT. Rally XC left.
         description: 'The pressure eases slightly. Deep ball to your forehand.',
         ballPosition: { x: 0.72, y: 0.87 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Solid rally ball!',
         explanation: 'Back in the rally now. Keep building...',
         wrongExplanation: 'Deep ball — rally cross-court to the far left!',
@@ -1097,7 +1097,7 @@ export const rallies = [
         // Opp at 0.2. Deep to your right. Rally XC left.
         description: 'Deep to your forehand. Stay patient!',
         ballPosition: { x: 0.65, y: 0.86 },
-        correctZone: { x: 0.2, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.08, radius: 0.15 },
         correctLabel: 'Patient cross-court!',
         explanation: 'Recovered from the attack. Now you\'re dictating...',
         wrongExplanation: 'Still deep — rally cross-court to the far left!',
@@ -1107,7 +1107,7 @@ export const rallies = [
         // Opp at 0.25. Deep to your left. XC right.
         description: 'Deep to your backhand. Nearly there...',
         ballPosition: { x: 0.3, y: 0.85 },
-        correctZone: { x: 0.8, y: 0.08, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.08, radius: 0.15 },
         correctLabel: 'Building nicely!',
         explanation: 'You\'ve turned defence into a rally. Wait for it...',
         wrongExplanation: 'Deep ball — rally cross-court to the far right!',
@@ -1117,7 +1117,7 @@ export const rallies = [
         // Opp at 0.8. SHORT ball to your left. Attack DTL left.
         description: 'Short ball! After all that defending — attack!',
         ballPosition: { x: 0.35, y: 0.6 },
-        correctZone: { x: 0.2, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.2, y: 0.1, radius: 0.15 },
         correctLabel: 'Attack down the line!',
         explanation: 'From scrambling to attacking! One more to finish...',
         wrongExplanation: 'Short ball on your left — attack DOWN THE LINE to the far left!',
@@ -1127,7 +1127,7 @@ export const rallies = [
         // Opp scrambles to 0.2. Short ball to your right. Finish DTL right.
         description: 'They\'re scrambling now! Finish the point!',
         ballPosition: { x: 0.6, y: 0.62 },
-        correctZone: { x: 0.8, y: 0.1, radius: 0.25 },
+        correctZone: { x: 0.8, y: 0.1, radius: 0.15 },
         correctLabel: 'WINNER!',
         explanation: 'THE GREAT ESCAPE! Defended 3 attacks, rallied back, then won with 2 winners!',
         wrongExplanation: 'Your opponent is on the LEFT — finish it DOWN THE LINE to the far right!',

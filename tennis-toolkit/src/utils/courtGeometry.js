@@ -18,6 +18,9 @@ export const COURT = {
 export function isInZone(point, zone) {
   // Reject taps on the player's side of the net — shots must land on opponent's half
   if (point.y > 0.5) return false;
+  // Enforce depth accuracy — a "deep" zone can't accept taps inside the service box
+  // Max 0.18 difference in y (depth) between tap and target
+  if (Math.abs(point.y - zone.y) > 0.18) return false;
   const dx = point.x - zone.x;
   const dy = point.y - zone.y;
   // Scale radius inversely with perspective compression, capped at 0.30
