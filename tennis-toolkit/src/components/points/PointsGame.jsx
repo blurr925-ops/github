@@ -204,6 +204,8 @@ export default function PointsGame({ level, onComplete, onBack }) {
 
   const handleTap = useCallback((point) => {
     if (phase !== 'play' || result) return;
+    // Ignore taps on your own side of the net
+    if (point.y > 0.5) return;
     if (timerRef.current) cancelAnimationFrame(timerRef.current);
     setTapPosition(point);
     setRacketSwing(true);
