@@ -138,6 +138,14 @@ export default function CourtFirstPerson({
           <stop offset="0%" stopColor="#f0ff44" />
           <stop offset="100%" stopColor="#a3cc00" />
         </radialGradient>
+        <linearGradient id="tealShirt" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#06b6d4" />
+          <stop offset="100%" stopColor="#0891b2" />
+        </linearGradient>
+        <linearGradient id="redShirt" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#ef4444" />
+        </linearGradient>
       </defs>
 
       {/* Sky */}
@@ -189,28 +197,77 @@ export default function CourtFirstPerson({
       <rect x={COURT.netNearLeft - 10} y={COURT.netY - 8} width="4" height="22" rx="2" fill="#c0c0c0" />
       <rect x={COURT.netNearRight + 6} y={COURT.netY - 8} width="4" height="22" rx="2" fill="#c0c0c0" />
 
-      {/* OPPONENT */}
+      {/* OPPONENT — cartoon style, red outfit, facing us */}
       {opp && (() => {
         const s = oppSc * 1.8;
+        const ox = opp.x;
+        const oy = opp.y;
         return (
-        <g opacity="0.95">
-          <ellipse cx={opp.x} cy={opp.y + 30 * s} rx={12 * s} ry={4 * s} fill="rgba(0,0,0,0.3)" />
-          <ellipse cx={opp.x - 6 * s} cy={opp.y + 28 * s} rx={5 * s} ry={2.5 * s} fill="#f8fafc" />
-          <ellipse cx={opp.x + 6 * s} cy={opp.y + 28 * s} rx={5 * s} ry={2.5 * s} fill="#f8fafc" />
-          <line x1={opp.x - 5 * s} y1={opp.y + 16 * s} x2={opp.x - 6 * s} y2={opp.y + 26 * s} stroke="#1e293b" strokeWidth={4 * s} strokeLinecap="round" />
-          <line x1={opp.x + 5 * s} y1={opp.y + 16 * s} x2={opp.x + 6 * s} y2={opp.y + 26 * s} stroke="#1e293b" strokeWidth={4 * s} strokeLinecap="round" />
-          <rect x={opp.x - 11 * s} y={opp.y - 6 * s} width={22 * s} height={24 * s} rx={5 * s} fill="#ef4444" />
-          <ellipse cx={opp.x} cy={opp.y - 5 * s} rx={6 * s} ry={3 * s} fill="#dc2626" />
-          {/* Left arm (opponent's left = our right) — no racket */}
-          <line x1={opp.x + 11 * s} y1={opp.y + 2 * s} x2={opp.x + 20 * s} y2={opp.y + 11 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
-          {/* Right arm (opponent's right = our left) — racket hand */}
-          <line x1={opp.x - 11 * s} y1={opp.y + 2 * s} x2={opp.x - 24 * s} y2={opp.y - 8 * s} stroke="#d4a574" strokeWidth={3.5 * s} strokeLinecap="round" />
-          <line x1={opp.x - 24 * s} y1={opp.y - 8 * s} x2={opp.x - 32 * s} y2={opp.y - 20 * s} stroke="#5c3d2e" strokeWidth={2.5 * s} strokeLinecap="round" />
-          <ellipse cx={opp.x - 35 * s} cy={opp.y - 25 * s} rx={6 * s} ry={9 * s} fill="none" stroke="#1e293b" strokeWidth={2 * s} transform={`rotate(20, ${opp.x - 35 * s}, ${opp.y - 25 * s})`} />
-          <circle cx={opp.x} cy={opp.y - 6 * s - 12 * s} r={12 * s} fill="#d4a574" />
-          <ellipse cx={opp.x} cy={opp.y - 22 * s} rx={12 * s} ry={8 * s} fill="#2c1810" />
-          <circle cx={opp.x - 3 * s} cy={opp.y - 19 * s} r={1.2 * s} fill="#1e293b" />
-          <circle cx={opp.x + 3 * s} cy={opp.y - 19 * s} r={1.2 * s} fill="#1e293b" />
+        <g>
+          {/* Ground shadow */}
+          <ellipse cx={ox} cy={oy + 32 * s} rx={16 * s} ry={5 * s} fill="rgba(0,0,0,0.25)" />
+          {/* Shoes — red with white sole */}
+          <ellipse cx={ox - 7 * s} cy={oy + 30 * s} rx={7 * s} ry={3.5 * s} fill="#ef4444" />
+          <ellipse cx={ox - 7 * s} cy={oy + 31.5 * s} rx={7 * s} ry={2 * s} fill="#f8fafc" />
+          <ellipse cx={ox + 7 * s} cy={oy + 30 * s} rx={7 * s} ry={3.5 * s} fill="#ef4444" />
+          <ellipse cx={ox + 7 * s} cy={oy + 31.5 * s} rx={7 * s} ry={2 * s} fill="#f8fafc" />
+          {/* White socks */}
+          <line x1={ox - 6 * s} y1={oy + 24 * s} x2={ox - 7 * s} y2={oy + 28 * s} stroke="#f8fafc" strokeWidth={5 * s} strokeLinecap="round" />
+          <line x1={ox + 6 * s} y1={oy + 24 * s} x2={ox + 7 * s} y2={oy + 28 * s} stroke="#f8fafc" strokeWidth={5 * s} strokeLinecap="round" />
+          {/* Legs — skin tone */}
+          <line x1={ox - 5 * s} y1={oy + 17 * s} x2={ox - 6 * s} y2={oy + 25 * s} stroke="#e8b896" strokeWidth={5 * s} strokeLinecap="round" />
+          <line x1={ox + 5 * s} y1={oy + 17 * s} x2={ox + 6 * s} y2={oy + 25 * s} stroke="#e8b896" strokeWidth={5 * s} strokeLinecap="round" />
+          {/* Shorts — dark red */}
+          <path d={`M ${ox - 12 * s} ${oy + 10 * s} Q ${ox} ${oy + 20 * s} ${ox + 12 * s} ${oy + 10 * s} L ${ox + 10 * s} ${oy + 18 * s} Q ${ox} ${oy + 22 * s} ${ox - 10 * s} ${oy + 18 * s} Z`} fill="#b91c1c" />
+          {/* Body — red polo shirt */}
+          <path d={`M ${ox - 13 * s} ${oy - 8 * s} Q ${ox - 14 * s} ${oy + 12 * s} ${ox - 12 * s} ${oy + 12 * s} Q ${ox} ${oy + 15 * s} ${ox + 12 * s} ${oy + 12 * s} Q ${ox + 14 * s} ${oy + 12 * s} ${ox + 13 * s} ${oy - 8 * s} Z`} fill="#ef4444" />
+          {/* White collar */}
+          <path d={`M ${ox - 8 * s} ${oy - 8 * s} Q ${ox} ${oy - 5 * s} ${ox + 8 * s} ${oy - 8 * s} Q ${ox} ${oy - 11 * s} ${ox - 8 * s} ${oy - 8 * s}`} fill="#f8fafc" />
+          {/* White belt stripe */}
+          <rect x={ox - 12 * s} y={oy + 9 * s} width={24 * s} height={3 * s} rx={1.5 * s} fill="#f8fafc" opacity="0.6" />
+          {/* Left arm (their left = our right) — free hand */}
+          <line x1={ox + 13 * s} y1={oy - 2 * s} x2={ox + 22 * s} y2={oy + 10 * s} stroke="#e8b896" strokeWidth={4.5 * s} strokeLinecap="round" />
+          {/* Red wristband — left */}
+          <line x1={ox + 21 * s} y1={oy + 8.5 * s} x2={ox + 23 * s} y2={oy + 11.5 * s} stroke="#b91c1c" strokeWidth={3 * s} strokeLinecap="round" />
+          {/* Right arm (their right = our left) — racket hand */}
+          <line x1={ox - 13 * s} y1={oy - 2 * s} x2={ox - 24 * s} y2={oy - 10 * s} stroke="#e8b896" strokeWidth={4.5 * s} strokeLinecap="round" />
+          {/* Red wristband — right */}
+          <line x1={ox - 22 * s} y1={oy - 8.5 * s} x2={ox - 25 * s} y2={oy - 11 * s} stroke="#b91c1c" strokeWidth={3 * s} strokeLinecap="round" />
+          {/* Racket handle */}
+          <line x1={ox - 24 * s} y1={oy - 10 * s} x2={ox - 30 * s} y2={oy - 22 * s} stroke="#c08040" strokeWidth={2.5 * s} strokeLinecap="round" />
+          {/* Racket grip tape */}
+          <line x1={ox - 24 * s} y1={oy - 10 * s} x2={ox - 26 * s} y2={oy - 14 * s} stroke="#f8fafc" strokeWidth={3 * s} strokeLinecap="round" />
+          {/* Racket head — with strings */}
+          <ellipse cx={ox - 33 * s} cy={oy - 28 * s} rx={6.5 * s} ry={10 * s} fill="rgba(255,255,255,0.15)" stroke="#1e293b" strokeWidth={2 * s} transform={`rotate(20, ${ox - 33 * s}, ${oy - 28 * s})`} />
+          {/* String pattern (simplified) */}
+          <line x1={ox - 33 * s} y1={oy - 36 * s} x2={ox - 33 * s} y2={oy - 20 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.4" />
+          <line x1={ox - 38 * s} y1={oy - 28 * s} x2={ox - 28 * s} y2={oy - 28 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.4" />
+          {/* Head — bigger for cartoon feel */}
+          <circle cx={ox} cy={oy - 20 * s} r={13 * s} fill="#e8b896" />
+          {/* Ears */}
+          <ellipse cx={ox - 12 * s} cy={oy - 19 * s} rx={3 * s} ry={4 * s} fill="#daa06d" />
+          <ellipse cx={ox + 12 * s} cy={oy - 19 * s} rx={3 * s} ry={4 * s} fill="#daa06d" />
+          {/* Hair — styled brown */}
+          <ellipse cx={ox} cy={oy - 27 * s} rx={14 * s} ry={9 * s} fill="#6b3a2a" />
+          <ellipse cx={ox - 3 * s} cy={oy - 32 * s} rx={8 * s} ry={5 * s} fill="#7a4433" />
+          <ellipse cx={ox + 4 * s} cy={oy - 31 * s} rx={6 * s} ry={4 * s} fill="#6b3a2a" />
+          {/* Red headband */}
+          <rect x={ox - 13 * s} y={oy - 27 * s} width={26 * s} height={4 * s} rx={2 * s} fill="#ef4444" />
+          {/* Eyes — big cartoon eyes */}
+          <ellipse cx={ox - 4 * s} cy={oy - 18 * s} rx={3.5 * s} ry={4 * s} fill="#f8fafc" />
+          <ellipse cx={ox + 4 * s} cy={oy - 18 * s} rx={3.5 * s} ry={4 * s} fill="#f8fafc" />
+          <circle cx={ox - 3.5 * s} cy={oy - 17.5 * s} r={2 * s} fill="#1a3a5c" />
+          <circle cx={ox + 4.5 * s} cy={oy - 17.5 * s} r={2 * s} fill="#1a3a5c" />
+          {/* Eye highlights */}
+          <circle cx={ox - 2.5 * s} cy={oy - 18.5 * s} r={0.7 * s} fill="#f8fafc" />
+          <circle cx={ox + 5.5 * s} cy={oy - 18.5 * s} r={0.7 * s} fill="#f8fafc" />
+          {/* Eyebrows */}
+          <line x1={ox - 6 * s} y1={oy - 22 * s} x2={ox - 2 * s} y2={oy - 23 * s} stroke="#4a2a1a" strokeWidth={1.5 * s} strokeLinecap="round" />
+          <line x1={ox + 2 * s} y1={oy - 23 * s} x2={ox + 6 * s} y2={oy - 22 * s} stroke="#4a2a1a" strokeWidth={1.5 * s} strokeLinecap="round" />
+          {/* Nose */}
+          <ellipse cx={ox} cy={oy - 14.5 * s} rx={1.5 * s} ry={1 * s} fill="#daa06d" />
+          {/* Mouth — determined smile */}
+          <path d={`M ${ox - 4 * s} ${oy - 12 * s} Q ${ox} ${oy - 10 * s} ${ox + 4 * s} ${oy - 12 * s}`} stroke="#c0705a" strokeWidth={1.2 * s} fill="none" strokeLinecap="round" />
         </g>
         );
       })()}
@@ -347,7 +404,7 @@ export default function CourtFirstPerson({
         );
       })()}
 
-      {/* YOUR PLAYER */}
+      {/* YOUR PLAYER — cartoon style, teal outfit, back view */}
       {(() => {
         const px = playerSvgX;
         const py = playerSvgY;
@@ -357,37 +414,83 @@ export default function CourtFirstPerson({
           transition: 'transform 0.35s ease-out',
           transform: `translate(${px}px, ${py}px)`,
         }}>
-          {/* Shadow */}
-          <ellipse cx={0} cy={48 * s} rx={22 * s} ry={7 * s} fill="rgba(0,0,0,0.35)" />
-          {/* Shoes */}
-          <ellipse cx={-10 * s} cy={45 * s} rx={8 * s} ry={4 * s} fill="#f8fafc" />
-          <ellipse cx={10 * s} cy={45 * s} rx={8 * s} ry={4 * s} fill="#f8fafc" />
-          {/* Legs */}
-          <line x1={-8 * s} y1={26 * s} x2={-10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
-          <line x1={8 * s} y1={26 * s} x2={10 * s} y2={42 * s} stroke="#1e293b" strokeWidth={7 * s} strokeLinecap="round" />
-          {/* Body - white shirt */}
-          <rect x={-18 * s} y={-10 * s} width={36 * s} height={38 * s} rx={8 * s} fill="#f8fafc" />
-          {/* Collar */}
-          <ellipse cx={0} cy={-9 * s} rx={10 * s} ry={5 * s} fill="#e5e7eb" />
-          {/* Left arm */}
-          <line x1={-18 * s} y1={4 * s} x2={-30 * s} y2={18 * s} stroke="#d4a574" strokeWidth={6 * s} strokeLinecap="round" />
-          {/* Right arm + racket */}
+          {/* Ground shadow */}
+          <ellipse cx={0} cy={48 * s} rx={22 * s} ry={7 * s} fill="rgba(0,0,0,0.25)" />
+          {/* Shoes — cyan with white sole and orange accent */}
+          <ellipse cx={-10 * s} cy={46 * s} rx={8 * s} ry={4 * s} fill="#22d3ee" />
+          <ellipse cx={-10 * s} cy={47.5 * s} rx={8 * s} ry={2.5 * s} fill="#f8fafc" />
+          <ellipse cx={-10 * s} cy={48.5 * s} rx={7 * s} ry={1.2 * s} fill="#f59e0b" />
+          <ellipse cx={10 * s} cy={46 * s} rx={8 * s} ry={4 * s} fill="#22d3ee" />
+          <ellipse cx={10 * s} cy={47.5 * s} rx={8 * s} ry={2.5 * s} fill="#f8fafc" />
+          <ellipse cx={10 * s} cy={48.5 * s} rx={7 * s} ry={1.2 * s} fill="#f59e0b" />
+          {/* White socks */}
+          <line x1={-9 * s} y1={38 * s} x2={-10 * s} y2={43 * s} stroke="#f8fafc" strokeWidth={6 * s} strokeLinecap="round" />
+          <line x1={9 * s} y1={38 * s} x2={10 * s} y2={43 * s} stroke="#f8fafc" strokeWidth={6 * s} strokeLinecap="round" />
+          {/* Legs — skin tone */}
+          <line x1={-7 * s} y1={26 * s} x2={-9 * s} y2={39 * s} stroke="#e8b896" strokeWidth={6 * s} strokeLinecap="round" />
+          <line x1={7 * s} y1={26 * s} x2={9 * s} y2={39 * s} stroke="#e8b896" strokeWidth={6 * s} strokeLinecap="round" />
+          {/* Shorts — dark teal */}
+          <path d={`M ${-14 * s} ${16 * s} Q ${0} ${14 * s} ${14 * s} ${16 * s} L ${12 * s} ${28 * s} Q ${0} ${31 * s} ${-12 * s} ${28 * s} Z`} fill="#0e7490" />
+          {/* Cyan trim on shorts */}
+          <path d={`M ${-12 * s} ${27 * s} Q ${0} ${30 * s} ${12 * s} ${27 * s}`} stroke="#22d3ee" strokeWidth={1.5 * s} fill="none" />
+          {/* Body — teal polo shirt (back view) */}
+          <path d={`M ${-15 * s} ${-10 * s} Q ${-17 * s} ${10 * s} ${-14 * s} ${18 * s} Q ${0} ${21 * s} ${14 * s} ${18 * s} Q ${17 * s} ${10 * s} ${15 * s} ${-10 * s} Z`} fill="#0891b2" />
+          {/* Shirt side seams */}
+          <line x1={-15 * s} y1={-5 * s} x2={-14 * s} y2={16 * s} stroke="#0e7490" strokeWidth={0.8 * s} opacity="0.4" />
+          <line x1={15 * s} y1={-5 * s} x2={14 * s} y2={16 * s} stroke="#0e7490" strokeWidth={0.8 * s} opacity="0.4" />
+          {/* White collar (back view) */}
+          <path d={`M ${-10 * s} ${-10 * s} Q ${0} ${-8 * s} ${10 * s} ${-10 * s}`} stroke="#f8fafc" strokeWidth={3 * s} fill="none" strokeLinecap="round" />
+          {/* White belt stripe */}
+          <rect x={-14 * s} y={15 * s} width={28 * s} height={3 * s} rx={1.5 * s} fill="#f8fafc" opacity="0.5" />
+          {/* Left arm — skin + teal sleeve + wristband */}
+          <line x1={-15 * s} y1={-2 * s} x2={-20 * s} y2={6 * s} stroke="#0891b2" strokeWidth={6.5 * s} strokeLinecap="round" />
+          <line x1={-20 * s} y1={6 * s} x2={-28 * s} y2={18 * s} stroke="#e8b896" strokeWidth={5.5 * s} strokeLinecap="round" />
+          {/* Teal wristband — left */}
+          <line x1={-27 * s} y1={16 * s} x2={-29 * s} y2={19 * s} stroke="#0e7490" strokeWidth={3.5 * s} strokeLinecap="round" />
+          {/* Right arm + racket — with swing animation */}
           <g style={{
-            transformOrigin: `${18 * s}px ${4 * s}px`,
+            transformOrigin: `${15 * s}px ${-2 * s}px`,
             transition: 'transform 0.12s ease-out',
             transform: racketSwing ? 'rotate(-50deg)' : 'rotate(0deg)',
           }}>
-            <line x1={18 * s} y1={4 * s} x2={34 * s} y2={-14 * s} stroke="#d4a574" strokeWidth={6 * s} strokeLinecap="round" />
-            <line x1={34 * s} y1={-14 * s} x2={44 * s} y2={-32 * s} stroke="#5c3d2e" strokeWidth={4 * s} strokeLinecap="round" />
-            <ellipse cx={48 * s} cy={-42 * s} rx={10 * s} ry={16 * s} fill="none" stroke="#1e293b" strokeWidth={3 * s} transform={`rotate(-15, ${48 * s}, ${-42 * s})`} />
+            {/* Teal sleeve */}
+            <line x1={15 * s} y1={-2 * s} x2={20 * s} y2={6 * s} stroke="#0891b2" strokeWidth={6.5 * s} strokeLinecap="round" />
+            {/* Arm skin */}
+            <line x1={20 * s} y1={6 * s} x2={32 * s} y2={-10 * s} stroke="#e8b896" strokeWidth={5.5 * s} strokeLinecap="round" />
+            {/* Teal wristband — right */}
+            <line x1={30 * s} y1={-8 * s} x2={33 * s} y2={-12 * s} stroke="#0e7490" strokeWidth={3.5 * s} strokeLinecap="round" />
+            {/* Racket handle — wooden/gold */}
+            <line x1={33 * s} y1={-12 * s} x2={42 * s} y2={-28 * s} stroke="#c08040" strokeWidth={3 * s} strokeLinecap="round" />
+            {/* Grip tape */}
+            <line x1={33 * s} y1={-12 * s} x2={36 * s} y2={-17 * s} stroke="#f8fafc" strokeWidth={3.5 * s} strokeLinecap="round" />
+            {/* Racket head — with strings */}
+            <ellipse cx={46 * s} cy={-38 * s} rx={10 * s} ry={16 * s} fill="rgba(255,255,255,0.1)" stroke="#1a3a5c" strokeWidth={2.5 * s} transform={`rotate(-15, ${46 * s}, ${-38 * s})`} />
+            {/* String lines */}
+            <line x1={46 * s} y1={-50 * s} x2={46 * s} y2={-26 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.35" />
+            <line x1={43 * s} y1={-49 * s} x2={43 * s} y2={-27 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.25" />
+            <line x1={49 * s} y1={-49 * s} x2={49 * s} y2={-27 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.25" />
+            <line x1={38 * s} y1={-38 * s} x2={54 * s} y2={-38 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.35" />
+            <line x1={38 * s} y1={-42 * s} x2={54 * s} y2={-42 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.25" />
+            <line x1={38 * s} y1={-34 * s} x2={54 * s} y2={-34 * s} stroke="#f8fafc" strokeWidth={0.5 * s} opacity="0.25" />
           </g>
-          {/* Head */}
-          <circle cx={0} cy={-28 * s} r={16 * s} fill="#d4a574" />
-          {/* Hair */}
-          <ellipse cx={0} cy={-32 * s} rx={16 * s} ry={12 * s} fill="#2c1810" />
-          {/* Cap */}
-          <ellipse cx={0} cy={-36 * s} rx={18 * s} ry={6 * s} fill="#1e293b" />
-          <rect x={-17 * s} y={-40 * s} width={34 * s} height={8 * s} rx={4 * s} fill="#1e293b" />
+          {/* Head — bigger for cartoon proportions (back view) */}
+          <circle cx={0} cy={-26 * s} r={16 * s} fill="#e8b896" />
+          {/* Ears */}
+          <ellipse cx={-15 * s} cy={-24 * s} rx={3.5 * s} ry={4.5 * s} fill="#daa06d" />
+          <ellipse cx={15 * s} cy={-24 * s} rx={3.5 * s} ry={4.5 * s} fill="#daa06d" />
+          {/* Hair — styled brown, back view, messy/spiky */}
+          <ellipse cx={0} cy={-32 * s} rx={16 * s} ry={11 * s} fill="#6b3a2a" />
+          {/* Hair spikes on top */}
+          <ellipse cx={-5 * s} cy={-40 * s} rx={5 * s} ry={6 * s} fill="#7a4433" />
+          <ellipse cx={4 * s} cy={-39 * s} rx={6 * s} ry={5 * s} fill="#6b3a2a" />
+          <ellipse cx={-2 * s} cy={-42 * s} rx={4 * s} ry={5 * s} fill="#8b5a3a" />
+          {/* Hair sides */}
+          <ellipse cx={-13 * s} cy={-30 * s} rx={5 * s} ry={8 * s} fill="#6b3a2a" />
+          <ellipse cx={13 * s} cy={-30 * s} rx={5 * s} ry={8 * s} fill="#6b3a2a" />
+          {/* Teal headband */}
+          <rect x={-16 * s} y={-32 * s} width={32 * s} height={4.5 * s} rx={2 * s} fill="#0891b2" />
+          {/* Headband knot at back */}
+          <circle cx={0} cy={-30 * s} r={3 * s} fill="#0e7490" />
         </g>
         );
       })()}
