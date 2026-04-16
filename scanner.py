@@ -1,12 +1,13 @@
 """
 Vinted Instax scanner. Polls Vinted UK for new Instax listings under £20
-and pushes a Telegram message the moment one appears.
+and posts to a Discord channel the moment one appears.
 
 Setup:
-  1. Create a Telegram bot with @BotFather, copy the token.
-  2. Send your bot any message, then visit
-     https://api.telegram.org/bot<TOKEN>/getUpdates to find your chat id.
-  3. Copy .env.example to .env and fill in TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.
+  1. In Discord: Server Settings -> Integrations -> Webhooks -> New Webhook,
+     pick a channel, click "Copy Webhook URL".
+  2. Copy .env.example to .env and paste the URL as DISCORD_WEBHOOK_URL.
+  3. Enable phone notifications for that channel (channel name -> bell icon
+     -> All Messages, and make sure Discord push notifications are on).
   4. pip install -r requirements.txt
   5. python scanner.py
 """
@@ -38,8 +39,7 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -109,24 +109,23 @@ def parse_price(item: dict) -> float | None:
 
 
 def notify(text: str) -> None:
-    if not (TELEGRAM_TOKEN and TELEGRAM_CHAT_ID):
-        log.warning("telegram not configured; would send: %s", text)
+    if not DISCORD_WEBHOOK_URL:
+        log.warning("discord webhook not configured; would send: %s", text)
         return
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     try:
         r = requests.post(
-            url,
-            data={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": text,
-                "disable_web_page_preview": "false",
-            },
+            DISCORD_WEBHOOK_URL,
+            json={"content": text},
             timeout=10,
         )
-        if not r.ok:
-            log.error("telegram send failed: %s %s", r.status_code, r.text)
+        if r.status_code == 429:
+            retry_after = float(r.headers.get("Retry-After", "1"))
+            log.warning("discord rate-limited, sleeping %.1fs", retry_after)
+            time.sleep(retry_after)
+        elif not r.ok:
+            log.error("discord send failed: %s %s", r.status_code, r.text)
     except requests.RequestException as e:
-        log.error("telegram send error: %s", e)
+        log.error("discord send error: %s", e)
 
 
 def format_alert(item: dict, price: float) -> str:
@@ -140,10 +139,8 @@ def format_alert(item: dict, price: float) -> str:
 
 
 def main() -> int:
-    if not (TELEGRAM_TOKEN and TELEGRAM_CHAT_ID):
-        log.warning(
-            "TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set — running in dry-run mode."
-        )
+    if not DISCORD_WEBHOOK_URL:
+        log.warning("DISCORD_WEBHOOK_URL not set — running in dry-run mode.")
 
     seen = load_seen()
     log.info("loaded %d seen ids", len(seen))
