@@ -1,0 +1,56 @@
+# Copy to config.yaml and edit.
+
+vinted:
+  domain: vinted.co.uk            # vinted.co.uk, vinted.com, vinted.fr, etc.
+  queries:                        # run all of these each poll cycle
+    - "pandora charm"
+    - "pandora bead"
+    - "pandora dangle"
+  # Optional: restrict to specific catalog IDs if you know them.
+  catalog_ids: []
+  # Polite polling. Vinted will rate-limit you below ~20s.
+  poll_interval_seconds: 45
+  # Ignore listings above this price (GBP) before even checking eBay.
+  max_buy_price: 25.0
+  # Currency symbol you expect. Used only to flag mismatches.
+  currency: GBP
+
+ebay:
+  domain: ebay.co.uk              # ebay.co.uk, ebay.com, ebay.de, etc.
+  # How many sold results to average. More = more stable, slower.
+  sold_sample_size: 60
+  # Cache eBay median per-query in memory for this many hours.
+  cache_ttl_hours: 6
+  # eBay + PayPal fees as a fraction of sold price (used to net resale).
+  fee_fraction: 0.15
+  # Your estimated ship-to-buyer cost (GBP) when you resell.
+  shipping_cost: 3.50
+
+profit:
+  # A listing must clear BOTH thresholds to fire a notification.
+  min_profit_gbp: 8.0
+  min_profit_ratio: 1.5           # net_resale / buy_price
+
+notify:
+  # Always prints to stdout. Optional extras below.
+  desktop: true                   # uses plyer; set false on servers
+  webhook_url: ""                 # Discord/Slack-compatible webhook, or empty
+  # Path to JSON file used to avoid re-notifying on the same listing.
+  seen_file: .seen.json
+
+# Optional title filters. A listing is skipped if any blocklist word is
+# present, or if allowlist is non-empty and no allowlist word is present.
+filters:
+  allowlist: []                   # e.g. ["sterling", "s925", "ale"]
+  blocklist:                      # skip obvious fakes / bundles / accessories
+    - fake
+    - replica
+    - inspired
+    - style
+    - compatible
+    - generic
+    - bracelet only
+    - bundle
+    - joblot
+    - box only
+    - pouch
