@@ -1,0 +1,34 @@
+-- JARVIS launcher. build.sh fills in the two paths below and compiles this with osacompile.
+set jarvisDir to "__JARVIS_DIR__"
+set claudeBin to "__CLAUDE_BIN__"
+set cmd to "cd " & quoted form of jarvisDir & " && clear && " & quoted form of claudeBin & " \"/brief\""
+
+set wasRunning to application "Terminal" is running
+tell application "Terminal"
+	if wasRunning then
+		set t to do script cmd -- opens a new window
+	else
+		activate
+		delay 0.5
+		set t to do script cmd in window 1 -- reuse the window Terminal opens on launch
+	end if
+	-- JARVIS look for this window only: dark background, light blue text, title "JARVIS".
+	try
+		set current settings of t to settings set "JARVIS"
+	on error
+		set background color of t to {2570, 4626, 8224}
+		set normal text color of t to {38550, 53970, 65535}
+		set bold text color of t to {50000, 60000, 65535}
+		set cursor color of t to {30000, 50000, 65535}
+	end try
+	set custom title of t to "JARVIS"
+	set title displays custom title of t to true
+	set title displays shell path of t to false
+	set title displays window size of t to false
+	set title displays device name of t to false
+	set title displays file name of t to false
+	try
+		set frontmost of (first window whose selected tab is t) to true
+	end try
+	activate
+end tell
