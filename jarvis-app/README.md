@@ -21,6 +21,10 @@ NO_LAUNCH=1 bash jarvis-app/build.sh  # build and install without opening
 
 Testing without Gmail: `JARVIS_CLAUDE_BIN=app/dev/mock-claude.js node app/server.js`, then open http://127.0.0.1:4777.
 
+## macOS 11 (Big Sur) fixes
+
+Claude Code 2.1.78 needs Node 20+ (Node 18 crashes with `A.with is not a function`), and its bundled ripgrep needs Homebrew's pcre2 (`Library not loaded … libpcre2`). Without ripgrep, Claude Code also can't find `.claude/commands` or `.claude/skills` ("Unknown skill"). `bash jarvis-app/fix-bigsur.sh` installs Node 22 LTS and a self-contained ripgrep (Intel build, via Rosetta), and sets `USE_BUILTIN_RIPGREP=0`.
+
 ## Older Claude Code versions
 
 Claude Code 2.1.78 (the last that runs on macOS 11) reads `CLAUDE.md` but not this folder's `.claude/commands` or `.claude/settings.json`. For Terminal use:
