@@ -6,8 +6,12 @@
 input=$(cat)
 
 # Latest reply: use last_assistant_message if Claude Code provides it, else read the transcript.
-text=$(printf '%s' "$input" | jq -r '.last_assistant_message // empty' 2>/dev/null)
-if [ -z "$text" ]; then
+if command -v jq >/dev/null 2>&1; then
+  text=$(printf '%s' "$input" | jq -r '.last_assistant_message // empty' 2>/dev/null)
+else  # macOS before 15 has no jq; plutil reads JSON too
+  text=$(printf '%s' "$input" | plutil -extract last_assistant_message raw -o - - 2>/dev/null)
+fi
+if [ -z "$text" ] && command -v jq >/dev/null 2>&1; then
   transcript=$(printf '%s' "$input" | jq -r '.transcript_path // empty' 2>/dev/null)
   [ -f "$transcript" ] && text=$(jq -rs '
     [ .[] | select(.type == "assistant") | .message.content[]? | select(.type == "text") | .text ]
