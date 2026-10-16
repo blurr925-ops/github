@@ -83,3 +83,7 @@ Mail "from me" = sent from info.obtennis@gmail.com. A thread is **unanswered** w
 ## Voice
 
 A Stop hook in `.claude/settings.json` reads the first sentence of each reply aloud on a Mac (`say -v Daniel`). So **make the first sentence a complete, speakable summary** with no markdown, tables or links. Olly can mute it with `JARVIS_VOICE=off`.
+
+## OB/Swept is not "done"
+
+`OB/Swept` only means the hourly sweep has labelled the thread. It does NOT mean it has been handled. Never exclude `OB/Swept` (no `-label:OB/Swept`) when building /todo, /brief, /inbox or /bookings. Judge whether something is open by who sent the latest message and whether a draft exists.
