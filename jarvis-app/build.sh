@@ -18,13 +18,25 @@ for p in "$HOME/.local/bin/claude" "$HOME/.claude/local/claude" /opt/homebrew/bi
   [ -x "$p" ] && CLAUDE_BIN="$p"
 done
 [ -x "$CLAUDE_BIN" ] || { echo "Couldn't find the claude command. Install Claude Code first, then re-run."; exit 1; }
+# 1b. Find node (the JARVIS app's helper runs on it).
+NODE_BIN="$(command -v node || true)"
+for p in /usr/local/bin/node /opt/homebrew/bin/node; do
+  [ -n "$NODE_BIN" ] && [ -x "$NODE_BIN" ] && break
+  [ -x "$p" ] && NODE_BIN="$p"
+done
+[ -x "$NODE_BIN" ] || { echo "Couldn't find node. Install Node.js (nodejs.org), then re-run."; exit 1; }
 echo "JARVIS folder: $JARVIS_DIR"
 echo "claude:        $CLAUDE_BIN"
+echo "node:          $NODE_BIN"
+
+# Stop an older copy of the helper so the new files are used.
+OLD_PID="$(lsof -ti tcp:4777 -sTCP:LISTEN 2>/dev/null || true)"
+[ -n "$OLD_PID" ] && kill $OLD_PID 2>/dev/null || true
 
 rm -rf "$BUILD"; mkdir -p "$BUILD"
 
 # 2. Compile the AppleScript with the absolute paths filled in.
-sed -e "s|__JARVIS_DIR__|$JARVIS_DIR|" -e "s|__CLAUDE_BIN__|$CLAUDE_BIN|" \
+sed -e "s|__JARVIS_DIR__|$JARVIS_DIR|" -e "s|__CLAUDE_BIN__|$CLAUDE_BIN|" -e "s|__NODE_BIN__|$NODE_BIN|" \
   "$APP_SRC_DIR/Jarvis.applescript.template" > "$BUILD/Jarvis.applescript"
 osacompile -o "$APP" "$BUILD/Jarvis.applescript"
 
@@ -52,7 +64,6 @@ cp -R "$APP" /Applications/
 touch /Applications/Jarvis.app
 tccutil reset AppleEvents com.obtennis.jarvis >/dev/null 2>&1 || true  # forget any earlier "Don't Allow"
 echo "Installed /Applications/Jarvis.app"
-echo "When macOS asks \"Jarvis wants to control Terminal\", click OK."
 
 # 5. Test launch (skip with: NO_LAUNCH=1 bash build.sh).
 [ -n "${NO_LAUNCH:-}" ] || open /Applications/Jarvis.app

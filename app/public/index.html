@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="jarvis-token" content="__JARVIS_TOKEN__">
+<title>JARVIS</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="glow g1"></div><div class="glow g2"></div><div class="grid-lines"></div></div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="reactor" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <radialGradient id="core" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#9eeaff"/><stop offset="1" stop-color="#1aa7ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="32" cy="32" r="27" class="ring-outer"/>
+      <circle cx="32" cy="32" r="20" class="ring-mid"/>
+      <g class="ring-seg"><circle cx="32" cy="32" r="14" /></g>
+      <circle cx="32" cy="32" r="10" fill="url(#core)"/>
+    </svg>
+    <div>
+      <div class="wordmark">JARVIS</div>
+      <div class="sub">OB Tennis</div>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="today" role="tab" aria-selected="true">Today</button>
+    <button class="tab" data-tab="bookings" role="tab" aria-selected="false">Bookings</button>
+  </nav>
+  <div class="actions">
+    <span class="updated" id="updated"></span>
+    <button class="icon-btn" id="voiceBtn" title="Voice on/off" aria-label="Voice on or off">
+      <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+    </button>
+    <button class="btn primary" id="refreshBtn"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg><span>Refresh</span></button>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main>
+  <!-- TODAY -->
+  <section class="view" id="view-today">
+    <div class="hero">
+      <div class="hero-text">
+        <div class="date" id="dateLine"></div>
+        <h1 id="greeting">Good day, sir.</h1>
+        <p class="headline" id="headline">Press Refresh and I'll go through your inbox.</p>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="loading" id="loadingToday" hidden>
+      <div class="big-reactor"><span></span><span></span><span></span><i></i></div>
+      <div class="loading-title">Going through your inbox…</div>
+      <ol class="steps" id="stepsToday"></ol>
+    </div>
+
+    <div class="error-card" id="errorToday" hidden></div>
+
+    <div class="layout" id="todayLayout" hidden>
+      <div class="col main-col">
+        <article class="card" data-accent="red" id="card-needs">
+          <header><h2>Needs you</h2><span class="count" id="c-needs"></span></header>
+          <ul class="items" id="list-needs"></ul>
+        </article>
+        <article class="card" data-accent="green" id="card-enq">
+          <header><h2>Unanswered enquiries</h2><span class="count" id="c-enq"></span></header>
+          <ul class="items" id="list-enq"></ul>
+        </article>
+        <article class="card" data-accent="violet" id="card-club">
+          <header><h2>Club admin questions</h2><span class="count" id="c-club"></span></header>
+          <ul class="items" id="list-club"></ul>
+        </article>
+        <article class="card" data-accent="blue" id="card-drafts">
+          <header><h2>Drafts waiting to send</h2><span class="count" id="c-drafts"></span></header>
+          <ul class="items" id="list-drafts"></ul>
+          <p class="foot" id="drafts-older"></p>
+        </article>
+      </div>
+      <div class="col side-col">
+        <article class="card" data-accent="amber">
+          <header><h2>Coming up</h2><span class="count" id="c-dead"></span></header>
+          <ol class="timeline" id="list-dead"></ol>
+          <div class="later" id="later-wrap" hidden>
+            <h3>Further out</h3>
+            <ol class="timeline small" id="list-later"></ol>
+          </div>
+        </article>
+        <article class="card" data-accent="cyan">
+          <header><h2>Last 24 hours</h2></header>
+          <ul class="bullets" id="list-24"></ul>
+          <p class="foot" id="routine"></p>
+        </article>
+        <article class="card subtle" id="fyi-card" hidden>
+          <header><h2>FYI, no reply needed</h2></header>
+          <ul class="bullets" id="list-fyi"></ul>
+        </article>
+      </div>
+    </div>
+    <p class="quip" id="quip"></p>
+  </section>
+
+  <!-- BOOKINGS -->
+  <section class="view" id="view-bookings" hidden>
+    <div class="hero">
+      <div class="hero-text">
+        <div class="date" id="weekLine">This week</div>
+        <h1>Bookings</h1>
+        <p class="headline" id="bookingsHeadline">ClubSpark confirmations this week, by venue and session.</p>
+      </div>
+      <div class="stats"><div class="stat big"><b id="bk-total">–</b><span>bookings</span></div></div>
+    </div>
+    <div class="loading" id="loadingBookings" hidden>
+      <div class="big-reactor"><span></span><span></span><span></span><i></i></div>
+      <div class="loading-title">Counting bookings…</div>
+      <ol class="steps" id="stepsBookings"></ol>
+    </div>
+    <div class="error-card" id="errorBookings" hidden></div>
+    <div class="venues" id="venues"></div>
+    <ul class="bullets notes" id="bk-notes"></ul>
+    <p class="quip" id="bk-quip"></p>
+  </section>
+</main>
+
+<!-- ASK -->
+<form class="askbar" id="askForm" autocomplete="off">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
+  <input id="askInput" placeholder="Ask JARVIS anything…" aria-label="Ask JARVIS">
+  <kbd>⌘K</kbd>
+  <button class="btn primary small" type="submit">Ask</button>
+</form>
+
+<!-- SHEET (answers + drafts) -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-live="polite">
+  <header>
+    <h2 id="sheetTitle">JARVIS</h2>
+    <button class="icon-btn" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </header>
+  <div class="sheet-body" id="sheetBody"></div>
+</aside>
+
+<div class="toast" id="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
