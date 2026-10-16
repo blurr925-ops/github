@@ -1,31 +1,33 @@
 #!/bin/bash
 # JARVIS voice: speaks the first sentence of each reply (macOS `say`).
-# Switch off with JARVIS_VOICE=off. Voice can be changed with JARVIS_VOICE_NAME (default: Daniel).
+# Off: JARVIS_VOICE=off. Voice: JARVIS_VOICE_NAME (default Daniel).
+# Uses perl (built into macOS) to read JSON, so no jq or python needed.
 [ "${JARVIS_VOICE:-on}" = "off" ] && exit 0
+JARVIS_DIR="$(cd "$(dirname "$0")/../.." && pwd -P)"
 
-input=$(cat)
-
-# Latest reply: use last_assistant_message if Claude Code provides it, else read the transcript.
-if command -v jq >/dev/null 2>&1; then
-  text=$(printf '%s' "$input" | jq -r '.last_assistant_message // empty' 2>/dev/null)
-else  # macOS before 15 has no jq; plutil reads JSON too
-  text=$(printf '%s' "$input" | plutil -extract last_assistant_message raw -o - - 2>/dev/null)
-fi
-if [ -z "$text" ] && command -v jq >/dev/null 2>&1; then
-  transcript=$(printf '%s' "$input" | jq -r '.transcript_path // empty' 2>/dev/null)
-  [ -f "$transcript" ] && text=$(jq -rs '
-    [ .[] | select(.type == "assistant") | .message.content[]? | select(.type == "text") | .text ]
-    | last // empty' "$transcript" 2>/dev/null)
-fi
-[ -z "$text" ] && exit 0
-
-# Strip markdown, flatten to one line, keep the first sentence.
-sentence=$(printf '%s' "$text" \
-  | sed -E 's/\[([^]]*)\]\([^)]*\)/\1/g; s/[*_`#>|]//g; s/^[[:space:]]*-[[:space:]]+//' \
-  | tr '\n' ' ' \
-  | sed -E 's/[[:space:]]+/ /g; s/^ //' \
-  | sed -E 's/([.!?])( |$).*/\1/' \
-  | cut -c1-220)
+sentence=$(JARVIS_DIR="$JARVIS_DIR" perl -MJSON::PP -e '
+  binmode STDOUT, ":utf8";
+  my $raw = do { local $/; <STDIN> };
+  my $in = eval { JSON::PP->new->utf8->decode($raw) } || {};
+  # Only speak inside the JARVIS folder (matters if installed in ~/.claude/settings.json).
+  exit 0 if $in->{cwd} && index($in->{cwd}, $ENV{JARVIS_DIR}) != 0;
+  my $t = $in->{last_assistant_message} // "";
+  if ($t eq "" && $in->{transcript_path} && open(my $fh, "<", $in->{transcript_path})) {
+    while (my $l = <$fh>) {
+      my $e = eval { JSON::PP->new->utf8->decode($l) } or next;
+      next unless ($e->{type} // "") eq "assistant" && ref $e->{message}{content} eq "ARRAY";
+      for my $c (@{ $e->{message}{content} }) {
+        $t = $c->{text} if ref $c eq "HASH" && ($c->{type} // "") eq "text";
+      }
+    }
+  }
+  $t =~ s/\[([^\]]*)\]\([^)]*\)/$1/g;   # links -> text
+  $t =~ s/[*_`#>|]//g;                  # markdown symbols
+  $t =~ s/^\s*[-\x{2022}]\s+//mg;       # bullets
+  $t =~ s/\s+/ /g; $t =~ s/^ //;
+  $t =~ s/^(.*?[.!?])(?:\s.*)?$/$1/s;   # first sentence
+  print substr($t, 0, 220);
+')
 [ -z "$sentence" ] && exit 0
 
 if [ -n "$JARVIS_VOICE_DRYRUN" ]; then echo "$sentence"; exit 0; fi

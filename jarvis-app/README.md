@@ -12,3 +12,12 @@ What it does: finds the full path of `claude`, fills the absolute folder path an
 The window gets a dark background and light blue text. To use a saved Terminal profile instead, create one called **JARVIS** in Terminal → Settings → Profiles and the app will use it automatically.
 
 Re-run `build.sh` if you move this folder or reinstall Claude Code.
+
+## Older Claude Code versions
+
+Some Claude Code versions (e.g. 2.1.78, the last that runs on macOS 11) read `CLAUDE.md` but not this folder's `.claude/commands` or `.claude/settings.json`. Workaround:
+
+```bash
+mkdir -p ~/.claude/commands && cp .claude/commands/*.md ~/.claude/commands/   # slash commands
+bash jarvis-app/install-voice.sh                                              # voice hook (JARVIS folder only)
+```
