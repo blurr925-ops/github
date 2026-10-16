@@ -39,15 +39,20 @@ for s in 16 32 128 256 512; do
 done
 iconutil -c icns "$ICONSET" -o "$BUILD/Jarvis.icns"
 cp "$BUILD/Jarvis.icns" "$APP/Contents/Resources/applet.icns"
-/usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.obtennis.jarvis" "$APP/Contents/Info.plist" 2>/dev/null \
-  || /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.obtennis.jarvis" "$APP/Contents/Info.plist"
+plutil -replace CFBundleIdentifier -string "com.obtennis.jarvis" "$APP/Contents/Info.plist"
+plutil -replace NSAppleEventsUsageDescription -string "JARVIS opens Terminal to start Claude." "$APP/Contents/Info.plist"
+# Changing the icon and Info.plist breaks osacompile's signature; re-sign so macOS
+# will ask "Jarvis wants to control Terminal" instead of refusing (error -1743).
+codesign --force --deep --sign - "$APP"
 touch "$APP"
 
 # 4. Install into /Applications (Launchpad + Spotlight).
 rm -rf /Applications/Jarvis.app
 cp -R "$APP" /Applications/
 touch /Applications/Jarvis.app
+tccutil reset AppleEvents com.obtennis.jarvis >/dev/null 2>&1 || true  # forget any earlier "Don't Allow"
 echo "Installed /Applications/Jarvis.app"
+echo "When macOS asks \"Jarvis wants to control Terminal\", click OK."
 
 # 5. Test launch (skip with: NO_LAUNCH=1 bash build.sh).
 [ -n "${NO_LAUNCH:-}" ] || open /Applications/Jarvis.app
