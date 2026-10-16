@@ -21,3 +21,5 @@ Some Claude Code versions (e.g. 2.1.78, the last that runs on macOS 11) read `CL
 mkdir -p ~/.claude/commands && cp .claude/commands/*.md ~/.claude/commands/   # slash commands
 bash jarvis-app/install-voice.sh                                              # voice hook (JARVIS folder only)
 ```
+
+The same commands also live in `.claude/skills/<name>/SKILL.md` (the newer format). If `/brief` says "Unknown skill", copy them to your personal folder: `mkdir -p ~/.claude/skills && cp -R .claude/skills/* ~/.claude/skills/`.
