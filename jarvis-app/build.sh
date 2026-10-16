@@ -28,8 +28,9 @@ sed -e "s|__JARVIS_DIR__|$JARVIS_DIR|" -e "s|__CLAUDE_BIN__|$CLAUDE_BIN|" \
   "$APP_SRC_DIR/Jarvis.applescript.template" > "$BUILD/Jarvis.applescript"
 osacompile -o "$APP" "$BUILD/Jarvis.applescript"
 
-# 3. Icon: 1024px PNG -> iconset -> .icns -> replace applet.icns.
-python3 "$APP_SRC_DIR/make_icon.py" "$BUILD/icon_1024.png"
+# 3. Icon: bundled 1024px PNG -> iconset -> .icns -> replace applet.icns.
+# (Uses jarvis_icon.png so no python3 / Xcode tools are needed; make_icon.py regenerates it.)
+cp "$APP_SRC_DIR/jarvis_icon.png" "$BUILD/icon_1024.png"
 ICONSET="$BUILD/Jarvis.iconset"; mkdir -p "$ICONSET"
 for s in 16 32 128 256 512; do
   sips -z $s $s "$BUILD/icon_1024.png" --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
