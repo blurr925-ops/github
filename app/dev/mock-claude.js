@@ -31,13 +31,31 @@ process.stdin.on('end', async () => {
   } else if (/typed this into the JARVIS app/.test(prompt)) {
     tool('search_threads', { query: 'Lynda' }); await wait(D);
     result = '**Lynda Sale** wants answers on the STC venue registration.\n\n- Sinking fund, CASC and showers: answered by Jill and Louise\n- The questions **for you** are highlighted in blue in her 13 Oct email\n\nShall I draft a reply, sir?';
+  } else if (/\[\[part:(inbox|drafts|radar)\]\]/.test(prompt)) {
+    // The app's three parallel "today" parts; each returns its slice of the full sample.
+    const part = prompt.match(/\[\[part:(\w+)\]\]/)[1];
+    const full = JSON.parse(await sample(true));
+    const pick = { inbox: ['headline', 'quip', 'oldest', 'needsYou', 'clubAdmin', 'enquiries', 'fyi'], drafts: ['drafts'], radar: ['last24h', 'routine', 'deadlines', 'later'] }[part];
+    const steps = { inbox: ['label:OB-Needs-Olly after:2026/10/15', 'label:OB-Club-Admin', 'label:OB-Enquiry'], drafts: [], radar: ['newer_than:1d', 'deadline OR renewal'] }[part];
+    if (part === 'drafts') { tool('list_drafts', {}); }
+    for (const q of steps) { tool('search_threads', { query: q }); await wait(D); }
+    await wait(D * ({ inbox: 2, drafts: 1, radar: 4 }[part]));
+    const out = {}; pick.forEach((k) => { out[k] = full[k]; });
+    result = JSON.stringify(out);
   } else {
+    result = await sample();
+  }
+  emit({ type: 'result', subtype: 'success', is_error: false, result });
+
+  async function sample(quiet) {
+    if (!quiet) {
     for (const q of ['label:OB-Needs-Olly', 'label:OB-Club-Admin', 'label:OB-Enquiry']) { tool('search_threads', { query: q }); await wait(D); }
     tool('get_thread', {}); tool('get_thread', {}); await wait(D);
     tool('list_drafts', {}); await wait(D);
     tool('search_threads', { query: 'newer_than:1d' }); await wait(D);
     tool('search_threads', { query: 'deadline OR renewal' }); await wait(D);
-    result = JSON.stringify({
+    }
+    return JSON.stringify({
       headline: 'Good afternoon, sir. Two things need you, and Mowden Hall wants everything by today.',
       quip: 'The weekend appears to be in hand. The paperwork, less so.', oldest: 'Mowden Hall',
       needsYou: [
@@ -60,5 +78,4 @@ process.stdin.on('end', async () => {
         { date: '2026-11-07', when: 'Sat 7 Nov', what: 'SumUp MTD submission (if income over £50k)', from: 'SumUp', url: '' }],
     });
   }
-  emit({ type: 'result', subtype: 'success', is_error: false, result });
 });

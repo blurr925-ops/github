@@ -49,6 +49,10 @@ function loadState() {
 }
 let state = loadState(); // { today: {data, at}, bookings: {data, at}, settings: {voice} }
 state.settings = Object.assign({ voice: true }, state.settings);
+// Start date: JARVIS ignores email before this. Defaults to the day the app was first used.
+if (!/^\d{4}-\d{2}-\d{2}$/.test(String(state.settings.since || ''))) {
+  state.settings.since = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+}
 state.dismissed = state.dismissed || {}; // key -> { at, label }
 (function prune() { // forget dismissals after 30 days
   const cutoff = Date.now() - 30 * 24 * 3600 * 1000;
@@ -112,12 +116,13 @@ function speak(text, force) {
   run(['-v', process.env.JARVIS_VOICE_NAME || 'Daniel', sentence], () => run([sentence]));
 }
 
-function startJob(kind, params) {
+function startJob(kind, params, onDone) {
+  if (kind === 'today') return startToday();
   if (running.has(kind)) return jobs.get(running.get(kind));
-  const prompt = prompts.build(kind, Object.assign({}, params || {}, kind === 'today' ? { dismissed: state.dismissed } : {}));
+  const prompt = prompts.build(kind, Object.assign({}, params || {}, /^today:/.test(kind) ? { dismissed: state.dismissed, since: state.settings.since } : {}));
   if (!prompt) throw new Error('Unknown job: ' + kind);
   const id = crypto.randomBytes(6).toString('hex');
-  const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null, log: [], stderr: '' };
+  const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null, log: [], stderr: '', onDone };
   jobs.set(id, job);
   running.set(kind, id);
 
@@ -133,7 +138,8 @@ function startJob(kind, params) {
   try {
     child = spawn(CLAUDE_BIN, args, { cwd: JARVIS_DIR, env });
   } catch (e) {
-    return finish(job, 'Could not start Claude Code: ' + e.message);
+    finish(job, 'Could not start Claude Code: ' + e.message);
+    return job;
   }
   job.child = child;
   child.stdin.end(prompt);
@@ -209,6 +215,7 @@ function finish(job, error, resultText) {
       '\n\n--- stderr ---\n' + (job.stderr || '') + '\n--- stream (last lines) ---\n' + job.log.join('\n');
     try { fs.writeFileSync(path.join(DATA_DIR, 'last-error.log'), logText); } catch (e) {}
     job.raw = ((job.stderr || '').trim() + '\n' + job.log.slice(-4).join('\n')).trim().slice(-3000) + '\n\n(Full log: app/data/last-error.log in the JARVIS folder)';
+    if (job.onDone) job.onDone(job);
     return;
   }
   job.result = resultText;
@@ -216,21 +223,67 @@ function finish(job, error, resultText) {
     job.data = { text: resultText };
   } else {
     job.data = extractJson(resultText);
-    if (!job.data) { job.status = 'error'; job.error = 'JARVIS replied in an unexpected format.'; job.raw = String(resultText).slice(0, 4000); return; }
+    if (!job.data) {
+      job.status = 'error'; job.error = 'JARVIS replied in an unexpected format.'; job.raw = String(resultText).slice(0, 4000);
+      if (job.onDone) job.onDone(job);
+      return;
+    }
   }
   job.status = 'done';
+  if (job.onDone) job.onDone(job);
   if (job.kind === 'today' || job.kind === 'bookings') {
     state[job.kind] = { data: job.data, at: job.finishedAt };
     saveState();
   }
-  if (job.kind === 'today') speak(job.data.headline);
   if (job.kind === 'draft') speak(job.data.draftSaved ? 'Draft saved, sir.' : 'The draft needs your attention, sir.');
+}
+
+// "Today" runs as three Claude Code sessions in parallel (inbox, drafts, radar) and
+// fills in as each finishes, so the wait is the slowest part, not the sum of them.
+const TODAY_PARTS = ['inbox', 'drafts', 'radar'];
+function startToday() {
+  if (running.has('today')) return jobs.get(running.get('today'));
+  const id = crypto.randomBytes(6).toString('hex');
+  const job = { id, kind: 'today', composite: true, status: 'running', startedAt: Date.now(), data: {}, parts: {}, partErrors: {}, subs: [], error: null };
+  jobs.set(id, job);
+  running.set('today', id);
+  TODAY_PARTS.forEach((part) => { job.parts[part] = 'running'; });
+  TODAY_PARTS.forEach((part) => {
+    job.subs.push(startJob('today:' + part, {}, (sub) => {
+      job.parts[part] = sub.status;
+      if (sub.status === 'done') Object.assign(job.data, sub.data);
+      else job.partErrors[part] = sub.error;
+      if (TODAY_PARTS.every((p) => job.parts[p] !== 'running')) finishToday(job);
+    }));
+  });
+  return job;
+}
+function finishToday(job) {
+  if (job.status !== 'running') return;
+  running.delete('today');
+  job.finishedAt = Date.now();
+  if (!TODAY_PARTS.some((p) => job.parts[p] === 'done')) {
+    job.status = 'error';
+    job.error = TODAY_PARTS.map((p) => job.partErrors[p]).filter(Boolean)[0] || 'Nothing came back.';
+    job.raw = job.subs.map((s) => s.raw).filter(Boolean)[0];
+    return;
+  }
+  // A part that failed keeps its last good results.
+  job.data = Object.assign({}, (state.today && state.today.data) || {}, job.data);
+  job.status = 'done';
+  state.today = { data: job.data, at: job.finishedAt };
+  saveState();
+  speak(job.data.headline);
 }
 
 function publicJob(job) {
   if (!job) return null;
-  const { id, kind, status, steps, startedAt, finishedAt, data, error, raw } = job;
-  return { id, kind, status, steps, startedAt, finishedAt, data, error, raw };
+  const { id, kind, status, startedAt, finishedAt, data, error, raw, parts, partErrors } = job;
+  let steps = job.steps;
+  if (job.composite) {
+    steps = [].concat.apply([], job.subs.map((s) => s.steps || [])).sort((a, b) => a.at - b.at);
+  }
+  return { id, kind, status, steps, startedAt, finishedAt, data, error, raw, parts, partErrors };
 }
 
 // ---------- http ----------
@@ -282,6 +335,7 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'POST' && url.pathname === '/api/settings') {
         const body = await readBody(req);
         if (typeof body.voice === 'boolean') state.settings.voice = body.voice;
+        if (typeof body.since === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.since)) state.settings.since = body.since;
         saveState();
         return send(res, 200, state.settings);
       }

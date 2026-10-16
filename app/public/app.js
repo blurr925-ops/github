@@ -2,7 +2,7 @@
   'use strict';
   var TOKEN = document.querySelector('meta[name="jarvis-token"]').content;
   var $ = function (id) { return document.getElementById(id); };
-  var state = { today: null, bookings: null, settings: { voice: true }, tab: 'today', jobs: {}, dismissed: {} };
+  var state = { today: null, bookings: null, settings: { voice: true }, tab: 'today', jobs: {}, dismissed: {}, pending: {} };
 
   // ---------- helpers ----------
   function api(method, path, body) {
@@ -123,18 +123,18 @@
   }
 
   // ---------- jobs ----------
-  function run(kind, params) {
+  function run(kind, params, onProgress) {
     return api('POST', '/api/run', { kind: kind, params: params || {} }).then(function (job) {
-      state.jobs[kind] = job; updateBusy(); return poll(job.id, kind);
+      state.jobs[kind] = job; updateBusy(); return poll(job.id, kind, onProgress);
     });
   }
-  function poll(id, kind) {
+  function poll(id, kind, onProgress) {
     return new Promise(function (resolve) {
       (function tick() {
         api('GET', '/api/job/' + id).then(function (job) {
           state.jobs[kind] = job;
           renderSteps(kind, job);
-          if (job.status === 'running') return setTimeout(tick, 900);
+          if (job.status === 'running') { if (onProgress) onProgress(job); return setTimeout(tick, 900); }
           delete state.jobs[kind]; updateBusy(); resolve(job);
         }).catch(function () { setTimeout(tick, 2000); });
       })();
@@ -159,15 +159,37 @@
   }
 
   // ---------- TODAY ----------
+  // Today arrives in three parts (inbox, drafts, radar) that run side by side; each card fills in as its part lands.
+  var PART_NAMES = { inbox: 'your inbox', drafts: 'your drafts', radar: 'deadlines' };
+  var partsSig = '';
+  function applyPartial(job) {
+    var parts = job.parts || {};
+    var sig = JSON.stringify(parts);
+    if (sig === partsSig) return;
+    partsSig = sig;
+    state.pending = {};
+    Object.keys(parts).forEach(function (p) { if (parts[p] === 'running') state.pending[p] = true; });
+    if (job.data && Object.keys(job.data).length) {
+      state.today = { data: Object.assign({}, state.today && state.today.data, job.data), at: (state.today && state.today.at) || Date.now() };
+      $('loadingToday').hidden = true;
+      renderToday();
+    }
+  }
   function refreshToday() {
     var have = !!state.today;
     $('errorToday').hidden = true;
-    $('loadingToday').hidden = have; // first run: big loader; later: keep cards, show progress bar
+    $('loadingToday').hidden = have; // first run: big loader until the first part lands
     if (!have) $('todayLayout').hidden = true;
-    return run('today').then(function (job) {
+    state.pending = { inbox: true, drafts: true, radar: true }; partsSig = '';
+    if (have) renderToday();
+    return run('today', {}, applyPartial).then(function (job) {
+      state.pending = {};
       $('loadingToday').hidden = true;
-      if (job.status === 'done') { state.today = { data: job.data, at: job.finishedAt }; renderToday(); }
-      else showError('errorToday', job);
+      if (job.status === 'done') {
+        state.today = { data: job.data, at: job.finishedAt }; renderToday();
+        var failed = Object.keys(job.partErrors || {});
+        if (failed.length) toast('Couldn’t refresh ' + failed.map(function (p) { return PART_NAMES[p] || p; }).join(' and ') + '. Showing the last results.');
+      } else { showError('errorToday', job); if (state.today) renderToday(); }
       if (state.today) $('todayLayout').hidden = false;
     });
   }
@@ -213,6 +235,10 @@
   }
   function fill(listId, countId, items, opts, emptyText) {
     var list = clear($(listId));
+    if (items === undefined && opts && opts.part && state.pending[opts.part]) {
+      if (countId) $(countId).textContent = '…';
+      list.appendChild(el('li', 'loading-row', 'Checking…')); return;
+    }
     items = visible(items, opts && opts.toPrefix ? draftKey : threadKey);
     if (countId) $(countId).textContent = items.length;
     if (!items.length) { list.appendChild(el('li', 'empty', emptyText || 'Nothing here.')); return; }
@@ -249,17 +275,28 @@
   function renderToday() {
     var d = (state.today && state.today.data) || {};
     $('greeting').textContent = greeting();
+    if (!d.headline && state.pending.inbox) $('headline').textContent = 'Going through your inbox…';
     if (d.headline) $('headline').textContent = d.headline.replace(/^Good (morning|afternoon|evening),? sir\.\s*/i, '') || d.headline;
     var drafts = d.drafts || {};
-    fill('list-needs', 'c-needs', d.needsYou, { draft: true }, 'Nothing needs you. Splendid.');
-    fill('list-enq', 'c-enq', d.enquiries, { draft: true }, 'No unanswered enquiries.');
-    fill('list-club', 'c-club', d.clubAdmin, { draft: true }, 'No questions for you.');
-    fill('list-drafts', 'c-drafts', drafts.items, { toPrefix: true }, 'No drafts waiting.');
+    fill('list-needs', 'c-needs', d.needsYou, { draft: true, part: 'inbox' }, 'Nothing needs you. Splendid.');
+    fill('list-enq', 'c-enq', d.enquiries, { draft: true, part: 'inbox' }, 'No unanswered enquiries.');
+    fill('list-club', 'c-club', d.clubAdmin, { draft: true, part: 'inbox' }, 'No questions for you.');
+    fill('list-drafts', 'c-drafts', drafts.items, { toPrefix: true, part: 'drafts' }, 'No drafts waiting.');
+    [['card-needs', 'inbox'], ['card-enq', 'inbox'], ['card-club', 'inbox'], ['card-drafts', 'drafts'], ['card-dead', 'radar'], ['card-24', 'radar']]
+      .forEach(function (c) { $(c[0]).classList.toggle('updating', !!state.pending[c[1]]); });
+    var radarWaiting = d.deadlines === undefined && state.pending.radar;
     $('drafts-older').textContent = drafts.olderCount ? 'Plus ' + drafts.olderCount + ' older drafts.' : '';
-    $('c-dead').textContent = timeline('list-dead', d.deadlines);
-    $('later-wrap').hidden = !timeline('list-later', d.later);
-    var n24 = bullets('list-24', d.last24h);
-    if (!n24) $('list-24').appendChild(el('li', null, 'Nothing of note.'));
+    if (radarWaiting) {
+      $('c-dead').textContent = '…';
+      clear($('list-dead')).appendChild(el('li', 'loading-row', 'Checking…'));
+      clear($('list-24')).appendChild(el('li', 'loading-row', 'Checking…'));
+      $('later-wrap').hidden = true;
+    } else {
+      $('c-dead').textContent = timeline('list-dead', d.deadlines);
+      $('later-wrap').hidden = !timeline('list-later', d.later);
+      var n24 = bullets('list-24', d.last24h);
+      if (!n24) $('list-24').appendChild(el('li', null, 'Nothing of note.'));
+    }
     $('routine').textContent = d.routine || '';
     $('fyi-card').hidden = !bullets('list-fyi', d.fyi);
     $('quip').textContent = d.quip || '';
@@ -271,10 +308,11 @@
     var current = Array.prototype.map.call(col.children, function (n) { return n.id; });
     if (order.join() !== current.join()) order.forEach(function (id) { col.appendChild($(id)); });
     var st = clear($('stats'));
-    st.appendChild(stat('need you', visible(d.needsYou, threadKey).length, 'red'));
-    st.appendChild(stat('drafts', visible(drafts.items, draftKey).length, 'blue'));
-    st.appendChild(stat('enquiries', visible(d.enquiries, threadKey).length, 'green'));
-    st.appendChild(stat('coming up', visible(d.deadlines, deadlineKey).length, 'amber'));
+    var n = function (items, key, part) { return items === undefined && state.pending[part] ? '…' : visible(items, key).length; };
+    st.appendChild(stat('need you', n(d.needsYou, threadKey, 'inbox'), 'red'));
+    st.appendChild(stat('drafts', n(drafts.items, draftKey, 'drafts'), 'blue'));
+    st.appendChild(stat('enquiries', n(d.enquiries, threadKey, 'inbox'), 'green'));
+    st.appendChild(stat('coming up', n(d.deadlines, deadlineKey, 'radar'), 'amber'));
     var nHidden = Object.keys(state.dismissed).length;
     var hb = $('hiddenBtn');
     hb.hidden = !nHidden;
@@ -433,6 +471,30 @@
     if (state.settings.voice) api('POST', '/api/speak', { text: 'Voice on, sir.', force: true }).catch(function () {});
   });
   $('hiddenBtn').addEventListener('click', showHidden);
+  function showSince() {
+    var d = state.settings.since;
+    var nice = d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'the start';
+    $('sinceBtn').textContent = 'Checking email from ' + nice + ' · Change';
+  }
+  $('sinceBtn').addEventListener('click', function () {
+    var v = window.prompt('Only look at emails from this date onwards (YYYY-MM-DD):', state.settings.since || '');
+    if (v == null) return;
+    v = v.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || isNaN(new Date(v + 'T12:00:00Z'))) { toast('That date doesn’t look right. Use YYYY-MM-DD, e.g. 2026-10-16.'); return; }
+    api('POST', '/api/settings', { since: v }).then(function (st) {
+      state.settings.since = st.since; showSince(); toast('Got it. Checking email from ' + st.since + '.');
+      if (!state.jobs.today) refreshToday();
+    }).catch(function () { toast('Couldn’t save that.'); });
+  });
+  // Quiet background refresh: every 15 minutes while the window is open, and when you come back to it.
+  var AUTO_MS = 15 * 60 * 1000;
+  function maybeAutoRefresh() {
+    if (document.visibilityState === 'hidden' && !document.hasFocus()) return;
+    if (state.jobs.today || !state.today) return;
+    if (Date.now() - state.today.at > AUTO_MS) refreshToday();
+  }
+  setInterval(maybeAutoRefresh, 60 * 1000);
+  window.addEventListener('focus', maybeAutoRefresh);
   $('askForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var q = $('askInput').value.trim(); if (!q) return;
@@ -449,17 +511,18 @@
 
   // Boot: show the last saved results instantly, then refresh if they're stale.
   api('GET', '/api/state').then(function (s) {
-    state.today = s.today; state.bookings = s.bookings; state.dismissed = s.dismissed || {}; setVoice(s.settings ? s.settings.voice !== false : true);
+    state.today = s.today; state.bookings = s.bookings; state.dismissed = s.dismissed || {};
+    if (s.settings) state.settings.since = s.settings.since; showSince(); setVoice(s.settings ? s.settings.voice !== false : true);
     if (state.today) renderToday();
     if (state.bookings) renderBookings();
     arr(s.running).forEach(function (r) {
       state.jobs[r.kind] = { id: r.id, steps: [] }; updateBusy();
       poll(r.id, r.kind).then(function (job) {
-        if (job.status === 'done' && r.kind === 'today') { state.today = { data: job.data, at: job.finishedAt }; renderToday(); }
+        if (job.status === 'done' && r.kind === 'today') { state.pending = {}; state.today = { data: job.data, at: job.finishedAt }; renderToday(); }
         if (job.status === 'done' && r.kind === 'bookings') { state.bookings = { data: job.data, at: job.finishedAt }; renderBookings(); }
       });
     });
-    var stale = !state.today || (Date.now() - state.today.at > 20 * 60 * 1000);
+    var stale = !state.today || (Date.now() - state.today.at > AUTO_MS);
     if (stale && !state.jobs.today) refreshToday();
   }).catch(function (e) {
     var box = clear($('errorToday')); box.appendChild(el('b', null, 'Can’t reach JARVIS. ')); box.appendChild(document.createTextNode(e.message)); box.hidden = false;

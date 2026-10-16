@@ -8,30 +8,63 @@ For each thread you list, include its Gmail viewUrl as "url" and its thread id a
 Dates: London time. Ages: short, like "2d", "5h".
 Reply with ONLY the JSON object described below: no prose, no markdown, no code fences.`;
 
-function today(params) {
-  const now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  return `${COMMON}
-It is ${now} in London. This task is READ-ONLY: do not create drafts, send, label or change anything.
+function nowLondon() {
+  return new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+// Olly's start date: ignore all email before it (YYYY-MM-DD -> Gmail's after:YYYY/MM/DD).
+function sinceRule(params) {
+  const since = /^\d{4}-\d{2}-\d{2}$/.test(String(params.since || '')) ? params.since : null;
+  if (!since) return { q: '', text: '' };
+  const prev = new Date(since + 'T12:00:00Z'); prev.setUTCDate(prev.getUTCDate() - 1); // after: is exclusive
+  const q = 'after:' + prev.toISOString().slice(0, 10).replace(/-/g, '/');
+  return { q, text: `ONLY look at email from ${since} onwards: add "${q}" to EVERY Gmail search and ignore drafts, threads and messages older than that. Do not look further back.` };
+}
+const SPEED = `Be quick: use as few tool calls as possible. Search results show up to 5 messages per thread; if a thread has no more messages than that, you already know who sent the latest one, so don't fetch it. Only call get_thread (messageFormat MINIMAL) when a thread has more messages than the preview shows. Don't read Drive docs for this task.`;
 
-${dismissedNote(params && params.dismissed)}
-Build Olly's day:
-- drafts: his Gmail drafts from the last 30 days, newest first. List drafts metadata-only first (DRAFT_VIEW_METADATA_ONLY), then get_draft only for the recent ones. "gist" is one line on what it says, or "No text written yet" if it only quotes the thread. olderCount = drafts older than 30 days.
+function todayHeader(part, params) {
+  const since = sinceRule(params);
+  return `[[part:${part}]]
+${COMMON}
+It is ${nowLondon()} in London. This task is READ-ONLY: do not create drafts, send, label or change anything.
+${since.text}
+${SPEED}
+${dismissedNote(params && params.dismissed)}`;
+}
+
+function todayInbox(params) {
+  return `${todayHeader('inbox', params)}
+Build this part of Olly's day:
 - needsYou: OB/Needs Olly threads where the latest message isn't from Olly and it needs something from him. Pure FYI (booking confirmations for his own courses, "many thanks" sign-offs) goes in "fyi" instead.
 - clubAdmin: OB/Club Admin threads that ask Olly something directly (by name or role) that nobody has answered and he hasn't replied to.
-- enquiries: OB/Enquiry threads where the latest message isn't from Olly and there is no draft on that thread.
-- last24h: anything from the last 24 hours worth knowing that isn't listed above (one line each). "routine": one line of counts for routine mail (bookings, money, personal, promotions).
-- deadlines: deadlines in the next 7 days found in his email (renewals, camps, forms, invoices, entries, meetings). Before listing a renewal, check for a later payment/confirmation showing it's done; skip it if so. "later": the same for days 8 to 21.
-- headline: one calm spoken sentence for the top of the app, e.g. "Good afternoon, sir. Two things need you, one of them today." No markdown.
-- quip: one short dry JARVIS line to finish.
-- oldest: the item that has waited longest, e.g. "Mowden Hall".
+- enquiries: OB/Enquiry threads where the latest message isn't from Olly and there is no draft on that thread (check with one list_drafts call, metadata only).
+- headline: one calm spoken sentence for the top of the app about these items, e.g. "Good afternoon, sir. Two things need you, one of them today." No markdown.
+- quip: one short dry JARVIS line. oldest: the item that has waited longest.
 
 JSON shape:
 {"headline":"","quip":"","oldest":"",
  "needsYou":[{"who":"","subject":"","gist":"","since":"","urgent":false,"reopened":false,"threadId":"","url":""}],
- "drafts":{"items":[{"to":"","subject":"","gist":"","date":"","threadId":"","url":""}],"olderCount":0},
- "clubAdmin":[{"who":"","subject":"","gist":"","since":"","threadId":"","url":""}],
- "enquiries":[{"who":"","subject":"","gist":"","since":"","threadId":"","url":""}],
- "fyi":[""],"last24h":[""],"routine":"",
+ "clubAdmin":[{"who":"","subject":"","gist":"","since":"","reopened":false,"threadId":"","url":""}],
+ "enquiries":[{"who":"","subject":"","gist":"","since":"","reopened":false,"threadId":"","url":""}],
+ "fyi":[""]}`;
+}
+
+function todayDrafts(params) {
+  return `${todayHeader('drafts', params)}
+Build this part of Olly's day:
+- drafts: his Gmail drafts, newest first. Call list_drafts with DRAFT_VIEW_METADATA_ONLY, then get_draft only for drafts inside the date range above (at most 10). "gist" is one line on what it says, or "No text written yet" if it only quotes the thread. olderCount = how many drafts are older than the range (from the metadata list; don't open them).
+
+JSON shape:
+{"drafts":{"items":[{"to":"","subject":"","gist":"","date":"","threadId":"","url":""}],"olderCount":0}}`;
+}
+
+function todayRadar(params) {
+  return `${todayHeader('radar', params)}
+Build this part of Olly's day:
+- last24h: anything from the last 24 hours worth knowing that isn't a to-do (one line each). One search: newer_than:1d. "routine": one line of counts for routine mail (bookings, money, personal, promotions).
+- deadlines: deadlines in the next 7 days mentioned in his email (renewals, camps, forms, invoices, entries, meetings). One or two keyword searches. Before listing a renewal, check for a later payment/confirmation showing it's done; skip it if so. "later": the same for days 8 to 21.
+
+JSON shape:
+{"last24h":[""],"routine":"",
  "deadlines":[{"date":"YYYY-MM-DD","when":"Fri 16 Oct, 7pm","what":"","from":"","url":""}],
  "later":[{"date":"YYYY-MM-DD","when":"","what":"","from":"","url":""}]}`;
 }
@@ -87,7 +120,9 @@ Answer him directly and briefly, in markdown (short headings, bullets, bold name
 
 module.exports = {
   build(kind, params) {
-    if (kind === 'today') return today(params);
+    if (kind === 'today:inbox') return todayInbox(params);
+    if (kind === 'today:drafts') return todayDrafts(params);
+    if (kind === 'today:radar') return todayRadar(params);
     if (kind === 'bookings') return bookings();
     if (kind === 'draft') return params.threadId ? draft(params) : null;
     if (kind === 'ask') return params.question ? ask(params) : null;

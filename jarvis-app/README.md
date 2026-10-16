@@ -12,7 +12,10 @@ NO_LAUNCH=1 bash jarvis-app/build.sh  # build and install without opening
 - `Jarvis.app` (compiled from `Jarvis.applescript.template`) starts a small helper, `app/server.js` (Node, no dependencies), on `127.0.0.1:4777`, then opens the window. It uses a chromeless app window in Chrome, Edge or Brave if one is installed, otherwise Safari.
 - The helper runs `claude -p` in this folder for each screen, so `CLAUDE.md` applies. It uses only your claude.ai Gmail and Google Drive connectors. Sending, forwarding, deleting, trashing and sharing tools are blocked on the command line, as are Bash and file editing.
 - The page talks only to this machine, and every request carries a per-launch token, so other websites can't drive it.
-- Results are cached in `app/data/state.json`, so the window opens instantly with the last list and refreshes when it's more than 20 minutes old.
+- "Today" runs as three Claude Code sessions in parallel (inbox, drafts, deadlines and the last 24 hours) and each card fills in as its part finishes.
+- Only email from a start date onwards is checked (default: the day the app was first used; change it with "Checking email from … · Change" at the bottom).
+- Results are cached in `app/data/state.json`, so the window opens instantly with the last list, and it refreshes quietly every 15 minutes while open.
+- **Done ✓** hides an item (Undo, or Restore later); it comes back by itself if someone replies.
 - Voice: the headline is spoken with `say -v Daniel`. Toggle it with the speaker button.
 
 `build.sh` finds `claude` and `node`, bakes their full paths and this folder's path into the app, sets the arc-reactor icon (`jarvis_icon.png`, made by `make_icon.py`), re-signs the bundle, stops any old helper and installs to `/Applications`. Re-run it if you move this folder or reinstall Claude Code or Node.
