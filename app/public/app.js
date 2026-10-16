@@ -2,7 +2,7 @@
   'use strict';
   var TOKEN = document.querySelector('meta[name="jarvis-token"]').content;
   var $ = function (id) { return document.getElementById(id); };
-  var state = { today: null, bookings: null, settings: { voice: true }, tab: 'today', jobs: {} };
+  var state = { today: null, bookings: null, settings: { voice: true }, tab: 'today', jobs: {}, dismissed: {} };
 
   // ---------- helpers ----------
   function api(method, path, body) {
@@ -27,9 +27,47 @@
     a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
     return a;
   }
-  function toast(msg) {
-    var t = $('toast'); t.textContent = msg; t.hidden = false;
-    clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 3200);
+  function toast(msg, actionLabel, action) {
+    var t = clear($('toast'));
+    t.appendChild(el('span', null, msg));
+    if (actionLabel) {
+      var b = el('button', 'toast-btn', actionLabel); b.type = 'button';
+      b.addEventListener('click', function () { t.hidden = true; action(); });
+      t.appendChild(b);
+    }
+    t.hidden = false;
+    clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, actionLabel ? 7000 : 3200);
+  }
+
+  // ---------- done / dismissed items ----------
+  function threadKey(it) { return it && it.threadId ? 't:' + it.threadId : null; }
+  function draftKey(it) { return it && it.threadId ? 'r:' + it.threadId : null; }
+  function deadlineKey(d) { return 'd:' + (d.date || '') + '|' + String(d.what || '').trim().toLowerCase(); }
+  function visible(items, keyFn) {
+    return arr(items).filter(function (it) {
+      var k = keyFn(it);
+      if (!k || !state.dismissed[k]) return true;
+      if (it.reopened) { restore(k, true); return true; } // something new arrived since it was dismissed
+      return false;
+    });
+  }
+  function dismiss(key, label, node) {
+    if (!key) return;
+    state.dismissed[key] = { at: Date.now(), label: label };
+    var after = function () { renderToday(); };
+    if (node) { node.classList.add('leaving'); setTimeout(after, 260); } else after();
+    api('POST', '/api/dismiss', { key: key, label: label }).catch(function () { toast('Couldn’t save that. Try again.'); });
+    toast('Done: ' + label, 'Undo', function () { restore(key); });
+  }
+  function restore(key, quiet) {
+    delete state.dismissed[key];
+    api('POST', '/api/dismiss', { key: key, restore: true }).catch(function () {});
+    if (!quiet) renderToday();
+  }
+  function doneButton(key, label, node) {
+    var b = el('button', 'chip done', 'Done ✓'); b.type = 'button'; b.title = 'Handled or not needed: hide it';
+    b.addEventListener('click', function () { dismiss(key, label, node()); });
+    return b;
   }
   function hue(s) { var h = 0; s = String(s || ''); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
   function initials(s) {
@@ -145,6 +183,7 @@
     var li = el('li', 'item');
     var who = it.who || it.to || 'Unknown';
     var av = el('div', 'avatar' + (it.urgent ? ' urgent' : ''), initials(who));
+    if (it.reopened) li.classList.add('reopened');
     var h = hue(who);
     av.style.background = 'linear-gradient(135deg, hsl(' + h + ',85%,72%), hsl(' + ((h + 40) % 360) + ',80%,58%))';
     li.appendChild(av);
@@ -166,13 +205,15 @@
     }
     var u = safeUrl(it.url);
     if (u) acts.appendChild(link('Open ↗', u));
+    var key = (opts.toPrefix ? draftKey : threadKey)(it);
+    if (key) acts.appendChild(doneButton(key, (who + (it.subject ? ' · ' + it.subject : '')).slice(0, 120), function () { return li; }));
     meta.appendChild(acts);
     li.appendChild(meta);
     return li;
   }
   function fill(listId, countId, items, opts, emptyText) {
     var list = clear($(listId));
-    items = arr(items);
+    items = visible(items, opts && opts.toPrefix ? draftKey : threadKey);
     if (countId) $(countId).textContent = items.length;
     if (!items.length) { list.appendChild(el('li', 'empty', emptyText || 'Nothing here.')); return; }
     items.forEach(function (it) { list.appendChild(itemRow(it, opts)); });
@@ -180,8 +221,12 @@
   function timeline(listId, items) {
     var list = clear($(listId));
     var todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
-    arr(items).forEach(function (d) {
+    items = visible(items, deadlineKey);
+    items.forEach(function (d) {
       var li = el('li', 'tl' + (d.date === todayIso ? ' today' : ''));
+      var x = el('button', 'tl-done', '✓'); x.type = 'button'; x.title = 'Done: hide it';
+      x.addEventListener('click', function () { dismiss(deadlineKey(d), String(d.what || 'Deadline').slice(0, 120), li); });
+      li.appendChild(x);
       li.appendChild(el('div', 'when', d.date === todayIso ? 'Today · ' + (d.when || '') : (d.when || d.date || '')));
       var what = el('div', 'what', d.what || '');
       li.appendChild(what);
@@ -189,7 +234,8 @@
       var u = safeUrl(d.url); if (u) { what.appendChild(document.createTextNode(' ')); what.appendChild(link('↗', u, '')); }
       list.appendChild(li);
     });
-    if (!arr(items).length) list.appendChild(el('li', 'empty', 'Nothing on the horizon.'));
+    if (!items.length) list.appendChild(el('li', 'empty', 'Nothing on the horizon.'));
+    return items.length;
   }
   function bullets(listId, items) {
     var list = clear($(listId));
@@ -210,10 +256,8 @@
     fill('list-club', 'c-club', d.clubAdmin, { draft: true }, 'No questions for you.');
     fill('list-drafts', 'c-drafts', drafts.items, { toPrefix: true }, 'No drafts waiting.');
     $('drafts-older').textContent = drafts.olderCount ? 'Plus ' + drafts.olderCount + ' older drafts.' : '';
-    timeline('list-dead', d.deadlines);
-    $('c-dead').textContent = arr(d.deadlines).length;
-    $('later-wrap').hidden = !arr(d.later).length;
-    timeline('list-later', d.later);
+    $('c-dead').textContent = timeline('list-dead', d.deadlines);
+    $('later-wrap').hidden = !timeline('list-later', d.later);
     var n24 = bullets('list-24', d.last24h);
     if (!n24) $('list-24').appendChild(el('li', null, 'Nothing of note.'));
     $('routine').textContent = d.routine || '';
@@ -221,14 +265,20 @@
     $('quip').textContent = d.quip || '';
     // Cards with something in them first; empty ones sink to the bottom.
     var col = document.querySelector('.main-col');
-    var cards = [['card-needs', d.needsYou], ['card-enq', d.enquiries], ['card-club', d.clubAdmin], ['card-drafts', drafts.items]];
-    cards.filter(function (c) { return arr(c[1]).length; }).concat(cards.filter(function (c) { return !arr(c[1]).length; }))
-      .forEach(function (c) { col.appendChild($(c[0])); });
+    var cards = [['card-needs', d.needsYou], ['card-enq', d.enquiries], ['card-club', d.clubAdmin], ['card-drafts', drafts.items, draftKey]];
+    var has = function (c) { return visible(c[1], c[2] || threadKey).length > 0; };
+    var order = cards.filter(has).concat(cards.filter(function (c) { return !has(c); })).map(function (c) { return c[0]; });
+    var current = Array.prototype.map.call(col.children, function (n) { return n.id; });
+    if (order.join() !== current.join()) order.forEach(function (id) { col.appendChild($(id)); });
     var st = clear($('stats'));
-    st.appendChild(stat('need you', arr(d.needsYou).length, 'red'));
-    st.appendChild(stat('drafts', arr(drafts.items).length, 'blue'));
-    st.appendChild(stat('enquiries', arr(d.enquiries).length, 'green'));
-    st.appendChild(stat('coming up', arr(d.deadlines).length, 'amber'));
+    st.appendChild(stat('need you', visible(d.needsYou, threadKey).length, 'red'));
+    st.appendChild(stat('drafts', visible(drafts.items, draftKey).length, 'blue'));
+    st.appendChild(stat('enquiries', visible(d.enquiries, threadKey).length, 'green'));
+    st.appendChild(stat('coming up', visible(d.deadlines, deadlineKey).length, 'amber'));
+    var nHidden = Object.keys(state.dismissed).length;
+    var hb = $('hiddenBtn');
+    hb.hidden = !nHidden;
+    hb.textContent = nHidden + ' done item' + (nHidden === 1 ? '' : 's') + ' hidden · Show';
     $('todayLayout').hidden = false;
     updateStamp();
   }
@@ -328,6 +378,27 @@
     });
   }
 
+  function showHidden() {
+    var body = openSheet('Done & hidden');
+    var keys = Object.keys(state.dismissed).sort(function (a, b) { return state.dismissed[b].at - state.dismissed[a].at; });
+    if (!keys.length) { body.appendChild(el('p', 'empty', 'Nothing hidden.')); return; }
+    body.appendChild(el('p', 'q', 'These stay hidden after each refresh. If someone replies to one of them, it comes back by itself.'));
+    var ul = el('ul', 'items');
+    keys.forEach(function (k) {
+      var d = state.dismissed[k];
+      var li = el('li', 'item hidden-row');
+      var b = el('div');
+      b.appendChild(el('div', 'who', d.label || k));
+      b.appendChild(el('div', 'gist', (k.indexOf('d:') === 0 ? 'Deadline' : k.indexOf('r:') === 0 ? 'Draft' : 'Email') + ' · hidden ' + ago(d.at)));
+      li.appendChild(b);
+      var r = el('button', 'chip', 'Restore'); r.type = 'button';
+      r.addEventListener('click', function () { restore(k); li.parentNode.removeChild(li); if (!ul.children.length) closeSheet(); });
+      li.appendChild(r);
+      ul.appendChild(li);
+    });
+    body.appendChild(ul);
+  }
+
   // ---------- chrome ----------
   function updateStamp() {
     var s = state.tab === 'today' ? state.today : state.bookings;
@@ -358,8 +429,10 @@
   $('voiceBtn').addEventListener('click', function () {
     setVoice(!state.settings.voice);
     api('POST', '/api/settings', { voice: state.settings.voice }).catch(function () {});
-    toast(state.settings.voice ? 'Voice on.' : 'Voice off. Blissful silence.');
+    toast(state.settings.voice ? 'Voice on. You should hear me now.' : 'Voice off. Blissful silence.');
+    if (state.settings.voice) api('POST', '/api/speak', { text: 'Voice on, sir.', force: true }).catch(function () {});
   });
+  $('hiddenBtn').addEventListener('click', showHidden);
   $('askForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var q = $('askInput').value.trim(); if (!q) return;
@@ -376,7 +449,7 @@
 
   // Boot: show the last saved results instantly, then refresh if they're stale.
   api('GET', '/api/state').then(function (s) {
-    state.today = s.today; state.bookings = s.bookings; setVoice(s.settings ? s.settings.voice !== false : true);
+    state.today = s.today; state.bookings = s.bookings; state.dismissed = s.dismissed || {}; setVoice(s.settings ? s.settings.voice !== false : true);
     if (state.today) renderToday();
     if (state.bookings) renderBookings();
     arr(s.running).forEach(function (r) {

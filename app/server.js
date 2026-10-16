@@ -49,6 +49,11 @@ function loadState() {
 }
 let state = loadState(); // { today: {data, at}, bookings: {data, at}, settings: {voice} }
 state.settings = Object.assign({ voice: true }, state.settings);
+state.dismissed = state.dismissed || {}; // key -> { at, label }
+(function prune() { // forget dismissals after 30 days
+  const cutoff = Date.now() - 30 * 24 * 3600 * 1000;
+  for (const k of Object.keys(state.dismissed)) if (state.dismissed[k].at < cutoff) delete state.dismissed[k];
+})();
 function saveState() {
   fs.writeFileSync(STATE_FILE + '.tmp', JSON.stringify(state, null, 2));
   fs.renameSync(STATE_FILE + '.tmp', STATE_FILE);
@@ -90,20 +95,26 @@ function extractJson(text) {
   try { return JSON.parse(cleaned.slice(start, end + 1)); } catch (e) { return null; }
 }
 
-function speak(text) {
-  if (!state.settings.voice || process.env.JARVIS_VOICE === 'off' || !text) return;
+function speak(text, force) {
+  if ((!state.settings.voice && !force) || !text) return;
   const sentence = String(text).replace(/[*_`#>|]/g, '').replace(/\s+/g, ' ').trim()
     .replace(/^(.*?[.!?])(\s.*)?$/, '$1').slice(0, 220);
-  try {
-    const p = spawn('say', ['-v', process.env.JARVIS_VOICE_NAME || 'Daniel', sentence], { stdio: 'ignore', detached: true });
-    p.on('error', () => {});
-    p.unref();
-  } catch (e) { /* no `say` on this machine */ }
+  const say = fs.existsSync('/usr/bin/say') ? '/usr/bin/say' : 'say';
+  const run = (args, onFail) => {
+    let err = '';
+    let p;
+    try { p = spawn(say, args, { stdio: ['ignore', 'ignore', 'pipe'] }); } catch (e) { console.error('voice: ' + e.message); return; }
+    p.stderr.on('data', (c) => { err += c; });
+    p.on('error', (e) => console.error('voice: cannot run say (' + e.message + ')'));
+    p.on('close', (code) => { if (code) { console.error('voice: say exited ' + code + ' ' + err.trim()); if (onFail) onFail(); } });
+  };
+  // Try the British voice first; if it isn't installed, use the Mac's default voice.
+  run(['-v', process.env.JARVIS_VOICE_NAME || 'Daniel', sentence], () => run([sentence]));
 }
 
 function startJob(kind, params) {
   if (running.has(kind)) return jobs.get(running.get(kind));
-  const prompt = prompts.build(kind, params || {});
+  const prompt = prompts.build(kind, Object.assign({}, params || {}, kind === 'today' ? { dismissed: state.dismissed } : {}));
   if (!prompt) throw new Error('Unknown job: ' + kind);
   const id = crypto.randomBytes(6).toString('hex');
   const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null, log: [], stderr: '' };
@@ -255,7 +266,7 @@ const server = http.createServer(async (req, res) => {
     try {
       if (req.method === 'GET' && url.pathname === '/api/state') {
         return send(res, 200, {
-          today: state.today || null, bookings: state.bookings || null, settings: state.settings,
+          today: state.today || null, bookings: state.bookings || null, settings: state.settings, dismissed: state.dismissed,
           running: Array.from(running.entries()).map(([kind, id]) => ({ kind, id })),
         });
       }
@@ -274,9 +285,18 @@ const server = http.createServer(async (req, res) => {
         saveState();
         return send(res, 200, state.settings);
       }
+      if (req.method === 'POST' && url.pathname === '/api/dismiss') {
+        const body = await readBody(req);
+        const key = String(body.key || '').slice(0, 300);
+        if (!key) return send(res, 400, { error: 'key required' });
+        if (body.restore) delete state.dismissed[key];
+        else state.dismissed[key] = { at: Date.now(), label: String(body.label || '').slice(0, 200) };
+        saveState();
+        return send(res, 200, { dismissed: state.dismissed });
+      }
       if (req.method === 'POST' && url.pathname === '/api/speak') {
         const body = await readBody(req);
-        speak(String(body.text || '').slice(0, 300));
+        speak(String(body.text || '').slice(0, 300), body.force === true);
         return send(res, 200, { ok: true });
       }
       return send(res, 404, { error: 'not found' });

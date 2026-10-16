@@ -8,11 +8,12 @@ For each thread you list, include its Gmail viewUrl as "url" and its thread id a
 Dates: London time. Ages: short, like "2d", "5h".
 Reply with ONLY the JSON object described below: no prose, no markdown, no code fences.`;
 
-function today() {
+function today(params) {
   const now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   return `${COMMON}
 It is ${now} in London. This task is READ-ONLY: do not create drafts, send, label or change anything.
 
+${dismissedNote(params && params.dismissed)}
 Build Olly's day:
 - drafts: his Gmail drafts from the last 30 days, newest first. List drafts metadata-only first (DRAFT_VIEW_METADATA_ONLY), then get_draft only for the recent ones. "gist" is one line on what it says, or "No text written yet" if it only quotes the thread. olderCount = drafts older than 30 days.
 - needsYou: OB/Needs Olly threads where the latest message isn't from Olly and it needs something from him. Pure FYI (booking confirmations for his own courses, "many thanks" sign-offs) goes in "fyi" instead.
@@ -26,13 +27,27 @@ Build Olly's day:
 
 JSON shape:
 {"headline":"","quip":"","oldest":"",
- "needsYou":[{"who":"","subject":"","gist":"","since":"","urgent":false,"threadId":"","url":""}],
+ "needsYou":[{"who":"","subject":"","gist":"","since":"","urgent":false,"reopened":false,"threadId":"","url":""}],
  "drafts":{"items":[{"to":"","subject":"","gist":"","date":"","threadId":"","url":""}],"olderCount":0},
  "clubAdmin":[{"who":"","subject":"","gist":"","since":"","threadId":"","url":""}],
  "enquiries":[{"who":"","subject":"","gist":"","since":"","threadId":"","url":""}],
  "fyi":[""],"last24h":[""],"routine":"",
  "deadlines":[{"date":"YYYY-MM-DD","when":"Fri 16 Oct, 7pm","what":"","from":"","url":""}],
  "later":[{"date":"YYYY-MM-DD","when":"","what":"","from":"","url":""}]}`;
+}
+
+// Items Olly marked as done/not needed in the app. Leave them out unless something new has arrived since.
+function dismissedNote(dismissed) {
+  const rows = Object.keys(dismissed || {}).slice(0, 80).map((k) => {
+    const d = dismissed[k];
+    const when = new Date(d.at).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return '- ' + k.replace(/[\r\n]/g, ' ') + ' (' + String(d.label || '').replace(/[\r\n]/g, ' ') + '), dismissed ' + when;
+  });
+  if (!rows.length) return '';
+  return `Olly has marked these as done or not needed. Leave them out. Exception: a thread that has received a NEW message from someone other than Olly after the dismissal time; include that one and set "reopened": true on it.
+Keys are "t:<threadId>" for threads, "r:<threadId>" for a draft on that thread (leave that draft out of "drafts"), and "d:<date>|<what>" for deadlines.
+${rows.join('\n')}
+`;
 }
 
 function bookings() {
@@ -72,7 +87,7 @@ Answer him directly and briefly, in markdown (short headings, bullets, bold name
 
 module.exports = {
   build(kind, params) {
-    if (kind === 'today') return today();
+    if (kind === 'today') return today(params);
     if (kind === 'bookings') return bookings();
     if (kind === 'draft') return params.threadId ? draft(params) : null;
     if (kind === 'ask') return params.question ? ask(params) : null;
