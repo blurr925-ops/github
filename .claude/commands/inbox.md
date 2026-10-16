@@ -1,6 +1,10 @@
 ---
 description: What's new in Gmail since this morning
 ---
+
+**How to run this (keep Olly's screen clean):** Do all the Gmail and Drive lookups inside ONE subagent (the Agent tool). Give it every instruction below plus the hard rules from CLAUDE.md, tell it the job is read-only, and ask it to return only the finished output. Then print that output exactly as returned, with nothing before it: no narration, no JSON, no tool talk. If the subagent fails, do the lookups yourself and still show only the finished output.
+For drafts: list them metadata-only first (`DRAFT_VIEW_METADATA_ONLY`), then fetch full text only for drafts from the last 30 days.
+
 Summarise what's arrived in Gmail since 06:00 today, London time (if it's before 06:00, since 06:00 yesterday). Read only; don't send, label or change anything.
 
 - First line: the headline (how many new threads, and anything that looks urgent).

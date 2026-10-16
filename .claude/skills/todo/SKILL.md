@@ -2,6 +2,10 @@
 name: todo
 description: Give me my to-do list (built from Gmail)
 ---
+
+**How to run this (keep Olly's screen clean):** Do all the Gmail and Drive lookups inside ONE subagent (the Agent tool). Give it every instruction below plus the hard rules from CLAUDE.md, tell it the job is read-only, and ask it to return only the finished output. Then print that output exactly as returned, with nothing before it: no narration, no JSON, no tool talk. If the subagent fails, do the lookups yourself and still show only the finished output.
+For drafts: list them metadata-only first (`DRAFT_VIEW_METADATA_ONLY`), then fetch full text only for drafts from the last 30 days.
+
 Give me my to-do list for today. Use the Gmail connector only. Read, search and list; do not send, label or change anything.
 
 Build four groups, in this order:
