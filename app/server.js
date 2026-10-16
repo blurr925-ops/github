@@ -106,7 +106,7 @@ function startJob(kind, params) {
   const prompt = prompts.build(kind, params || {});
   if (!prompt) throw new Error('Unknown job: ' + kind);
   const id = crypto.randomBytes(6).toString('hex');
-  const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null };
+  const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null, log: [], stderr: '' };
   jobs.set(id, job);
   running.set(kind, id);
 
@@ -138,7 +138,7 @@ function startJob(kind, params) {
       if (line) handleEvent(job, line);
     }
   });
-  child.stderr.on('data', (c) => { stderr += c.toString('utf8'); if (stderr.length > 8000) stderr = stderr.slice(-8000); });
+  child.stderr.on('data', (c) => { stderr += c.toString('utf8'); if (stderr.length > 8000) stderr = stderr.slice(-8000); job.stderr = stderr; });
   child.on('error', (e) => finish(job, e.code === 'ENOENT'
     ? 'Claude Code was not found at ' + CLAUDE_BIN + '. Rebuild Jarvis.app or set JARVIS_CLAUDE_BIN.'
     : 'Claude Code failed to start: ' + e.message));
@@ -156,10 +156,13 @@ function startJob(kind, params) {
 }
 
 function handleEvent(job, line) {
+  job.log.push(line.length > 2000 ? line.slice(0, 2000) + '…' : line);
+  if (job.log.length > 200) job.log.shift();
   let ev;
   try { ev = JSON.parse(line); } catch (e) { return; }
   if (ev.type === 'assistant' && ev.message && Array.isArray(ev.message.content)) {
     for (const c of ev.message.content) {
+      if (c.type === 'text' && c.text) job.lastText = String(c.text).slice(0, 400);
       if (c.type === 'tool_use') {
         const label = friendlyStep(c.name, c.input);
         const last = job.steps[job.steps.length - 1];
@@ -169,7 +172,15 @@ function handleEvent(job, line) {
     }
   } else if (ev.type === 'result') {
     if (ev.is_error || (ev.subtype && ev.subtype !== 'success')) {
-      finish(job, (ev.result && String(ev.result)) || 'Claude Code reported an error (' + ev.subtype + ').');
+      // Say what actually went wrong: errors, blocked tools, or the last thing Claude said.
+      const parts = [];
+      if (ev.result) parts.push(String(ev.result));
+      if (Array.isArray(ev.errors) && ev.errors.length) parts.push(ev.errors.map(String).join(' | '));
+      const denied = Array.isArray(ev.permission_denials) ? ev.permission_denials.map((d) => d && d.tool_name).filter(Boolean) : [];
+      if (denied.length) parts.push('Blocked tools: ' + Array.from(new Set(denied)).join(', '));
+      if (ev.subtype === 'error_max_turns') parts.push('It ran out of steps.');
+      if (!parts.length && job.lastText) parts.push('Last message: ' + job.lastText);
+      finish(job, 'Claude Code stopped (' + ev.subtype + '). ' + (parts.join(' ') || 'No details given.'));
     } else {
       finish(job, null, ev.result || '');
     }
@@ -181,7 +192,14 @@ function finish(job, error, resultText) {
   clearTimeout(job.timer);
   running.delete(job.kind);
   job.finishedAt = Date.now();
-  if (error) { job.status = 'error'; job.error = String(error).slice(0, 600); return; }
+  if (error) {
+    job.status = 'error'; job.error = String(error).slice(0, 900);
+    const logText = 'JARVIS ' + job.kind + ' job ' + new Date().toISOString() + '\nERROR: ' + job.error +
+      '\n\n--- stderr ---\n' + (job.stderr || '') + '\n--- stream (last lines) ---\n' + job.log.join('\n');
+    try { fs.writeFileSync(path.join(DATA_DIR, 'last-error.log'), logText); } catch (e) {}
+    job.raw = ((job.stderr || '').trim() + '\n' + job.log.slice(-4).join('\n')).trim().slice(-3000) + '\n\n(Full log: app/data/last-error.log in the JARVIS folder)';
+    return;
+  }
   job.result = resultText;
   if (job.kind === 'ask') {
     job.data = { text: resultText };
