@@ -198,7 +198,7 @@ function openFixTerminal() {
 function startJob(kind, params, onDone) {
   if (kind === 'today') return startToday();
   if (running.has(kind)) return jobs.get(running.get(kind));
-  const prompt = prompts.build(kind, Object.assign({}, params || {}, /^today:/.test(kind) ? { dismissed: state.dismissed, since: state.settings.since } : {}));
+  const prompt = prompts.build(kind, Object.assign({}, params || {}, /^today:/.test(kind) ? { dismissed: state.dismissed, since: state.settings.since } : kind === 'bookings' ? { since: state.settings.since } : {}));
   if (!prompt) throw new Error('Unknown job: ' + kind);
   const id = crypto.randomBytes(6).toString('hex');
   const job = { id, kind, status: 'running', steps: [], startedAt: Date.now(), result: null, data: null, error: null, log: [], stderr: '', onDone };

@@ -483,7 +483,7 @@
     });
     $('view-today').hidden = tab !== 'today';
     $('view-bookings').hidden = tab !== 'bookings';
-    if (tab === 'bookings' && !state.bookings && !state.jobs.bookings) refreshBookings();
+    if (tab === 'bookings' && !state.jobs.bookings && (!state.bookings || Date.now() - state.bookings.at > AUTO_MS)) refreshBookings();
     updateBusy(); updateStamp();
   }
   function setVoice(on) {
@@ -524,8 +524,9 @@
   var AUTO_MS = 15 * 60 * 1000;
   function maybeAutoRefresh() {
     if (document.visibilityState === 'hidden' && !document.hasFocus()) return;
-    if (state.jobs.today || !state.today) return;
-    if (Date.now() - state.today.at > AUTO_MS) refreshToday();
+    if (!state.jobs.today && state.today && Date.now() - state.today.at > AUTO_MS) refreshToday();
+    // Bookings too, so new ClubSpark bookings show up without pressing Refresh.
+    if (!state.jobs.bookings && (!state.bookings || Date.now() - state.bookings.at > AUTO_MS)) refreshBookings();
   }
   setInterval(maybeAutoRefresh, 60 * 1000);
   window.addEventListener('focus', maybeAutoRefresh);

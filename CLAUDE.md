@@ -87,3 +87,7 @@ A Stop hook in `.claude/settings.json` reads the first sentence of each reply al
 ## OB/Swept is not "done"
 
 `OB/Swept` only means the hourly sweep has labelled the thread. It does NOT mean it has been handled. Never exclude `OB/Swept` (no `-label:OB/Swept`) when building /todo, /brief, /inbox or /bookings. Judge whether something is open by who sent the latest message and whether a draft exists.
+
+## Work only
+
+JARVIS is for OB Tennis. Ignore personal, shopping and marketing email completely (OB/Personal, Promotions/Social tabs, Vinted, Temu, Amazon, eBay, Royal Mail, Trading 212, Discord, newsletters, sales). Don't list or count it in /todo, /brief, /inbox or the app. If unsure whether something is work, leave it out.
