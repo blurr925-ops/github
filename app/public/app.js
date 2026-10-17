@@ -188,8 +188,14 @@
       if (job.status === 'done') {
         state.today = { data: job.data, at: job.finishedAt }; renderToday();
         var failed = Object.keys(job.partErrors || {});
+        if (failed.length) checkConnection(true);
         if (failed.length) toast('Couldn’t refresh ' + failed.map(function (p) { return PART_NAMES[p] || p; }).join(' and ') + '. Showing the last results.');
-      } else { showError('errorToday', job); if (state.today) renderToday(); }
+      } else {
+        checkConnection(true).then(function (h) {
+          if (h && !h.ok) $('errorToday').hidden = true; // the banner explains it better
+        });
+        showError('errorToday', job); if (state.today) renderToday();
+      }
       if (state.today) $('todayLayout').hidden = false;
     });
   }
@@ -437,6 +443,33 @@
     body.appendChild(ul);
   }
 
+  // ---------- connection check ----------
+  function showHealth(h) {
+    var bad = h && !h.ok;
+    $('connBanner').hidden = !bad;
+    if (!bad) return false;
+    var probs = arr(h.problems);
+    $('connTitle').textContent = h.login ? 'Claude Code needs you to log in again' : (probs[0] || 'A connector has disconnected');
+    $('connDetail').textContent = h.login ? 'Your Claude sign-in has expired, so JARVIS can’t reach Gmail or Drive.' : probs.slice(1).join(' ');
+    return true;
+  }
+  function checkConnection(force) {
+    return api('GET', '/api/health' + (force ? '?force=1' : '')).then(function (h) { showHealth(h); return h; }).catch(function () { return null; });
+  }
+  $('connFix').addEventListener('click', function () {
+    api('POST', '/api/fix-connection', {}).then(function () {
+      toast('Terminal is open. Follow the steps there, then click Check again.');
+    }).catch(function () { toast('Couldn’t open Terminal.'); });
+  });
+  $('connCheck').addEventListener('click', function () {
+    var b = $('connCheck'); b.disabled = true; b.textContent = 'Checking…';
+    checkConnection(true).then(function (h) {
+      b.disabled = false; b.textContent = 'Check again';
+      if (h && h.ok) { toast('All connected, sir.'); if (!state.jobs.today) refreshToday(); }
+      else if (h) toast('Still not connected.');
+    });
+  });
+
   // ---------- chrome ----------
   function updateStamp() {
     var s = state.tab === 'today' ? state.today : state.bookings;
@@ -523,7 +556,10 @@
       });
     });
     var stale = !state.today || (Date.now() - state.today.at > AUTO_MS);
-    if (stale && !state.jobs.today) refreshToday();
+    checkConnection(false).then(function (h) {
+      if (stale && !state.jobs.today && !(h && !h.ok)) refreshToday();
+      else if (stale && h && !h.ok) $('todayLayout').hidden = !state.today;
+    });
   }).catch(function (e) {
     var box = clear($('errorToday')); box.appendChild(el('b', null, 'Can’t reach JARVIS. ')); box.appendChild(document.createTextNode(e.message)); box.hidden = false;
   });

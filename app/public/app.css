@@ -248,6 +248,18 @@ h1 { font-size: 44px; line-height: 1.05; margin: 0 0 10px; font-weight: 700; let
 .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60; background: rgba(14,22,38,.95); border: 1px solid var(--line-strong);
   padding: 10px 16px; border-radius: 12px; box-shadow: 0 10px 40px -10px rgba(0,0,0,.8); animation: rise .25s both; font-weight: 500; }
 
+/* connection banner */
+.conn-banner { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 14px; align-items: center; margin-bottom: 20px; padding: 16px 18px;
+  border-radius: 16px; background: linear-gradient(135deg, rgba(255,191,90,.14), rgba(255,107,122,.08)); border: 1px solid rgba(255,191,90,.35); animation: rise .4s both; }
+.conn-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 20px; color: #1b1203; background: var(--amber); box-shadow: 0 0 20px rgba(255,191,90,.5); }
+.conn-text { display: flex; flex-direction: column; gap: 3px; }
+.conn-text b { color: #ffe2b0; }
+.conn-text span { color: #e8d8bd; font-size: 13.5px; }
+.conn-text .conn-how { color: var(--muted); font-size: 12.5px; }
+.conn-text code { background: rgba(255,255,255,.08); padding: 0 5px; border-radius: 5px; color: var(--text); }
+.conn-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+@media (max-width: 640px) { .conn-banner { grid-template-columns: 1fr; } .conn-icon { display: none; } .conn-actions { flex-direction: row; flex-wrap: wrap; } }
+
 /* progressive loading */
 .bullets li.loading-row, .loading-row { list-style: none; padding: 14px 8px; color: var(--faint); font-size: 13.5px; display: flex; align-items: center; gap: 10px; }
 .loading-row::before, .bullets li.loading-row::before { content: ""; position: static; flex: none; background: transparent; opacity: 1; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--cyan); border-top-color: transparent; animation: spin .8s linear infinite; }

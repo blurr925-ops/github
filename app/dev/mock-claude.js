@@ -9,7 +9,11 @@ process.stdin.on('end', async () => {
   const D = Number(process.env.MOCK_DELAY || 500);
   const emit = (o) => process.stdout.write(JSON.stringify(o) + '\n');
   const tool = (name, input) => emit({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'mcp__claude_ai_Gmail__' + name, input }] } });
-  emit({ type: 'system', subtype: 'init' });
+  if (process.env.MOCK_LOGIN_EXPIRED) { process.stderr.write('API Error: 401 OAuth access token is invalid. Please run /login\n'); process.exit(1); }
+  emit({ type: 'system', subtype: 'init', mcp_servers: [
+    { name: 'claude.ai Gmail', status: process.env.MOCK_GMAIL_STATUS || 'connected' },
+    { name: 'claude.ai Google Drive', status: 'connected' }, { name: 'claude.ai Stripe', status: 'needs-auth' }] });
+  if (prompt.trim() === 'Reply with OK.') { await wait(5000); }
   const u = (id) => 'https://mail.google.com/mail/?authuser=info.obtennis@gmail.com#all/' + id;
   let result;
   if (/Write a reply DRAFT/.test(prompt)) {

@@ -65,5 +65,29 @@ touch /Applications/Jarvis.app
 tccutil reset AppleEvents com.obtennis.jarvis >/dev/null 2>&1 || true  # forget any earlier "Don't Allow"
 echo "Installed /Applications/Jarvis.app"
 
-# 5. Test launch (skip with: NO_LAUNCH=1 bash build.sh).
+# 5. Keep the JARVIS helper running in the background (starts at login, restarts if it crashes).
+#    It checks the Gmail/Drive connection every 30 minutes, which keeps the sign-in fresh.
+AGENT="$HOME/Library/LaunchAgents/com.obtennis.jarvis.plist"
+mkdir -p "$HOME/Library/LaunchAgents" "$JARVIS_DIR/app/data"
+launchctl unload "$AGENT" 2>/dev/null || true
+cat > "$AGENT" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.obtennis.jarvis</string>
+  <key>ProgramArguments</key><array><string>$NODE_BIN</string><string>$JARVIS_DIR/app/server.js</string></array>
+  <key>WorkingDirectory</key><string>$JARVIS_DIR</string>
+  <key>EnvironmentVariables</key><dict><key>JARVIS_CLAUDE_BIN</key><string>$CLAUDE_BIN</string></dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>StandardOutPath</key><string>$JARVIS_DIR/app/data/server.log</string>
+  <key>StandardErrorPath</key><string>$JARVIS_DIR/app/data/server.log</string>
+</dict>
+</plist>
+PLIST
+launchctl load "$AGENT"
+echo "JARVIS helper will now run in the background and start when you log in."
+
+# 6. Test launch (skip with: NO_LAUNCH=1 bash build.sh).
 [ -n "${NO_LAUNCH:-}" ] || open /Applications/Jarvis.app

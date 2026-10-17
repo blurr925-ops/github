@@ -22,6 +22,8 @@ NO_LAUNCH=1 bash jarvis-app/build.sh  # build and install without opening
 
 `Jarvis-Terminal.applescript.template` is the older launcher that opens JARVIS in Terminal instead.
 
+Background helper: `build.sh` installs `~/Library/LaunchAgents/com.obtennis.jarvis.plist`, so the helper starts at login and checks the Gmail/Drive connection every 30 minutes (which keeps the sign-in fresh). If a connector drops, the app shows a banner with **Fix it** (opens Terminal in this folder ready for `/mcp` → Authenticate, or `/login`) and **Check again**. To remove the background helper: `launchctl unload ~/Library/LaunchAgents/com.obtennis.jarvis.plist && rm ~/Library/LaunchAgents/com.obtennis.jarvis.plist`.
+
 Testing without Gmail: `JARVIS_CLAUDE_BIN=app/dev/mock-claude.js node app/server.js`, then open http://127.0.0.1:4777.
 
 ## macOS 11 (Big Sur) fixes

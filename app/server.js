@@ -116,6 +116,85 @@ function speak(text, force) {
   run(['-v', process.env.JARVIS_VOICE_NAME || 'Daniel', sentence], () => run([sentence]));
 }
 
+function claudeEnv() {
+  const binDir = path.dirname(process.execPath);
+  return Object.assign({}, process.env, {
+    PATH: [binDir, '/usr/local/bin', '/opt/homebrew/bin', process.env.PATH || '/usr/bin:/bin'].join(':'),
+    DISABLE_AUTOUPDATER: '1',
+    JARVIS_VOICE: 'off', // the app speaks for itself; keep the Stop hook quiet
+  });
+}
+
+// ---------- connection check ----------
+// Starts Claude Code, reads the start-up line that lists each connector's status, then stops it
+// before it asks the model anything (so it costs nothing). Also keeps the sign-in fresh.
+const NEEDED = [{ key: 'gmail', label: 'Gmail', match: /gmail/i }, { key: 'drive', label: 'Google Drive', match: /google drive|drive/i }];
+let health = null; // { at, ok, login, servers: [{name,status}], problems: [..] }
+let healthRun = null;
+function checkHealth(force) {
+  if (!force && health && Date.now() - health.at < 2 * 60 * 1000) return Promise.resolve(health);
+  if (healthRun) return healthRun;
+  healthRun = new Promise((resolve) => {
+    let child; let buf = ''; let out = ''; let done = false;
+    const finishHealth = (h) => {
+      if (done) return; done = true;
+      clearTimeout(timer);
+      try { child && child.kill('SIGTERM'); } catch (e) {}
+      health = Object.assign({ at: Date.now() }, h);
+      healthRun = null;
+      resolve(health);
+    };
+    const timer = setTimeout(() => finishHealth({ ok: false, servers: [], problems: ['Claude Code took too long to start.'], login: false }), 45000);
+    try {
+      child = spawn(CLAUDE_BIN, ['-p', '--output-format', 'stream-json', '--verbose', '--max-turns', '1'], { cwd: JARVIS_DIR, env: claudeEnv() });
+    } catch (e) { return finishHealth({ ok: false, servers: [], problems: ['Claude Code could not start: ' + e.message], login: false }); }
+    child.on('error', (e) => finishHealth({ ok: false, servers: [], login: false,
+      problems: [e.code === 'ENOENT' ? 'Claude Code was not found at ' + CLAUDE_BIN + '.' : 'Claude Code could not start: ' + e.message] }));
+    child.stdin.end('Reply with OK.');
+    const onText = (chunk) => {
+      const t = chunk.toString('utf8'); out += t; if (out.length > 20000) out = out.slice(-20000);
+      buf += t;
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1);
+        let ev; try { ev = JSON.parse(line); } catch (e) { continue; }
+        if (ev.type === 'system' && ev.subtype === 'init') {
+          const servers = (ev.mcp_servers || []).map((m) => ({ name: m.name, status: m.status }));
+          const problems = [];
+          for (const n of NEEDED) {
+            const sv = servers.find((m) => n.match.test(m.name || ''));
+            if (!sv) problems.push(n.label + ' isn’t connected to Claude.');
+            else if (sv.status !== 'connected') problems.push(n.label + (/auth/i.test(sv.status) ? ' needs you to sign in again.' : ' isn’t working (' + sv.status + ').'));
+          }
+          return finishHealth({ ok: !problems.length, servers, problems, login: false });
+        }
+      }
+    };
+    child.stdout.on('data', onText);
+    child.stderr.on('data', onText);
+    child.on('close', () => {
+      const login = /401|invalid api key|oauth|log ?in|authenticat/i.test(out);
+      finishHealth({ ok: false, servers: [], login, problems: [login ? 'Claude Code needs you to log in again.' : 'Claude Code stopped before connecting: ' + out.trim().split('\n').slice(-2).join(' ').slice(0, 300)] });
+    });
+  });
+  return healthRun;
+}
+// Check every 30 minutes while JARVIS is running; starting Claude Code keeps its sign-in fresh.
+setInterval(() => { checkHealth(true).catch(() => {}); }, 30 * 60 * 1000);
+
+// Opens Terminal in the JARVIS folder with Claude Code ready to reconnect (a .command file needs no extra permissions).
+function openFixTerminal() {
+  const file = path.join(DATA_DIR, 'Reconnect JARVIS.command');
+  const q = (x) => "'" + String(x).replace(/'/g, "'\\''") + "'";
+  fs.writeFileSync(file, '#!/bin/bash\ncd ' + q(JARVIS_DIR) + '\nclear\n' +
+    'echo "JARVIS reconnect: type /mcp, choose claude.ai Gmail (and Google Drive) and pick Authenticate."\n' +
+    'echo "If Claude asks you to log in, type /login and choose your claude.ai account. Then type /exit."\necho\n' +
+    q(CLAUDE_BIN) + '\n', { mode: 0o755 });
+  const p = spawn('open', ['-a', 'Terminal', file], { stdio: 'ignore', detached: true });
+  p.on('error', () => {}); p.unref();
+  health = null; // re-check after the fix
+}
+
 function startJob(kind, params, onDone) {
   if (kind === 'today') return startToday();
   if (running.has(kind)) return jobs.get(running.get(kind));
@@ -126,12 +205,7 @@ function startJob(kind, params, onDone) {
   jobs.set(id, job);
   running.set(kind, id);
 
-  const binDir = path.dirname(process.execPath);
-  const env = Object.assign({}, process.env, {
-    PATH: [binDir, '/usr/local/bin', '/opt/homebrew/bin', process.env.PATH || '/usr/bin:/bin'].join(':'),
-    DISABLE_AUTOUPDATER: '1',
-    JARVIS_VOICE: 'off', // the app speaks for itself; keep the Stop hook quiet
-  });
+  const env = claudeEnv();
   const args = ['-p', '--output-format', 'stream-json', '--verbose',
     '--allowedTools', ALLOWED_TOOLS.join(','), '--disallowedTools', DISALLOWED_TOOLS.join(',')];
   let child;
@@ -323,6 +397,13 @@ const server = http.createServer(async (req, res) => {
           running: Array.from(running.entries()).map(([kind, id]) => ({ kind, id })),
         });
       }
+      if (req.method === 'GET' && url.pathname === '/api/health') {
+        return send(res, 200, await checkHealth(url.searchParams.get('force') === '1'));
+      }
+      if (req.method === 'POST' && url.pathname === '/api/fix-connection') {
+        openFixTerminal();
+        return send(res, 200, { ok: true });
+      }
       if (req.method === 'POST' && url.pathname === '/api/run') {
         const body = await readBody(req);
         const job = startJob(String(body.kind || ''), body.params || {});
@@ -378,4 +459,5 @@ server.on('error', (e) => {
 });
 server.listen(PORT, HOST, () => {
   console.log('JARVIS running at http://' + HOST + ':' + PORT + ' (claude: ' + CLAUDE_BIN + ')');
+  checkHealth(true).then((h) => console.log('connection check: ' + (h.ok ? 'all connected' : h.problems.join(' '))));
 });

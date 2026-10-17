@@ -61,6 +61,20 @@
       <ol class="steps" id="stepsToday"></ol>
     </div>
 
+    <div class="conn-banner" id="connBanner" hidden>
+      <div class="conn-icon" aria-hidden="true">!</div>
+      <div class="conn-text">
+        <b id="connTitle">Gmail has disconnected</b>
+        <span id="connDetail"></span>
+        <span class="conn-how">Click <b>Fix it</b>: Terminal opens in the JARVIS folder. Type <code>/mcp</code>, pick <b>claude.ai Gmail</b> (and Google Drive) and choose <b>Authenticate</b>. If it asks you to log in, type <code>/login</code>. Then type <code>/exit</code> and click <b>Check again</b>.</span>
+      </div>
+      <div class="conn-actions">
+        <button class="btn primary small" id="connFix" type="button">Fix it</button>
+        <button class="btn small" id="connCheck" type="button">Check again</button>
+        <a class="linkish" href="https://claude.ai/settings/connectors" target="_blank" rel="noopener noreferrer">claude.ai connectors ↗</a>
+      </div>
+    </div>
+
     <div class="error-card" id="errorToday" hidden></div>
 
     <div class="layout" id="todayLayout" hidden>
