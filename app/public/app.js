@@ -181,6 +181,7 @@
     $('loadingToday').hidden = have; // first run: big loader until the first part lands
     if (!have) $('todayLayout').hidden = true;
     state.pending = { inbox: true, drafts: true, radar: true }; partsSig = '';
+    checkConnection(true); // runs alongside the refresh; shows the banner if Gmail/Drive dropped
     if (have) renderToday();
     return run('today', {}, applyPartial).then(function (job) {
       state.pending = {};

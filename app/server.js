@@ -297,6 +297,14 @@ function finish(job, error, resultText) {
     job.data = { text: resultText };
   } else {
     job.data = extractJson(resultText);
+    if (job.data && job.data.error) { // Claude couldn't reach Gmail/Drive: never treat that as "nothing to do"
+      job.status = 'error';
+      job.error = (/gmail|drive|connector|unavailable/i.test(job.data.error + ' ' + (job.data.detail || '')) ? 'Gmail or Drive isn’t connected. ' : '') + String(job.data.detail || job.data.error).slice(0, 300);
+      job.data = null;
+      health = null; // re-check the connection
+      if (job.onDone) job.onDone(job);
+      return;
+    }
     if (!job.data) {
       job.status = 'error'; job.error = 'JARVIS replied in an unexpected format.'; job.raw = String(resultText).slice(0, 4000);
       if (job.onDone) job.onDone(job);

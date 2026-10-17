@@ -35,6 +35,9 @@ process.stdin.on('end', async () => {
   } else if (/typed this into the JARVIS app/.test(prompt)) {
     tool('search_threads', { query: 'Lynda' }); await wait(D);
     result = '**Lynda Sale** wants answers on the STC venue registration.\n\n- Sinking fund, CASC and showers: answered by Jill and Louise\n- The questions **for you** are highlighted in blue in her 13 Oct email\n\nShall I draft a reply, sir?';
+  } else if (process.env.MOCK_GMAIL_STATUS && process.env.MOCK_GMAIL_STATUS !== 'connected') {
+    await wait(D);
+    result = JSON.stringify({ error: 'gmail_unavailable', detail: 'The Gmail connector needs authentication.' });
   } else if (/\[\[part:(inbox|drafts|radar)\]\]/.test(prompt)) {
     // The app's three parallel "today" parts; each returns its slice of the full sample.
     const part = prompt.match(/\[\[part:(\w+)\]\]/)[1];
